@@ -42,3 +42,10 @@ pydantic>=2.5.0
 
 # HTML parsing
 html5lib>=1.1
+
+Pillow>=10.0.0
+opencv-python>=4.8.0
+easyocr>=1.7.0
+ultralytics>=8.0.0
+torch>=2.0.0
+transformers>=4.30.0

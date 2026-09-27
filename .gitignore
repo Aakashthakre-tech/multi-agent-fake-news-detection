@@ -1,5 +1,23 @@
+# Environment
+.env
 .venv/
 __pycache__/
 *.pyc
-.env
-.vscode/
+
+# AI detection datasets
+ai_image_detection/**/dataset/
+ai_image_detection/**/datasets/
+ai_image_detection/**/benchmark/
+ai_image_detection/**/benchmark_v2/
+ai_image_detection/**/test_images/
+ai_image_detection/**/data/
+
+# Training outputs / checkpoints
+*.pt
+*.pth
+*.ckpt
+*.bin
+*.safetensors
+
+# Generated results
+ai_detection_results.zip
