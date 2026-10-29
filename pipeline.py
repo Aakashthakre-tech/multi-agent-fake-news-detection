@@ -1,14 +1,19 @@
 import re
+import sys
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
 from agents import (
     verification_chain,
-    critic_chain
+    critic_chain,
+    invoke_agent,
 )
+from research_report import redact_sensitive
 
+from claim_profile import build_claim_profile
 from evidence_fusion import (
     calculate_source_agreement,
-    calculate_fusion_score
+    calculate_fusion_score,
+    reconcile_evidence,
 )
 
 from evidence_analyzer import analyze_evidence
@@ -18,8 +23,46 @@ from source_reliability import (
     is_near_duplicate,
     registrable_domain,
 )
-from tools import web_search, scrape_url
-from final_verdict import generate_final_verdict
+from tools import search_with_diagnostics, scrape_url, scrape_url_detailed
+from final_verdict import generate_final_verdict, deterministic_gate
+from research_report import redact_sensitive
+
+
+def _scientific_fallback_url(url: str) -> str | None:
+    """Return a verified HTTPS alternative for this specific known endpoint."""
+    from urllib.parse import urlparse
+
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+
+    if (
+        host == "mail.iapws.org"
+        and parsed.path.rstrip("/") == "/faq1/boil.html"
+    ):
+        return "https://iapws.org/faqs/faq1"
+
+    return None
+
+def _force_utf8_stdout() -> None:
+    """
+    Make console output UTF-8 safe.
+
+    The pipeline prints progress markers such as the check mark and arrow
+    glyphs. On a Windows console whose code page is cp1252, printing them
+    raises UnicodeEncodeError and aborts the whole research run. Replacing
+    unencodable characters keeps the diagnostics readable and the run alive.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if reconfigure is None:
+            continue
+        try:
+            reconfigure(encoding="utf-8", errors="replace")
+        except (ValueError, OSError):
+            continue
+
+
+_force_utf8_stdout()
 
 
 # ============================================================
@@ -44,7 +87,8 @@ MIN_EXTRACT_CHARS = 600
 PRIMARY_RETRIEVAL_CLASSES = ("exact_date", "factcheck", "wrong_date")
 
 _SEARCH_FIELDS = (
-    "URL", "Domain", "Published Date", "Found Via", "Source Tier",
+    "Title", "URL", "Domain", "Published Date", "Search Query", "Query Intent",
+    "Found Via", "Source Tier",
     "Reliability", "Match Signals", "Retrieval Class", "Content Kind",
     "Search Score", "Search Snippet",
 )
@@ -136,6 +180,8 @@ def parse_search_candidates(search_output: str) -> list:
             "snippet": snippet,
             "content_kind": content_kind,
             "published_date": "" if published.startswith("Not stated") else published,
+            "query": "" if field("Search Query").lower() == "n/a" else field("Search Query"),
+            "query_intent": field("Query Intent"),
             "found_via": [
                 label.strip()
                 for label in found_via.split(",")
@@ -186,6 +232,89 @@ def merge_syndicated_sources(sources, threshold=0.62):
     return kept
 
 
+def _diagnose_unverified_reason(state: dict) -> str:
+    """
+    Return a concise, data-backed explanation of why the verdict is UNVERIFIED.
+
+    The reason is derived from actual execution evidence, not guesswork:
+    - agent failures (Groq 429, timeout, etc.)
+    - NLI model unavailable
+    - no usable sources
+    - only snippets / non-primary sources
+    - primary sources found but nothing classified as support/contradiction
+    - too few independent supporting sources
+    - conflicting reliable evidence
+    """
+    agent_errors = state.get("agent_errors", []) or []
+    agreement = state.get("source_agreement", {}) or {}
+    analysis = state.get("evidence_analysis", []) or []
+
+    supporting = sum(
+        1 for r in analysis if r.get("evidence_class") == "SUPPORT"
+    )
+    contradicting = sum(
+        1 for r in analysis if r.get("evidence_class") == "CONTRADICTION"
+    )
+    sufficiency = agreement.get("evidence_sufficiency", "none")
+    independent_supporting = agreement.get("independent_supporting", 0) or 0
+    independent_contradicting = agreement.get("independent_contradicting", 0) or 0
+
+    # Agent failures take priority — the pipeline couldn't complete.
+    for err in agent_errors:
+        stage = err.get("stage", "agent")
+        error_text = redact_sensitive(str(err.get("error", "")))
+        if "rate_limit" in error_text.lower() or "429" in error_text:
+            return f"Groq service rate-limited ({stage}); retry budget exhausted."
+        if "auth" in error_text.lower() or "401" in error_text or "403" in error_text:
+            return f"Groq authentication failure ({stage}); API key invalid or revoked."
+        if "timeout" in error_text.lower() or "503" in error_text or "502" in error_text:
+            return f"Groq service unavailable ({stage}); transient provider error."
+        return f"Agent failure ({stage}): {error_text[:120]}."
+
+    # NLI model unavailable.
+    for r in analysis:
+        if r.get("nli_status") in ("unavailable", "error"):
+            return "NLI model unavailable; cannot classify evidence passages."
+
+    # No sources at all.
+    total = agreement.get("total_sources", 0) or 0
+    if total == 0:
+        return "No usable sources found; search returned no candidates."
+
+    # Only snippets or non-primary sources.
+    has_primary_full = any(
+        r.get("evidence_type") in ("scraped_article", "search_extract")
+        and r.get("source_tier", "unknown") not in ("weak/blog", "user_generated")
+        for r in analysis
+    )
+    if not has_primary_full:
+        return "Only search snippets or non-primary sources found; no full article evidence."
+
+    # Primary sources found but nothing classified as support/contradiction.
+    if supporting == 0 and contradicting == 0:
+        return (
+            "Primary sources retrieved but no passage directly supports or "
+            "refutes the claim; evidence is related context only."
+        )
+
+    # Too few independent supporting sources.
+    if independent_supporting == 0 and independent_contradicting == 0:
+        return "No independent publisher corroborates or refutes the claim."
+
+    # Conflicting evidence.
+    if independent_supporting > 0 and independent_contradicting > 0:
+        return (
+            "Independent sources conflict: some support and some contradict "
+            "the claim; verdict cannot be settled."
+        )
+
+    # Insufficient independent support (single source).
+    if independent_supporting == 1:
+        return "Only one independent publisher supports the claim; corroboration required."
+
+    return "Evidence insufficient to reach a settled verdict."
+
+
 def run_research_pipeline(claim: str) -> dict:
 
     state = {}
@@ -199,11 +328,18 @@ def run_research_pipeline(claim: str) -> dict:
     print("=" * 60)
 
     state["claim"] = claim
+    state["claim_type"] = build_claim_profile(claim).get("claim_type", "other_factual_claim")
 
     print("\nClaim:")
     print(claim)
+    print(f"Claim type: {state['claim_type']}")
 
-    state["search_results"] = web_search.invoke(claim)
+    search_outcome = search_with_diagnostics(claim)
+    state["search_results"] = search_outcome["output"]
+    # Preserve the real retrieval plan (the actual queries issued) and any
+    # provider-level failures so the API can report genuine research activity.
+    state["search_plans"] = search_outcome.get("plans", [])
+    state["search_errors"] = search_outcome.get("search_errors", [])
 
     print("\nSearch Results:\n")
     print(state["search_results"])
@@ -259,6 +395,7 @@ def run_research_pipeline(claim: str) -> dict:
     source_data = []
     evidence_package_blocks = []
     active_source_id = 0
+    scrape_failures = []
 
     # ------------------------------------------------------------
     # Process candidate sources
@@ -278,13 +415,58 @@ def run_research_pipeline(claim: str) -> dict:
         print(f"Retrieval Class: {retrieval_class}")
         print(f"Retrieved Text: {content_kind} ({len(snippet)} chars)")
 
-        content = scrape_url.invoke(url)
+        
+        scrape_result = scrape_url_detailed(url)
+        content = scrape_result["content"]
+        scrape_diag = {
+            "url": url,
+            "domain": domain,
+            "title": title,
+            "scrape_status": scrape_result["scrape_status"],
+            "extraction_method": scrape_result["extraction_method"],
+            "char_count": scrape_result["char_count"],
+            "http_status": scrape_result["http_status"],
+            "retry_count": scrape_result["retry_count"],
+            "error_category": scrape_result["error_category"],
+        }
+
+        if (
+            not content
+            or scrape_result["scrape_status"] == "failed"
+        ):
+            fallback_url = _scientific_fallback_url(url)
+
+            if fallback_url:
+                fallback_result = scrape_url_detailed(fallback_url)
+                fallback_content = fallback_result["content"]
+
+                if (
+                    fallback_url
+                    and fallback_content
+                    and fallback_result["scrape_status"] == "success"
+                    and len(fallback_content.strip()) >= 180
+                ):
+                    url = fallback_url
+                    domain = extract_domain(url)
+                    title = "FAQs About Water and Steam"
+                    content = fallback_content
+                    scrape_diag = {
+                        "url": url,
+                        "domain": domain,
+                        "title": title,
+                        "scrape_status": fallback_result["scrape_status"],
+                        "extraction_method": fallback_result["extraction_method"],
+                        "char_count": fallback_result["char_count"],
+                        "http_status": fallback_result["http_status"],
+                        "retry_count": fallback_result["retry_count"],
+                        "error_category": fallback_result["error_category"],
+                    }
+
 
         # Determine scrape success
         is_scrape_success = bool(
             content
-            and not content.startswith("SCRAPE_FAILED:")
-            and not content.startswith("Could not scrape URL:")
+            and scrape_result["scrape_status"] == "success"
             and len(content.strip()) >= 180
         )
 
@@ -304,6 +486,7 @@ def run_research_pipeline(claim: str) -> dict:
                 "scrape_status": "SUCCESS",
                 "retrieval_class": retrieval_class,
                 "found_via": candidate.get("found_via", []),
+                "search_query": candidate.get("query", ""),
                 "published_date": candidate.get("published_date", ""),
                 "independence_group": registrable_domain(url) or domain,
             })
@@ -352,6 +535,7 @@ def run_research_pipeline(claim: str) -> dict:
                     "scrape_status": f"FAILED ({fail_reason})",
                     "retrieval_class": retrieval_class,
                     "found_via": candidate.get("found_via", []),
+                "search_query": candidate.get("query", ""),
                     "published_date": candidate.get("published_date", ""),
                     "independence_group": registrable_domain(url) or domain,
                 })
@@ -366,6 +550,14 @@ def run_research_pipeline(claim: str) -> dict:
                     f"TITLE: {title}\n"
                     f"ARTICLE TEXT:\n{snippet}"
                 )
+
+                scrape_failures.append({
+                    "url": url,
+                    "domain": domain,
+                    "title": title,
+                    "reason": fail_reason,
+                    "fallback_used": "search_extract",
+                })
 
             elif snippet and len(snippet.strip()) >= 50:
                 active_source_id += 1
@@ -382,6 +574,7 @@ def run_research_pipeline(claim: str) -> dict:
                     "scrape_status": f"FAILED ({fail_reason})",
                     "retrieval_class": retrieval_class,
                     "found_via": candidate.get("found_via", []),
+                "search_query": candidate.get("query", ""),
                     "published_date": candidate.get("published_date", ""),
                     "independence_group": registrable_domain(url) or domain,
                 })
@@ -396,8 +589,26 @@ def run_research_pipeline(claim: str) -> dict:
                     f"TITLE: {title}\n"
                     f"FALLBACK SNIPPET:\n{snippet}"
                 )
+
+                scrape_failures.append({
+                    "url": url,
+                    "domain": domain,
+                    "title": title,
+                    "reason": fail_reason,
+                    "fallback_used": "search_snippet",
+                })
             else:
                 print("No usable fallback text available. Candidate discarded.")
+                # A discarded candidate is still real research activity: the URL
+                # was found and the retrieval was attempted. Record it so the
+                # report can show what failed instead of silently dropping it.
+                scrape_failures.append({
+                    "url": url,
+                    "domain": domain,
+                    "title": title,
+                    "reason": fail_reason,
+                    "fallback_used": False,
+                })
 
     # ------------------------------------------------------------
     # Syndicated / mirrored copies are one voice, not several
@@ -417,6 +628,7 @@ def run_research_pipeline(claim: str) -> dict:
     )
 
     state["source_data"] = source_data
+    state["scrape_failures"] = scrape_failures
 
     print(
         "\nEvidence Collection Complete."
@@ -536,6 +748,54 @@ def run_research_pipeline(claim: str) -> dict:
 
 
     # ============================================================
+    # STEP 3.5 - EVIDENCE CONSISTENCY CHECK
+    # ============================================================
+    #
+    # Runs after evidence classification and before source agreement fusion.
+    # Deduplicates chunks at chunk/article/publisher levels, re-evaluates
+    # RELATED_CONTEXT passages, and generates diagnostics. Replaces
+    # evidence_analysis with a reconciled list (one record per source) so
+    # that multiple chunks from the same article or publisher cannot inflate
+    # corroboration counts.
+
+    print("\n" + "=" * 60)
+    print("STEP 3.5 - EVIDENCE CONSISTENCY CHECK")
+    print("=" * 60)
+
+    state["evidence_analysis"], state["evidence_diagnostics"], state["publisher_decisions"] = (
+        reconcile_evidence(state["evidence_analysis"])
+    )
+
+    diag = state["evidence_diagnostics"]
+    print(
+        f"  Chunks received     : {diag['total_chunks_received']}"
+    )
+    print(
+        f"  Unique articles     : {diag['unique_articles']}"
+    )
+    print(
+        f"  Duplicate chunks removed : {diag['duplicate_chunks_removed']}"
+    )
+    print(
+        f"  Unique publishers   : {diag['unique_publishers']}"
+    )
+    print(
+        f"  Classification changes: {len(diag['classification_changes'])}"
+    )
+    for change in diag["classification_changes"]:
+        print(
+            f"    - {change['url']}: {change['from']} -> {change['to']}"
+        )
+    for excluded in diag["related_context_excluded"]:
+        print(
+            f"    - Excluded RELATED_CONTEXT: {excluded['url']} "
+            f"(score={excluded['evidence_score']}, "
+            f"event_match={excluded['event_match']}, "
+            f"nli={excluded['nli_label']} {excluded['nli_score']})"
+        )
+
+
+    # ============================================================
     # STEP 4 - SOURCE AGREEMENT + EVIDENCE FUSION
     # ============================================================
 
@@ -598,6 +858,7 @@ def run_research_pipeline(claim: str) -> dict:
         state["evidence_analysis"],
         state["source_agreement"],
         state["fusion_score"],
+        evidence_diagnostics=state.get("evidence_diagnostics"),
     )
 
     print(f"\nBrief length: {len(state['evidence_brief'])} characters")
@@ -608,29 +869,50 @@ def run_research_pipeline(claim: str) -> dict:
     # STEP 6 - VERIFICATION AGENT
     # ============================================================
 
+    # A provider failure in an agent stage must not discard the retrieval,
+    # scraping and NLI work that has already been completed. The stage failure
+    # is recorded, the deterministic evidence decision stays authoritative, and
+    # the result is reported as partial rather than as a finished verification.
+    agent_errors = []
+    state["agent_errors"] = agent_errors
+
     print("\n" + "=" * 60)
     print("STEP 6 - VERIFICATION")
     print("=" * 60)
 
-    state["verification"] = (
-        verification_chain.invoke({
-            "claim":
-                claim,
-            "research":
-                "Multiple targeted searches were run (exact wording, exact date, "
-                "location, alternative wording, fact-check and official angles). "
-                "Scraped articles are primary evidence. Search snippets are "
-                "fallback evidence only and cannot confirm or refute a claim.",
-            "evidence":
-                state["evidence_brief"]
+    try:
+        state["verification"] = invoke_agent(
+            verification_chain,
+            {
+                "claim":
+                    claim,
+                "claim_type":
+                    state["claim_type"],
+                "research":
+                    "Multiple targeted searches were run (exact wording, exact date, "
+                    "location, alternative wording, fact-check and official angles). "
+                    "Scraped articles are primary evidence. Search snippets are "
+                    "fallback evidence only and cannot confirm or refute a claim.",
+                "evidence":
+                    state["evidence_brief"]
+            },
+            stage="verification_agent",
+        )
+        state["verification_status"] = "completed"
+    except Exception as agent_error:
+        state["verification"] = ""
+        state["verification_status"] = "failed"
+        agent_errors.append({
+            "stage": "verification_agent",
+            "error": redact_sensitive(str(agent_error)),
         })
-    )
+        print(f"  [verification_agent] unavailable: {str(agent_error)[:160]}")
 
     print(
         "\nVerification Result:\n"
     )
     print(
-        state["verification"]
+        state["verification"] or "(verification agent unavailable)"
     )
 
 
@@ -642,24 +924,77 @@ def run_research_pipeline(claim: str) -> dict:
     print("STEP 7 - CRITIC REVIEW")
     print("=" * 60)
 
-    # The critic sees exactly the same evidence the verifier saw, plus the
-    # verifier's own reasoning. It never gets a shorter or different excerpt.
-    state["feedback"] = (
-        critic_chain.invoke({
-            "claim":
-                claim,
-            "verification":
-                state["verification"],
-            "evidence":
-                state["evidence_brief"]
+    # The critic checks the verifier's verdict against the deterministic
+    # evidence floor. It receives a condensed package (claim, verifier
+    # verdict, permitted verdicts and reason, independent-source counts,
+    # top passages) rather than the full brief, to reduce input tokens.
+    # The critic call is never skipped: the floor already bounds the
+    # permitted verdicts, but the critic's review is retained as audit.
+    gate = deterministic_gate(state["source_agreement"], state["evidence_analysis"])
+
+    top_passages = sorted(
+        state["evidence_analysis"],
+        key=lambda r: r.get("evidence_score", 0),
+        reverse=True,
+    )[:3]
+
+    passage_lines = []
+    for p in top_passages:
+        passage_lines.append(
+            f"- [{p.get('evidence_class')}] {p.get('url')}"
+            f" | nli={p.get('nli_label')} {p.get('nli_score')}"
+            f" | similarity={p.get('similarity')}"
+            f" | coverage={p.get('detail_coverage')}"
+            f" | {str(p.get('chunk', ''))[:250]}"
+        )
+
+    condensed_evidence = "\n".join([
+        "=== CLAIM ===",
+        claim,
+        "",
+        "=== VERIFIER VERDICT ===",
+        state["verification"] or "(verifier unavailable)",
+        "",
+        "=== DETERMINISTIC EVIDENCE FLOOR ===",
+        f"Permitted verdicts: {', '.join(sorted(gate['permitted_verdicts']))}",
+        f"Reason: {gate['permitted_reason']}",
+        f"Independent supporting: {gate['independent_supporting']}",
+        f"Independent contradicting: {gate['independent_contradicting']}",
+        "",
+        "=== TOP EVIDENCE PASSAGES ===",
+        "\n".join(passage_lines) if passage_lines else "(none)",
+    ])
+
+    try:
+        state["feedback"] = invoke_agent(
+            critic_chain,
+            {
+                "claim":
+                    claim,
+                "claim_type":
+                    state["claim_type"],
+                "verification":
+                    state["verification"],
+                "evidence":
+                    condensed_evidence
+            },
+            stage="critic_agent",
+        )
+        state["feedback_status"] = "completed"
+    except Exception as agent_error:
+        state["feedback"] = ""
+        state["feedback_status"] = "failed"
+        agent_errors.append({
+            "stage": "critic_agent",
+            "error": redact_sensitive(str(agent_error)),
         })
-    )
+        print(f"  [critic_agent] unavailable: {str(agent_error)[:160]}")
 
     print(
         "\nCritic Review:\n"
     )
     print(
-        state["feedback"]
+        state["feedback"] or "(critic agent unavailable)"
     )
 
 
@@ -918,6 +1253,9 @@ def run_research_pipeline(claim: str) -> dict:
     # ============================================================
     # RETURN COMPLETE PIPELINE STATE
     # ============================================================
+
+    # Structured diagnostic explaining the verdict reason (data-backed).
+    state["diagnostic_summary"] = _diagnose_unverified_reason(state)
 
     return state
 
