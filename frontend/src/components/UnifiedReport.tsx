@@ -57,21 +57,24 @@ function generateFinalVerdictExplanation(
   reasoning?: string,
   primaryClaim?: string
 ): string {
-  // Use the backend's deterministic reasoning when available.
   if (reasoning && reasoning.trim().length > 0) {
-    return reasoning.trim();
+    return reasoning
+      .split(/(?<=[.!?])\s+/)
+      .filter((s) => s.trim().length > 0)
+      .slice(0, 3)
+      .join(' ');
   }
 
   switch (verdict) {
     case 'REAL':
-      return `Multiple independent, reliable sources directly support this claim. Their reports agree on the main event details, and no qualifying contradictory evidence was found.`;
+      return 'Multiple independent, reliable sources directly support this claim. Their reports agree on the main event details, and no qualifying contradictory evidence was found.';
     case 'FAKE':
-      return `Multiple independent, reliable sources directly contradict this claim. The available evidence refutes the stated facts.`;
+      return 'Multiple independent, reliable sources directly contradict this claim. The available evidence refutes the stated facts.';
     case 'MISLEADING':
-      return `Independent sources confirm the core event but identify material distortions or omissions in how it is presented.`;
+      return 'Independent sources confirm the core event but identify material distortions or omissions in how it is presented.';
     case 'UNVERIFIED':
       if (independentSupporting === 0 && independentContradicting === 0) {
-        return 'No independent, reliable sources were found that directly establish or refute this claim. The available material is related context only, and cannot confirm or deny what happened.';
+        return 'The available evidence is insufficient to confirm or refute this claim. No independent, reliable sources were found that directly establish or refute this claim. The available material is related context only.';
       }
       if (independentSupporting === 1 && independentContradicting === 0) {
         return 'One independent, reliable source supports this claim. TruthLensAI requires at least two independent publishers to confirm a claim as REAL.';
@@ -100,11 +103,11 @@ function generateVerdictReasoning(
 ): string {
   switch (verdict) {
     case 'REAL':
-      return `Two or more independent publishers directly support this claim with retrieved article text, meeting the evidence policy for a settled verdict.`;
+      return 'Two or more independent publishers directly support this claim with retrieved article text, meeting the evidence policy for a settled verdict.';
     case 'FAKE':
-      return `Multiple independent publishers directly contradict this claim with retrieved article text, meeting the evidence policy for a settled verdict.`;
+      return 'Multiple independent publishers directly contradict this claim with retrieved article text, meeting the evidence policy for a settled verdict.';
     case 'MISLEADING':
-      return `Independent sources confirm the core event but identify material distortions or omissions in how it is presented.`;
+      return 'Independent sources confirm the core event but identify material distortions or omissions in how it is presented.';
     case 'UNVERIFIED':
       if (independentSupporting === 0 && independentContradicting === 0) {
         return 'No independent publisher directly establishes or refutes this claim; the available evidence is related context only.';
@@ -152,7 +155,7 @@ function generateFinalDecisionSummary(
       const publisher = supportingReview?.claimReview?.[0]?.publisher?.name || 'an independent fact-checker';
       return `Google's fact-check review (${publisher}) supports this claim, and TruthLensAI's own evidence also confirms it. Both sources agree on the verdict.`;
     }
-    return `Multiple independent, reliable sources directly support this claim with retrieved article text, meeting the evidence policy for a settled verdict. Google Fact Check did not return a directly relevant review for this claim.`;
+    return 'Multiple independent, reliable sources directly support this claim with retrieved article text, meeting the evidence policy for a settled verdict. Google Fact Check did not return a directly relevant review for this claim.';
   }
 
   if (verdict === 'FAKE') {
@@ -163,7 +166,7 @@ function generateFinalDecisionSummary(
       const publisher = contradictingReview?.claimReview?.[0]?.publisher?.name || 'an independent fact-checker';
       return `Google's fact-check review (${publisher}) contradicts this claim, and TruthLensAI's own evidence also refutes it. Both sources agree on the verdict.`;
     }
-    return `Multiple independent publishers directly contradict this claim with retrieved article text, meeting the evidence policy for a settled verdict. Google Fact Check did not return a directly relevant review for this claim.`;
+    return 'Multiple independent publishers directly contradict this claim with retrieved article text, meeting the evidence policy for a settled verdict. Google Fact Check did not return a directly relevant review for this claim.';
   }
 
   if (verdict === 'UNVERIFIED') {
@@ -173,11 +176,11 @@ function generateFinalDecisionSummary(
     if (gc && gc.status === 'error') {
       return `Google Fact Check was unavailable for this request. TruthLensAI continued with its own evidence pipeline, but the available evidence is insufficient to confirm or refute the claim.`;
     }
-    return `No independent, reliable sources were found that directly establish or refute this claim. Google Fact Check did not return a matching review, and the available evidence does not meet the threshold for a confirmed verdict.`;
+    return 'No independent, reliable sources were found that directly establish or refute this claim. Google Fact Check did not return a matching review, and the available evidence does not meet the threshold for a confirmed verdict.';
   }
 
   if (verdict === 'MISLEADING') {
-    return `Independent sources confirm the core event but identify material distortions or omissions. Google's fact-check review, when available, is shown for comparison.`;
+    return 'Independent sources confirm the core event but identify material distortions or omissions. Google\'s fact-check review, when available, is shown for comparison.';
   }
 
   return 'The available evidence does not establish this claim as true or false.';
@@ -241,7 +244,7 @@ export const UnifiedReport: React.FC<UnifiedReportProps> = ({
   const primaryClaim = result.primary_claim || claimText || '';
 
   // Google Fact Check data
-  const gc = result.factual_verification?.google_fact_check || result.google_fact_check || null;
+  const gc = result.factual_verification?.google_fact_check ?? null;
   const hasGoogleResult = gc && gc.status === 'success' && gc.claims && gc.claims.length > 0;
   const hasRelevantReview = hasGoogleResult && gc.claims.some((c: any) =>
     c.claimReview && c.claimReview.some((r: any) =>
@@ -287,7 +290,7 @@ export const UnifiedReport: React.FC<UnifiedReportProps> = ({
       <div className="flex items-center gap-3 mb-5">
         <span className="material-symbols-outlined text-primary text-[24px]">verified</span>
         <h2 className="text-sm font-mono uppercase tracking-wider font-bold text-tertiary">
-          TRUTHLENS AI — VERIFICATION RESULT
+          TRUTHLENS AI — FINAL ASSESSMENT
         </h2>
       </div>
 
@@ -319,7 +322,7 @@ export const UnifiedReport: React.FC<UnifiedReportProps> = ({
         {claimText !== primaryClaim && (
           <div className="flex flex-col gap-1 mt-2">
             <span className="text-[10px] font-mono uppercase text-outline">
-              Submitted Claim
+              Original Text
             </span>
             <p className="text-sm font-sans text-on-surface leading-relaxed bg-surface-container-low p-3 rounded-lg border border-outline-variant/30">
               "{claimText}"
@@ -340,47 +343,6 @@ export const UnifiedReport: React.FC<UnifiedReportProps> = ({
         <p className="text-xs font-mono text-on-surface-variant max-w-md text-center leading-relaxed">
           {shortExplanation}
         </p>
-      </div>
-
-      {/* Key evidence */}
-      <div className="mb-5">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="material-symbols-outlined text-[16px] text-secondary">source</span>
-          <span className="text-[10px] font-mono uppercase tracking-wider text-outline font-semibold">
-            Key Evidence
-          </span>
-        </div>
-        {keyEvidence.length > 0 ? (
-          <ul className="space-y-2.5">
-            {keyEvidence.map((ev: any, i: number) => (
-              <li key={i} className="p-3.5 rounded-lg bg-surface-container-low border border-outline-variant/30">
-                <p className="text-sm font-sans text-on-surface leading-relaxed mb-2.5">
-                  {ev.chunk}
-                </p>
-                <div className="flex items-center gap-2.5">
-                  <span className="text-[10px] font-mono text-outline">
-                    {ev.domain || 'Unknown publisher'}
-                  </span>
-                  <a
-                    href={ev.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[10px] font-mono text-primary hover:underline underline-offset-1 truncate max-w-[200px]"
-                    title={ev.url}
-                  >
-                    {ev.url}
-                  </a>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="p-3.5 rounded-lg bg-surface-container-low border border-outline-variant/30">
-            <p className="text-sm text-on-surface-variant font-sans leading-relaxed">
-              No reliable evidence passages were found to support or refute this claim.
-            </p>
-          </div>
-        )}
       </div>
 
       {/* Final Verdict Explanation */}
@@ -405,26 +367,24 @@ export const UnifiedReport: React.FC<UnifiedReportProps> = ({
         </div>
       </div>
 
-      {/* Evidence status + Confidence */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="p-3.5 rounded-lg bg-surface-container-low border border-outline-variant/30 flex flex-col gap-1">
+      {/* AI Confidence */}
+      <div className="mb-5">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="material-symbols-outlined text-[16px] text-secondary">analytics</span>
           <span className="text-[10px] font-mono uppercase tracking-wider text-outline font-semibold">
-            Evidence Status
-          </span>
-          <span className={`text-xs font-mono font-bold ${es.color}`}>
-            {es.label}
+            AI Confidence
           </span>
         </div>
-        {showConfidence && (
-          <div className="p-3.5 rounded-lg bg-surface-container-low border border-outline-variant/30 flex flex-col gap-1 items-start sm:items-end sm:text-right">
-            <span className="text-[10px] font-mono uppercase tracking-wider text-outline font-semibold">
-              Confidence
-            </span>
-            <span className={`text-xs font-mono font-bold ${v.accent}`}>
-              {(confidence > 1 ? confidence : confidence * 100).toFixed(1)}%
-            </span>
-          </div>
+        {showConfidence ? (
+          <span className="text-sm font-mono font-bold text-on-surface">
+            {(confidence > 1 ? confidence : confidence * 100).toFixed(1)}%
+          </span>
+        ) : (
+          <span className="text-sm font-mono text-on-surface-variant">Confidence unavailable.</span>
         )}
+        <p className="text-[10px] text-outline/70 mt-1 leading-relaxed">
+          Final claim-verification confidence from the backend evidence assessment.
+        </p>
       </div>
 
       {/* Image Origin Analysis — rendered only when the backend actually ran the
@@ -459,9 +419,9 @@ export const UnifiedReport: React.FC<UnifiedReportProps> = ({
             Independent signal about whether the image itself is AI-generated or
             a real photograph. It is not a probability that the news claim is
             true.
-              </p>
-            </div>
-          )}
+          </p>
+        </div>
+      )}
 
       {/* Independent LLM Analysis */}
       {hasIndependentLlm ? (
@@ -558,37 +518,16 @@ export const UnifiedReport: React.FC<UnifiedReportProps> = ({
                   </div>
                 )}
                 <p className="text-[9px] text-outline/70 mt-1 leading-relaxed">
-                  {independentComparison?.comparison_summary ?? ''}
+                  {independentLlm.comparison?.comparison_summary ?? ''}
                 </p>
               </div>
             )}
           </div>
-        ) : null}
-
-      {/* Final Decision Summary */}
-      <div className="mb-5">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="material-symbols-outlined text-[16px] text-secondary">description</span>
-          <span className="text-[10px] font-mono uppercase tracking-wider text-outline font-semibold">
-            Final Verdict Explanation
-          </span>
         </div>
-        <div className="p-3.5 rounded-lg bg-surface-container-low border border-outline-variant/30">
-          <p className="text-sm font-sans text-on-surface leading-relaxed">
-            {generateFinalDecisionSummary(
-              verdict,
-              fact.independent_supporting || 0,
-              fact.independent_contradicting || 0,
-              gc,
-              evidenceSufficiency,
-              reasoning
-            )}
-          </p>
-        </div>
-      </div>
+      ) : null}
 
       {/* Google Fact Check */}
-      {gc && gc.status === 'success' && gc.claims && gc.claims.length > 0 && (
+      {hasGoogleResult && (
         <div className="mb-5">
           <div className="flex items-center gap-2 mb-3">
             <span className="material-symbols-outlined text-[16px] text-secondary">fact_check</span>
@@ -622,4 +561,12 @@ export const UnifiedReport: React.FC<UnifiedReportProps> = ({
                     </div>
                   )}
                 </div>
-           
+              ))}
+            </div>
+          ))}
+        </div>
+      )}
+
+    </div>
+  );
+};
