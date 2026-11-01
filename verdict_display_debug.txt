@@ -1,0 +1,1041 @@
+﻿
+  api\server.py:329:    confidence: Optional[float] = None
+  api\server.py:330:    evidence_sufficiency: Optional[str] = None
+  api\server.py:331:    reasoning: Optional[str] = None
+> api\server.py:332:    supporting_evidence: List[Dict[str, Any]] = Field(default_factory=list)
+  api\server.py:333:    contradicting_evidence: List[Dict[str, Any]] = Field(default_factory=list)
+  api\server.py:334:    source_name: Optional[str] = None
+  api\server.py:335:    source_url: Optional[str] = None
+  api\server.py:336:    timestamps: Optional[Any] = None
+  api\server.py:337:    frame_references: Optional[List[int]] = None
+  frontend\dist\assets\index-DN-QioLz.js:12:`),r=`message`,i=``;for(let e of n)e.startsWith(`event: 
+`)&&(r=e.slice(7).trim()),e.startsWith(`data: `)&&(i=e.slice(6).trim());if(i)try{let e=JSON.parse(i);switch(r){case`sta
+tus`:t.onStatus?.(e);break;case`progress`:t.onProgress?.(e);break;case`result`:t.onResult?.(e);break;case`error`:t.onEr
+ror?.(e.message??`Unknown pipeline error`)}}catch{}}}}catch(e){e?.name!==`AbortError`&&t.onError?.(e?.message??`Stream 
+connection failed`)}finally{t.onDone?.()}})(),()=>n.abort()}function ie(e,t,n){let r=new 
+AbortController,i=`${te}/verify/video/stream`;return(async()=>{try{let a=new FormData;a.append(`file`,e),a.append(`enab
+le_classifier`,String(t.enableClassifier??!0)),a.append(`verify_claims`,String(t.verifyClaims??!0)),a.append(`whisper_m
+odel`,t.whisperModel||`base`),a.append(`skip_ocr`,String(t.skipOcr??!1)),a.append(`max_claims_to_verify`,String(t.maxCl
+aims??1)),a.append(`max_ocr_frames`,String(t.maxOcrFrames??15)),a.append(`classifier_family`,t.classifierFamily||`video
+mae`);let o=await 
+fetch(i,{method:`POST`,body:a,signal:r.signal,headers:{Accept:`text/event-stream`}});if(!o.ok||!o.body){let e=await 
+o.text().catch(()=>o.statusText);n.onError?.(e||`Video stream request failed (${o.status})`),n.onDone?.();return}let 
+s=o.body.getReader(),c=new TextDecoder(`utf-8`),l=``;for(;;){let{done:e,value:t}=await 
+s.read();if(e)break;l+=c.decode(t,{stream:!0});let r=l.split(`
+  frontend\dist\assets\index-DN-QioLz.js:13:
+  frontend\dist\assets\index-DN-QioLz.js:14:`);l=r.pop()??``;for(let e of r){let t=e.split(`
+> frontend\dist\assets\index-DN-QioLz.js:15:`),r=`message`,i=``;for(let e of t)e.startsWith(`event: 
+`)&&(r=e.slice(7).trim()),e.startsWith(`data: `)&&(i=e.slice(6).trim());if(i)try{let e=JSON.parse(i);switch(r){case`sta
+tus`:n.onStatus?.(e);break;case`progress`:n.onProgress?.(e);break;case`result`:n.onResult?.(e);break;case`error`:n.onEr
+ror?.(e.message??`Unknown video pipeline 
+error`)}}catch{}}}}catch(e){e?.name!==`AbortError`&&n.onError?.(e?.message??`Video stream connection 
+failed`)}finally{n.onDone?.()}})(),()=>r.abort()}var 
+ae=[{id:`ingestion`,label:`Ingestion`,icon:`input`},{id:`research`,label:`Web Research`,icon:`travel_explore`},{id:`evi
+dence`,label:`Evidence`,icon:`collections_bookmark`},{id:`analysis`,label:`Analysis`,icon:`biotech`},{id:`fusion`,label
+:`Fusion`,icon:`hub`},{id:`brief`,label:`Brief`,icon:`summarize`},{id:`verify_agent`,label:`Verifier 
+Agent`,icon:`smart_toy`},{id:`critic`,label:`Critic Review`,icon:`rate_review`},{id:`verdict`,label:`Verdict`,icon:`gav
+el`}],oe={ingestion:`text-primary`,research:`text-secondary`,evidence:`text-tertiary`,analysis:`text-secondary`,fusion:
+`text-primary`,brief:`text-tertiary`,verify_agent:`text-secondary`,critic:`text-primary`,verdict:`text-tertiary`},se=({
+logs:e,currentStage:t,currentStep:n,totalSteps:r,elapsedSeconds:i,isRunning:a,hasError:o})=>{let 
+s=(0,b.useRef)(null);(0,b.useEffect)(()=>{let e=s.current;e&&(e.scrollTop=e.scrollHeight)},[e.length]);let 
+c=r>0?Math.min(100,n/r*100):0,l=ae.find(e=>e.id===t)??ae[0];return(0,x.jsxs)(`div`,{className:`flex flex-col gap-4 
+animate-in fade-in duration-300`,children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+justify-between`,children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+gap-2`,children:[(0,x.jsx)(`span`,{className:`w-2 h-2 rounded-full ${o?`bg-error`:a?`bg-secondary 
+animate-pulse`:`bg-primary`}`}),(0,x.jsx)(`span`,{className:`text-[11px] font-mono uppercase tracking-widest 
+font-semibold text-secondary`,children:o?`Pipeline Fault`:a?`Live Investigation`:`Investigation 
+Complete`})]}),(0,x.jsxs)(`span`,{className:`text-[10px] font-mono text-outline`,children:[i,`s 
+elapsed`]})]}),(0,x.jsxs)(`div`,{className:`bg-surface-container-low rounded-xl p-4 border border-outline-variant/40 
+shadow-md`,children:[(0,x.jsxs)(`div`,{className:`flex items-center justify-between 
+mb-3`,children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+gap-2`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[18px] 
+${oe[t]??`text-primary`}`,children:l.icon}),(0,x.jsx)(`span`,{className:`text-xs font-mono font-semibold 
+${oe[t]??`text-primary`}`,children:l.label})]}),(0,x.jsxs)(`span`,{className:`text-[10px] font-mono 
+text-outline`,children:[`Step `,n,`/`,r]})]}),(0,x.jsx)(`div`,{className:`w-full h-1.5 bg-surface-container-lowest 
+rounded-full overflow-hidden mb-3`,children:(0,x.jsx)(`div`,{className:`h-full bg-gradient-to-r from-primary 
+via-secondary to-tertiary rounded-full transition-all duration-500 
+ease-out`,style:{width:`${c}%`}})}),(0,x.jsx)(`div`,{className:`flex items-center justify-between 
+gap-1`,children:ae.map((e,r)=>{let i=r+1,s=e.id===t,c=i<n||!a&&!o&&i<=n;return(0,x.jsxs)(`div`,{className:`flex 
+flex-col items-center gap-1 flex-1`,title:e.label,children:[(0,x.jsx)(`div`,{className:`w-5 h-5 rounded-full flex 
+items-center justify-center transition-all duration-300 ${s&&a?`bg-secondary ring-2 ring-secondary/40 scale-110`:c?`bg-
+primary/70`:o&&s?`bg-error`:`bg-surface-container-high`}`,children:c&&!s?(0,x.jsx)(`span`,{className:`material-symbols-
+outlined text-[10px] text-on-primary`,children:`check`}):s&&a?(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[10px] text-on-secondary 
+animate-spin`,children:`progress_activity`}):(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[10px] 
+text-outline`,children:e.icon})}),(0,x.jsx)(`span`,{className:`text-[8px] font-mono text-outline hidden sm:block 
+truncate w-full text-center`,children:e.label.split(` 
+`)[0]})]},e.id)})})]}),(0,x.jsxs)(`div`,{className:`bg-surface-container-lowest rounded-xl border 
+border-outline-variant/40 overflow-hidden shadow-md`,children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+justify-between px-4 py-2 border-b border-outline-variant/30 
+bg-surface-container-low`,children:[(0,x.jsxs)(`span`,{className:`text-[10px] font-mono uppercase tracking-wider 
+text-tertiary font-semibold flex items-center 
+gap-1.5`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[14px]`,children:`terminal`}),`Pipeline 
+Event Stream`]}),(0,x.jsxs)(`span`,{className:`text-[9px] font-mono text-outline`,children:[e.length,` 
+events`]})]}),(0,x.jsx)(`div`,{ref:s,className:`overflow-y-auto font-mono text-[11px] 
+leading-relaxed`,style:{maxHeight:`280px`},children:e.length===0?(0,x.jsx)(`div`,{className:`p-4 text-outline 
+text-center text-[11px] font-mono`,children:`Awaiting pipeline events…`}):(0,x.jsx)(`div`,{className:`flex flex-col 
+divide-y divide-outline-variant/10`,children:e.map((t,n)=>{let 
+r=n===e.length-1&&a,i=oe[t.stage]??`text-outline`;return(0,x.jsxs)(`div`,{className:`flex items-start gap-2.5 px-3 
+py-2 transition-colors ${r?`bg-surface-container/60`:``}`,children:[(0,x.jsx)(`span`,{className:`flex-shrink-0 w-4 
+text-[9px] text-outline mt-0.5 text-right`,children:t.step}),(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[14px] flex-shrink-0 mt-0.5 ${i}`,children:t.icon}),(0,x.jsxs)(`div`,{className:`flex flex-col min-w-0 
+flex-1`,children:[(0,x.jsx)(`span`,{className:`font-semibold ${i} 
+truncate`,children:t.label}),t.detail&&t.detail!==t.label&&(0,x.jsx)(`span`,{className:`text-outline text-[10px] 
+truncate mt-0.5`,children:t.detail})]}),r&&(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[14px] 
+text-secondary animate-spin 
+flex-shrink-0`,children:`progress_activity`})]},t.id)})})})]}),e.length>0&&(0,x.jsx)(`div`,{className:`flex flex-wrap 
+gap-1.5`,children:[...new Set(e.map(e=>e.stage))].map(t=>{let n=ae.find(e=>e.id===t);if(!n)return null;let 
+r=e.filter(e=>e.stage===t).length;return(0,x.jsxs)(`div`,{className:`flex items-center gap-1 bg-surface-container-high 
+px-2 py-0.5 rounded-full border 
+border-outline-variant/30`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[12px] 
+${oe[t]??`text-outline`}`,children:n.icon}),(0,x.jsx)(`span`,{className:`text-[10px] font-mono 
+text-on-surface-variant`,children:n.label.split(` `)[0]}),(0,x.jsxs)(`span`,{className:`text-[9px] font-mono 
+text-outline`,children:[`×`,r]})]},t)})})]})},ce={REAL:{label:`REAL`,badge:`bg-emerald-500/15 border-emerald-500/30 
+text-emerald-400`,dot:`bg-emerald-400`,accent:`text-emerald-400`},FAKE:{label:`FAKE`,badge:`bg-rose-500/15 
+border-rose-500/30 
+text-rose-400`,dot:`bg-rose-400`,accent:`text-rose-400`},UNVERIFIED:{label:`UNVERIFIED`,badge:`bg-slate-500/15 
+border-slate-500/30 text-slate-400`,dot:`bg-slate-400`,accent:`text-slate-400`}},le={SUFFICIENT:{label:`SUFFICIENT`,col
+or:`text-emerald-400`},LIMITED:{label:`LIMITED`,color:`text-amber-400`},INSUFFICIENT:{label:`INSUFFICIENT`,color:`text-
+slate-400`}},ue=({result:e,modality:t,claimText:n,selectedFile:r})=>{let i=e.factual_verification||{},a=(i.verdict||`UN
+VERIFIED`).toUpperCase(),o=i.confidence,s=i.confidence_basis,c=(i.evidence_sufficiency||`none`).toLowerCase(),l=i.reaso
+ning||i.deterministic_gate_reason||``,u=Array.isArray(i.supporting_evidence)?i.supporting_evidence:[],d=Array.isArray(i
+.contradicting_evidence)?i.contradicting_evidence:[],f=ce[a]??ce.UNVERIFIED,p=l.split(/(?<=[.!?])\s+/).filter(e=>e.trim
+().length>0).slice(0,3).join(` `).trim(),m=c.includes(`strong_support`)||c.includes(`strong_contradiction`)||c.includes
+(`support`)&&!c.includes(`single`)||c.includes(`contradiction`)&&!c.includes(`single`)&&!c.includes(`fallback`),h=c.inc
+ludes(`single`)||c.includes(`fallback`),g=le[m?`SUFFICIENT`:h?`LIMITED`:`INSUFFICIENT`]??le.INSUFFICIENT,_=[...u,...d].
+filter(e=>e.chunk&&e.url).slice(0,2),v=(a===`REAL`||a===`FAKE`)&&o!=null&&s===`evidence_strength`,y=e.primary_claim||n|
+|``;return(0,x.jsxs)(`div`,{className:`bg-surface-container rounded-xl border border-outline-variant/50 shadow-md p-6 
+sm:p-8 text-on-surface`,children:[(0,x.jsxs)(`div`,{className:`flex items-center gap-3 
+mb-5`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-primary 
+text-[24px]`,children:`verified`}),(0,x.jsx)(`h2`,{className:`text-sm font-mono uppercase tracking-wider font-bold 
+text-tertiary`,children:`TRUTHLENS AI — VERIFICATION RESULT`})]}),e.status===`error`&&(0,x.jsxs)(`div`,{className:`p-4 
+rounded-lg bg-error-container/20 border border-error/40 
+mb-5`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-error text-[18px] flex-shrink-0 
+mr-2`,children:`error`}),(0,x.jsxs)(`div`,{className:`flex flex-col 
+gap-1`,children:[(0,x.jsx)(`span`,{className:`text-[10px] font-mono uppercase text-error font-semibold 
+block`,children:`Verification Failed`}),(0,x.jsx)(`p`,{className:`text-sm text-on-surface-variant 
+leading-relaxed`,children:e.error||`The verification request could not be 
+completed.`})]})]}),(0,x.jsxs)(`div`,{className:`mb-5`,children:[(0,x.jsx)(`span`,{className:`text-[10px] font-mono 
+uppercase tracking-wider text-outline block mb-1`,children:`Claim`}),(0,x.jsxs)(`p`,{className:`text-sm font-sans 
+text-on-surface font-medium leading-relaxed bg-surface-container-low p-4 rounded-lg border 
+border-outline-variant/30`,children:[`"`,y,`"`]})]}),(0,x.jsxs)(`div`,{className:`flex flex-col items-center 
+justify-center gap-3 mb-5 p-5 rounded-xl border-2 border-outline-variant/40 
+bg-surface-container-low`,children:[(0,x.jsx)(`span`,{className:`text-[10px] font-mono uppercase tracking-wider 
+text-outline block`,children:`Verdict`}),(0,x.jsxs)(`span`,{className:`inline-flex items-center gap-2 px-4 py-1.5 
+rounded-full border font-mono text-lg font-bold uppercase tracking-wider 
+${f.badge}`,children:[(0,x.jsx)(`span`,{className:`w-2.5 h-2.5 rounded-full 
+${f.dot}`}),f.label]}),(0,x.jsx)(`p`,{className:`text-xs font-mono text-on-surface-variant max-w-md text-center 
+leading-relaxed`,children:p||(()=>{switch(a){case`REAL`:return`Independent sources corroborate this 
+claim.`;case`FAKE`:return`Independent sources contradict this claim.`;default:return`The available evidence was 
+insufficient to establish whether this claim is true or 
+false.`}})()})]}),(0,x.jsxs)(`div`,{className:`mb-5`,children:[(0,x.jsxs)(`div`,{className:`flex items-center gap-2 
+mb-3`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[16px] 
+text-secondary`,children:`source`}),(0,x.jsx)(`span`,{className:`text-[10px] font-mono uppercase tracking-wider 
+text-outline font-semibold`,children:`Key Evidence`})]}),_.length>0?(0,x.jsx)(`ul`,{className:`space-y-2.5`,children:_.
+map((e,t)=>(0,x.jsxs)(`li`,{className:`p-3.5 rounded-lg bg-surface-container-low border 
+border-outline-variant/30`,children:[(0,x.jsx)(`p`,{className:`text-sm font-sans text-on-surface leading-relaxed 
+mb-2.5`,children:e.chunk}),(0,x.jsxs)(`div`,{className:`flex items-center 
+gap-2.5`,children:[(0,x.jsx)(`span`,{className:`text-[10px] font-mono text-outline`,children:e.domain||`Unknown 
+publisher`}),(0,x.jsx)(`a`,{href:e.url,target:`_blank`,rel:`noopener noreferrer`,className:`text-[10px] font-mono 
+text-primary hover:underline underline-offset-1 truncate 
+max-w-[200px]`,title:e.url,children:e.url})]})]},t))}):(0,x.jsx)(`div`,{className:`p-3.5 rounded-lg 
+bg-surface-container-low border border-outline-variant/30`,children:(0,x.jsx)(`p`,{className:`text-sm 
+text-on-surface-variant font-sans leading-relaxed`,children:`No reliable evidence passages were found to support or 
+refute this claim.`})})]}),(0,x.jsxs)(`div`,{className:`grid grid-cols-1 sm:grid-cols-2 
+gap-4`,children:[(0,x.jsxs)(`div`,{className:`p-3.5 rounded-lg bg-surface-container-low border 
+border-outline-variant/30 flex flex-col gap-1`,children:[(0,x.jsx)(`span`,{className:`text-[10px] font-mono uppercase 
+tracking-wider text-outline font-semibold`,children:`Evidence Status`}),(0,x.jsx)(`span`,{className:`text-xs font-mono 
+font-bold ${g.color}`,children:g.label})]}),v&&(0,x.jsxs)(`div`,{className:`p-3.5 rounded-lg bg-surface-container-low 
+border border-outline-variant/30 flex flex-col gap-1 items-start sm:items-end 
+sm:text-right`,children:[(0,x.jsx)(`span`,{className:`text-[10px] font-mono uppercase tracking-wider text-outline 
+font-semibold`,children:`Confidence`}),(0,x.jsxs)(`span`,{className:`text-xs font-mono font-bold ${f.accent}`,children:
+[(o>1?o:o*100).toFixed(1),`%`]})]})]})]})},de=({health:e,onAnalysisComplete:t})=>{let[n,r]=(0,b.useState)(`text`),[i,a]
+=(0,b.useState)(``),[o,s]=(0,b.useState)(null),[c,l]=(0,b.useState)(null),[u,d]=(0,b.useState)(!0),[f,p]=(0,b.useState)
+(!0),[m,h]=(0,b.useState)(`base`),[g,_]=(0,b.useState)(!1),[v,y]=(0,b.useState)(0),[ee,S]=(0,b.useState)(``),[te,C]=(0,
+b.useState)(null),[ae,oe]=(0,b.useState)([]),[ce,le]=(0,b.useState)(`ingestion`),[de,fe]=(0,b.useState)(0),[pe,me]=(0,b
+.useState)(8),[he,ge]=(0,b.useState)(!1),[_e,ve]=(0,b.useState)(null),[ye,be]=(0,b.useState)([]),xe=(0,b.useRef)(null),
+Se=(0,b.useRef)(null);(0,b.useEffect)(()=>{let e;return g&&(y(0),e=setInterval(()=>{y(e=>e+1)},1e3)),()=>clearInterval(
+e)},[g]),(0,b.useEffect)(()=>()=>{Se.current&&Se.current()},[]);let 
+Ce=e=>{if(!e){s(null),c&&URL.revokeObjectURL(c),l(null);return}s(e);let 
+t=URL.createObjectURL(e);l(t)},we=e=>{r(e),Ce(null),C(null),ge(!1)},Te=[`NASA confirmed the discovery of liquid water 
+on Mars surface in September 2015.`,`The Eiffel Tower was relocated to Lyon in 1944 during World War II.`,`World 
+Health Organization declared COVID-19 a global pandemic in March 2020.`],T=(0,b.useCallback)(e=>{oe(t=>[...t,{id:`${Dat
+e.now()}-${Math.random()}`,stage:e.stage,label:e.label,icon:e.icon,detail:e.detail,step:e.step,total_steps:e.total_step
+s,ts:performance.now()}]),le(e.stage),fe(e.step),me(e.total_steps)},[]),E=async()=>{C(null),_(!0),ve(null),(n===`text`|
+|n===`video`)&&(oe([]),le(`ingestion`),fe(0),ge(!0));try{if(n===`text`){if(!i.trim())throw Error(`Please enter a claim 
+to verify.`);Se.current&&=(Se.current(),null),S(`Dispatching to real-time pipeline…`);let e=re(i.trim(),{onStatus:e=>{T
+(e)},onProgress:e=>{T(e),S(e.label)},onResult:e=>{ve(e),be(t=>[e,...t]),t&&t(e),_(!1),S(``)},onError:e=>{C(e),_(!1),S(`
+`)},onDone:()=>{_(!1),S(``)}});Se.current=e;return}if(n===`image`){if(!o)throw Error(`Please select an image file to 
+analyze.`);S(`2. OCR & ViT AI-Image Detection`);let e=await ne(o);ve(e),be(t=>[e,...t]),t&&t(e)}else 
+if(n===`video`){if(!o)throw Error(`Please select a video file to 
+analyze.`);Se.current&&=(Se.current(),null),S(`Uploading & dispatching video pipeline…`);let e=ie(o,{enableClassifier:f
+,verifyClaims:u,whisperModel:m,maxOcrFrames:15},{onStatus:e=>{T(e),S(e.label)},onProgress:e=>{T(e),S(e.label)},onResult
+:e=>{ve(e),be(t=>[e,...t]),t&&t(e),_(!1),S(``)},onError:e=>{C(e),_(!1),S(``)},onDone:()=>{_(!1),S(``)}});Se.current=e;r
+eturn}else{if(!o)throw Error(`Please select an audio file to analyze.`);S(`2. Wav2Vec2 Synthetic Speech Detector & 
+Whisper STT`);let e=await 
+w(o,{verifyClaims:u,whisperModel:m});ve(e),be(t=>[e,...t]),t&&t(e)}}catch(e){console.error(`Verification 
+error:`,e),C(e.message||`An unexpected error occurred during 
+verification.`)}finally{n!==`text`&&n!==`video`&&(_(!1),S(``))}};new Date().toISOString().replace(`T`,` 
+`).slice(0,19)+``;let Ee=_e?.case_summary?.case_id||`PENDING`;return(0,x.jsx)(`div`,{className:`w-full flex flex-col 
+items-center`,children:(0,x.jsxs)(`div`,{className:`w-full max-w-4xl px-4 sm:px-6 py-6 
+pb-24`,children:[(0,x.jsxs)(`div`,{className:`flex flex-col gap-1.5 mb-6`,children:[(0,x.jsxs)(`div`,{className:`flex 
+items-center justify-between`,children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+gap-2`,children:[(0,x.jsx)(`span`,{className:`w-2 h-2 rounded-full bg-secondary 
+animate-pulse`}),(0,x.jsx)(`span`,{className:`text-[11px] font-mono uppercase text-secondary tracking-widest 
+font-semibold`,children:`Live Verification Session`})]}),(0,x.jsxs)(`span`,{className:`text-[10px] font-mono 
+text-on-surface-variant bg-surface-container px-2 py-0.5 rounded border border-outline-variant/40`,children:[`CASE: 
+`,Ee]})]}),(0,x.jsxs)(`div`,{className:`flex items-baseline justify-between 
+mt-1`,children:[(0,x.jsx)(`h1`,{className:`font-serif text-2xl sm:text-3xl lg:text-4xl text-tertiary 
+tracking-tight`,children:`Intake & Forensics`}),(0,x.jsx)(`span`,{className:`text-[10px] font-mono text-outline 
+uppercase tracking-wider`,children:`SEC-LEVEL 4`})]}),(0,x.jsx)(`p`,{className:`text-xs sm:text-sm 
+text-on-surface-variant leading-relaxed`,children:`Autonomous multimodal integrity parsing and evidence fusion against 
+global news wires, sensor residues, and cryptographic manifests.`})]}),(0,x.jsx)(`div`,{className:`w-full 
+bg-surface-container-lowest p-1 rounded-xl mb-6 overflow-x-auto border border-outline-variant/40 
+shadow-sm`,children:(0,x.jsxs)(`div`,{className:`flex items-center min-w-max 
+gap-1`,children:[(0,x.jsxs)(`button`,{type:`button`,onClick:()=>we(`text`),className:`px-3 py-1.5 rounded-lg text-xs 
+font-mono transition-colors flex items-center gap-1.5 ${n===`text`?`bg-surface-container-high text-primary 
+font-semibold shadow-sm border border-outline-variant/50`:`text-on-surface-variant 
+hover:text-on-surface`}`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[16px]`,children:`article`}),(0,x.jsx)(`span`,{children:`Text 
+Analysis`})]}),(0,x.jsxs)(`button`,{type:`button`,onClick:()=>we(`image`),className:`px-3 py-1.5 rounded-lg text-xs 
+font-mono transition-colors flex items-center gap-1.5 ${n===`image`?`bg-surface-container-high text-primary 
+font-semibold shadow-sm border border-outline-variant/50`:`text-on-surface-variant 
+hover:text-on-surface`}`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[16px]`,children:`biotech`}),(0,x.jsx)(`span`,{children:`Image 
+Forensics`})]}),(0,x.jsxs)(`button`,{type:`button`,onClick:()=>we(`video`),className:`px-3 py-1.5 rounded-lg text-xs 
+font-mono transition-colors flex items-center gap-1.5 ${n===`video`?`bg-surface-container-high text-primary 
+font-semibold shadow-sm border border-outline-variant/50`:`text-on-surface-variant 
+hover:text-on-surface`}`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[16px]`,children:`videocam`}),(0,x.jsx)(`span`,{children:`Video 
+Forensics`})]}),(0,x.jsxs)(`button`,{type:`button`,onClick:()=>we(`audio`),className:`px-3 py-1.5 rounded-lg text-xs 
+font-mono transition-colors flex items-center gap-1.5 ${n===`audio`?`bg-surface-container-high text-primary 
+font-semibold shadow-sm border border-outline-variant/50`:`text-on-surface-variant 
+hover:text-on-surface`}`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[16px]`,children:`graphic_eq`}),(0,x.jsx)(`span`,{children:`Audio 
+Deepfake`})]})]})}),(0,x.jsxs)(`div`,{className:`bg-surface-container-low rounded-xl p-4 sm:p-5 mb-6 flex flex-col 
+gap-3.5 border border-outline-variant/40 shadow-md`,children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+justify-between`,children:[(0,x.jsx)(`span`,{className:`text-[11px] font-mono uppercase text-on-surface-variant 
+tracking-wider font-semibold`,children:`Source Ingestion Well`}),(0,x.jsxs)(`span`,{className:`text-[10px] font-mono 
+text-primary flex items-center gap-1`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[14px]`,children:`sensors`}),(0,x.jsx)(`span`,{children:`WELL ARMED // INTAKE 
+READY`})]})]}),n===`text`&&(0,x.jsxs)(`div`,{className:`flex flex-col gap-3`,children:[(0,x.jsxs)(`div`,{className:`rel
+ative`,children:[(0,x.jsx)(`textarea`,{value:i,onChange:e=>a(e.target.value),placeholder:`Enter a verifiable factual 
+claim, news dispatch, or headline (e.g. 'NASA confirmed water on Mars')...`,rows:4,className:`w-full 
+bg-surface-container-lowest border border-outline-variant/60 rounded-lg p-3 text-sm text-on-surface 
+placeholder:text-outline focus:outline-none focus:border-primary transition-colors font-sans 
+resize-y`}),(0,x.jsxs)(`div`,{className:`flex justify-between items-center mt-1 text-[10px] font-mono 
+text-outline`,children:[(0,x.jsxs)(`span`,{children:[`Input Length: `,i.length,` 
+characters`]}),(0,x.jsx)(`span`,{children:`Minimum required: 5 chars`})]})]}),(0,x.jsxs)(`div`,{className:`flex 
+flex-col gap-1.5 pt-1`,children:[(0,x.jsx)(`span`,{className:`text-[10px] font-mono text-outline uppercase 
+tracking-wider`,children:`Preset Verification Claims:`}),(0,x.jsx)(`div`,{className:`flex flex-wrap 
+gap-1.5`,children:Te.map((e,t)=>(0,x.jsxs)(`button`,{type:`button`,onClick:()=>a(e),className:`text-left text-[11px] 
+font-mono px-2.5 py-1 rounded bg-surface-container-high/60 hover:bg-surface-container-highest text-on-surface-variant 
+hover:text-on-surface transition-colors border border-outline-variant/30 truncate 
+max-w-full`,children:[`"`,e.slice(0,52),`..."`]},t))})]})]}),n!==`text`&&(0,x.jsxs)(`div`,{className:`flex flex-col 
+gap-3`,children:[(0,x.jsxs)(`div`,{onClick:()=>xe.current?.click(),className:`border-2 border-dashed 
+border-outline-variant/60 hover:border-primary/60 rounded-xl p-5 bg-surface-container-lowest/50 flex flex-col 
+items-center justify-center gap-2 cursor-pointer transition-colors group`,children:[(0,x.jsx)(`input`,{ref:xe,type:`fil
+e`,className:`hidden`,accept:n===`image`?`image/jpeg,image/png,image/webp,image/bmp,image/tiff`:n===`video`?`video/mp4,
+video/quicktime,video/x-msvideo,video/x-matroska,video/webm`:`audio/wav,audio/mpeg,audio/mp4,audio/flac,audio/ogg`,onCh
+ange:e=>{e.target.files&&e.target.files[0]&&Ce(e.target.files[0])}}),(0,x.jsx)(`div`,{className:`w-10 h-10 
+rounded-full bg-surface-container-high flex items-center justify-center text-primary group-hover:scale-105 
+transition-transform`,children:(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[24px]`,children:n===`image`
+?`add_photo_alternate`:n===`video`?`video_file`:`audio_file`})}),(0,x.jsxs)(`div`,{className:`flex flex-col 
+items-center text-center`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono font-medium 
+text-tertiary`,children:o?o.name:`Click or drag ${n} file here`}),(0,x.jsx)(`span`,{className:`text-[10px] font-mono 
+text-outline mt-0.5`,children:o?`${(o.size/1048576).toFixed(2)} MB • Ready for analysis`:n===`image`?`JPEG, PNG, WebP 
+(Max 25MB)`:n===`video`?`MP4, MOV, MKV, WebM (Max 100MB)`:`WAV, MP3, FLAC, M4A, OGG (Max 
+50MB)`})]})]}),o&&c&&(0,x.jsxs)(`div`,{className:`bg-surface-container rounded-lg p-3 flex flex-col sm:flex-row 
+items-center justify-between gap-3 border border-outline-variant/40`,children:[(0,x.jsxs)(`div`,{className:`flex 
+items-center gap-3 min-w-0 w-full sm:w-auto`,children:[n===`image`&&(0,x.jsx)(`img`,{src:c,alt:`Upload 
+preview`,className:`w-14 h-14 object-cover rounded-md border border-outline-variant 
+flex-shrink-0`}),n===`video`&&(0,x.jsx)(`video`,{src:c,controls:!0,className:`w-28 h-16 object-cover rounded-md border 
+border-outline-variant flex-shrink-0 bg-black`}),n===`audio`&&(0,x.jsx)(`audio`,{src:c,controls:!0,className:`h-8 
+max-w-[200px] flex-shrink-0`}),(0,x.jsxs)(`div`,{className:`flex flex-col min-w-0 
+truncate`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono text-tertiary font-medium 
+truncate`,children:o.name}),(0,x.jsxs)(`span`,{className:`text-[10px] font-mono 
+text-outline`,children:[(o.size/1024).toFixed(1),` 
+KB`]})]})]}),(0,x.jsx)(`button`,{type:`button`,onClick:()=>Ce(null),className:`text-[11px] font-mono text-error 
+hover:text-error/80 px-2 py-1 rounded bg-error-container/20 border border-error-container/30 transition-colors 
+flex-shrink-0`,children:`Remove File`})]}),(n===`video`||n===`audio`)&&(0,x.jsxs)(`div`,{className:`grid grid-cols-1 
+sm:grid-cols-2 gap-2 pt-1 text-xs font-mono bg-surface-container-lowest/60 p-2.5 rounded-lg border 
+border-outline-variant/30`,children:[(0,x.jsxs)(`label`,{className:`flex items-center gap-2 cursor-pointer 
+text-on-surface-variant hover:text-on-surface`,children:[(0,x.jsx)(`input`,{type:`checkbox`,checked:u,onChange:e=>d(e.t
+arget.checked),className:`rounded accent-primary`}),(0,x.jsx)(`span`,{children:`Verify extracted spoken claims via web 
+wire`})]}),n===`video`&&(0,x.jsxs)(`label`,{className:`flex items-center gap-2 cursor-pointer text-on-surface-variant h
+over:text-on-surface`,children:[(0,x.jsx)(`input`,{type:`checkbox`,checked:f,onChange:e=>p(e.target.checked),className:
+`rounded accent-primary`}),(0,x.jsx)(`span`,{children:`Run VideoMAE visual 
+classifier`})]}),(0,x.jsxs)(`div`,{className:`flex items-center 
+gap-2`,children:[(0,x.jsx)(`span`,{className:`text-outline text-[11px]`,children:`Whisper 
+STT:`}),(0,x.jsxs)(`select`,{value:m,onChange:e=>h(e.target.value),className:`bg-surface-container-high border 
+border-outline-variant/50 rounded px-1.5 py-0.5 text-[11px] 
+text-tertiary`,children:[(0,x.jsx)(`option`,{value:`tiny`,children:`tiny 
+(fastest)`}),(0,x.jsx)(`option`,{value:`base`,children:`base (balanced, 
+default)`}),(0,x.jsx)(`option`,{value:`small`,children:`small 
+(accurate)`})]})]})]})]}),(0,x.jsxs)(`div`,{className:`flex items-center justify-between gap-3 
+pt-2`,children:[(0,x.jsxs)(`div`,{className:`flex items-center gap-2 text-[10px] font-mono 
+text-outline`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[14px]`,children:`shield`}),(0,x.jsx)(`span`,{children:`Strict Signal Separation 
+Enabled`})]}),(0,x.jsx)(`button`,{type:`button`,disabled:g,onClick:E,className:`h-11 px-5 rounded-lg font-mono text-xs 
+font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-all 
+${g?`bg-surface-container-highest text-outline cursor-not-allowed`:`bg-primary-container hover:bg-primary 
+text-on-primary shadow-sm hover:shadow active:scale-[0.99]`}`,children:g?(0,x.jsxs)(x.Fragment,{children:[(0,x.jsx)(`sp
+an`,{className:`material-symbols-outlined text-[18px] 
+animate-spin`,children:`progress_activity`}),(0,x.jsxs)(`span`,{children:[`Analyzing 
+(`,v,`s)...`]})]}):(0,x.jsxs)(x.Fragment,{children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[18px]`,children:`travel_explore`}),(0,x.jsx)(`span`,{children:`Execute Multimodal 
+Verification`})]})})]}),g&&n!==`text`&&(0,x.jsxs)(`div`,{className:`mt-2 p-3 rounded-lg bg-surface-container-high/80 
+border border-primary/30 flex flex-col gap-1.5 animate-pulse`,children:[(0,x.jsxs)(`div`,{className:`flex 
+justify-between items-center text-xs font-mono`,children:[(0,x.jsxs)(`span`,{className:`text-primary font-semibold 
+flex items-center gap-1.5`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[16px]`,children:`sync`}),ee||`Orchestrating forensic 
+analysis...`]}),(0,x.jsxs)(`span`,{className:`text-outline`,children:[v,`s 
+elapsed`]})]}),(0,x.jsx)(`p`,{className:`text-[11px] text-on-surface-variant font-sans`,children:`Processing pipeline 
+without freezing. Models execute on local host (GPU RTX 3050 / PyTorch) and live wire queries dispatch via 
+Tavily.`})]}),te&&(0,x.jsxs)(`div`,{className:`mt-2 p-3 rounded-lg bg-error-container/30 border border-error/40 
+text-on-error-container flex items-start gap-2.5`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-error text-[18px] flex-shrink-0 mt-0.5`,children:`error`}),(0,x.jsxs)(`div`,{className:`flex flex-col gap-0.5 
+text-xs font-sans`,children:[(0,x.jsx)(`span`,{className:`font-semibold font-mono uppercase 
+text-error`,children:`Ingestion or Verification Fault`}),(0,x.jsx)(`span`,{children:te})]})]})]}),he&&(n===`text`||n===
+`video`)&&(0,x.jsxs)(`div`,{className:`bg-surface-container-low rounded-xl p-4 sm:p-5 mb-6 border 
+border-outline-variant/40 shadow-md`,children:[(0,x.jsxs)(`div`,{className:`flex items-center justify-between 
+mb-4`,children:[(0,x.jsxs)(`span`,{className:`text-xs font-mono uppercase tracking-wider text-tertiary font-semibold 
+flex items-center gap-1.5`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[16px] 
+text-secondary`,children:`sensors`}),`Investigation 
+Pipeline`]}),!g&&(0,x.jsxs)(`button`,{type:`button`,onClick:()=>ge(!1),className:`text-[10px] font-mono text-outline 
+hover:text-on-surface transition-colors flex items-center 
+gap-1`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[14px]`,children:`close`}),`Hide`]})]}),(0
+,x.jsx)(se,{logs:ae,currentStage:ce,currentStep:de,totalSteps:pe,elapsedSeconds:v,isRunning:g,hasError:!!te})]}),_e&&(0
+,x.jsx)(`div`,{className:`flex flex-col gap-6 mt-6`,children:(0,x.jsx)(ue,{result:_e,modality:n,claimText:i,selectedFil
+e:o})})]})})},fe=()=>{let[e,t]=(0,b.useState)(null),[n,r]=(0,b.useState)({1:!0,2:!0,3:!0,4:!0,5:!0}),[i,a]=(0,b.useStat
+e)(`all`),o=[{id:`root`,label:`TRUTHLENSAI Core Orchestrator`,level:0,modality:`core`,description:`Central multi-agent 
+multimodal misinformation verification orchestrator. Strictly separates factual claim veracity from media provenance 
+and visual classification.`,entryPoint:`multimodal_router.py:route_media() / api/server.py`,models:[`FastAPI REST 
+Engine`,`Multimodal Dispatcher`],latency:`~10-40ms dispatch`,limitations:`Dispatches subroutines concurrently; GPU 
+VRAM bounded by local 4GB hardware.`,children:[`in-text`,`in-img`,`in-vid`,`in-aud`]},{id:`in-text`,label:`Text Claim 
+Input`,level:1,modality:`text`,description:`Ingestion of raw news headlines, textual claims, or article statements.`,en
+tryPoint:`api/server.py:endpoint_verify_text()`,parentId:`root`,children:[`pre-text`]},{id:`in-img`,label:`Image Media 
+Input`,level:1,modality:`image`,description:`Ingestion of image files (.png, .jpg, .webp, .tiff) with structural 
+format validation.`,entryPoint:`api/server.py:endpoint_verify_image()`,parentId:`root`,children:[`pre-img`]},{id:`in-vi
+d`,label:`Video Media Input`,level:1,modality:`video`,description:`Ingestion of video files (.mp4, .mov, .mkv, .webm) 
+with MIME type and size checks.`,entryPoint:`api/server.py:endpoint_verify_video()`,parentId:`root`,children:[`pre-vid`
+]},{id:`in-aud`,label:`Audio Recording Input`,level:1,modality:`audio`,description:`Ingestion of audio recordings 
+(.wav, .mp3, .flac, .ogg, .m4a) with duration guardrails.`,entryPoint:`api/server.py:endpoint_verify_audio()`,parentId:
+`root`,children:[`pre-aud`]},{id:`pre-text`,label:`Claim Normalization & Query 
+Planning`,level:2,modality:`text`,description:`Extracts core factual assertions, generates diverse temporal and 
+exact-date search queries.`,entryPoint:`query_planner.py:plan_queries()`,models:[`Groq / 
+qwen3.8-27b`],latency:`~1.2s`,limitations:`May over-decompose subjective nuance or sarcastic 
+humor.`,parentId:`in-text`,children:[`mod-text`]},{id:`pre-img`,label:`OCR Text & YOLO Object 
+Extraction`,level:2,modality:`image`,description:`Dual visual preprocessing: EasyOCR extracts on-screen text, 
+Ultralytics YOLO11 identifies physical 
+entities.`,entryPoint:`image_pipeline.py:process_image()`,models:[`EasyOCR`,`Ultralytics 
+YOLO11n`],latency:`~650ms`,limitations:`OCR performance degrades under severe blur or stylized 
+watermarks.`,parentId:`in-img`,children:[`mod-img`]},{id:`pre-vid`,label:`Demuxing, Frame Extraction & Audio Track 
+Separation`,level:2,modality:`video`,description:`FFmpeg and OpenCV isolate 16-frame uniform clips for spatial 
+inspection and demux 16kHz audio track.`,entryPoint:`video_module/preprocessor.py:extract_frames_and_audio()`,models:[`
+FFmpeg`,`OpenCV`],latency:`~1.8s`,limitations:`High frame-rate 4K files require stride subsampling to stay within VRAM 
+bounds.`,parentId:`in-vid`,children:[`mod-vid`]},{id:`pre-aud`,label:`Audio Decoding & 16kHz Mel-Spectrogram 
+Resampling`,level:2,modality:`audio`,description:`Normalizes audio waveform to 16kHz mono, enforces >=0.5s duration 
+boundary check.`,entryPoint:`audio_module/audio_pipeline.py:ingest_audio()`,models:[`Torchaudio`,`SoundFile`],latency:`
+~80ms`,limitations:`Audio under 0.5s triggers immediate UNAVAILABLE 
+failsafe.`,parentId:`in-aud`,children:[`mod-aud`]},{id:`mod-text`,label:`Multi-Agent Text Research 
+Engine`,level:3,modality:`text`,description:`Dispatches multi-agent retrieval to Tavily Search API, scrapes candidate 
+pages, and filters near-duplicate domains.`,entryPoint:`pipeline.py:run_research_pipeline()`,models:[`Tavily 
+API`,`Domain Reliability Tiers`],latency:`~3-6s`,limitations:`Requires active internet connectivity and valid Tavily 
+API key.`,parentId:`pre-text`,children:[`shared-verif`]},{id:`mod-img`,label:`ViT AI-Generated Image Origin 
+Detector`,level:3,modality:`image`,description:`Visual Transformer classifier detects synthetic diffusion and GAN 
+generation artifacts independently from OCR 
+claims.`,entryPoint:`ai_image_signal.py:detect_ai_image()`,models:[`umm-maybe/AI-image-detector 
+(ViT)`],latency:`~340ms`,limitations:`Prone to uncertainty on heavily compressed social media 
+crops.`,parentId:`pre-img`,children:[`shared-verif`]},{id:`mod-vid`,label:`Dual Video Analyzers: VideoMAE & 
+EfficientNet Detector`,level:3,modality:`video`,description:`Runs VideoMAE-base probe for visual misinformation 
+heuristic (61.90% test acc) and BiGRU for AI-generated video detection (98.33% in-dist, 81.44% OOD 
+OpenSora).`,entryPoint:`video_module/video_verifier.py & 
+videomae_adapter.py`,models:[`MCG-NJU/videomae-base`,`EfficientNet-B0 + 
+BiGRU`],latency:`~2.4s`,limitations:`Experimental signal; held-out OpenSora generator causes 18.5% recall 
+drop.`,parentId:`pre-vid`,children:[`shared-verif`]},{id:`mod-aud`,label:`Wav2Vec2 Synthetic Speech & Whisper STT 
+Engine`,level:3,modality:`audio`,description:`Evaluates vocoder phase continuity and phoneme spectral flattening via 
+Wav2Vec2; transcribes spoken claims via Whisper.`,entryPoint:`audio_module/audio_pipeline.py:verify_audio()`,models:[`m
+o-thecreator/Deepfake-audio-detection`,`Whisper base`],latency:`~1.1s`,limitations:`High false-positive rate on 
+accented/regional Indic speech (Marathi 0% acc in 16-sample 
+benchmark).`,parentId:`pre-aud`,children:[`shared-verif`]},{id:`shared-verif`,label:`Bayesian Evidentiary Fusion & 
+Reliability Calibration`,level:4,modality:`shared`,description:`Normalizes independent source agreement, applies NLI 
+cross-encoder verification, and penalizes single-signal 
+anomalies.`,entryPoint:`evidence_fusion.py:calculate_fusion_score()`,models:[`Cross-Encoder NLI`,`Source Tier Profile 
+Matrix`],latency:`~850ms`,limitations:`Requires at least 2 independent corroborating sources for SUFFICIENT evidence 
+grade.`,parentId:`mod-text`,children:[`out-verdict`]},{id:`out-verdict`,label:`Adjudicated Dossier & Cryptographic 
+Seal`,level:5,modality:`core`,description:`Emits decoupled factual veracity verdict, media provenance signal, evidence 
+citations, and immutable SHA seal.`,entryPoint:`final_verdict.py:generate_final_verdict()`,models:[`Digital Seal 
+Generator (ED-xxx-TL)`],latency:`~50ms`,limitations:`Factual verdicts are strictly evidence-dependent and never 
+overridden by synthetic media presence.`,parentId:`shared-verif`}],s=[{title:`VideoMAE Visual Misinformation 
+Classifier`,modelName:`TruthLensAI Video Classifier (VideoMAE-base + Linear Probe)`,architecture:`ViT-base patch16 224 
+(MCG-NJU/videomae-base)`,datasetName:`Fake Video Corpus (FVC) Benchmark`,sampleCount:42,primaryMetric:{label:`Test 
+Accuracy`,value:`61.90%`},secondaryMetrics:[{label:`Macro 
+F1`,value:`0.6047`},{label:`ROC-AUC`,value:`0.6759`},{label:`Fake Recall`,value:`70.83%`},{label:`Real 
+Precision`,value:`56.25%`}],confusionMatrix:{tp:17,tn:9,fp:9,fn:7},notes:`Outperformed baseline EfficientNet (54.11% 
+macro F1). Documented as an experimental supporting heuristic only.`,status:`experimental`},{title:`AI-Generated Video 
+Detector (In-Distribution)`,modelName:`TruthLensAI AI-Gen Video Detector (EfficientNet-B0 + 
+BiGRU)`,architecture:`Pretrained EfficientNet-B0 backbone with Bidirectional GRU temporal 
+aggregation`,datasetName:`Pilot Synthetic Corpus (VideoCrafter2 + Clean 
+Real)`,sampleCount:60,primaryMetric:{label:`In-Dist Accuracy`,value:`98.33%`},secondaryMetrics:[{label:`Macro 
+F1`,value:`0.9825`},{label:`Balanced Acc`,value:`98.65%`},{label:`ROC-AUC`,value:`0.9988`},{label:`Peak 
+VRAM`,value:`54 MB`}],confusionMatrix:{tp:23,tn:36,fp:1,fn:0},notes:`Near-perfect performance on in-distribution 
+VideoCrafter2 generator. Fast inference (3.42ms per video).`,status:`pilot`},{title:`AI-Generated Video Detector 
+(Out-of-Distribution)`,modelName:`TruthLensAI AI-Gen Video Detector (OpenSora Stress Test)`,architecture:`Pretrained 
+EfficientNet-B0 backbone with Bidirectional GRU`,datasetName:`Held-out OpenSora Video Diffusion Transformer 
+(ood_generator.csv)`,sampleCount:97,primaryMetric:{label:`OOD Accuracy`,value:`81.44%`},secondaryMetrics:[{label:`OOD 
+Recall`,value:`81.44%`},{label:`False Negatives`,value:`18 / 97`},{label:`Degradation`,value:`-16.89% vs 
+In-Dist`}],confusionMatrix:{tp:79,tn:0,fp:0,fn:18},notes:`Demonstrates real-world generalization gap: completely 
+unseen generator architecture caused 18 false negatives.`,status:`pilot`},{title:`Audio Synthetic-Speech Detector 
+(8-Sample Validation)`,modelName:`Wav2Vec2 Deepfake Audio Detector`,architecture:`Fine-tuned Wav2Vec2 audio 
+representation network`,datasetName:`Validation Benchmark (Reuters, Hindi, Marathi, SAPI 
+TTS)`,sampleCount:8,primaryMetric:{label:`Validation Accuracy`,value:`75.00%`},secondaryMetrics:[{label:`Precision`,val
+ue:`66.67%`},{label:`Recall`,value:`100.0%`},{label:`F1 
+Score`,value:`0.8000`}],confusionMatrix:{tp:4,tn:2,fp:2,fn:0},notes:`100% synthetic recall; false positives occurred 
+on compressed Reuters news and Marathi field report.`,status:`verified`},{title:`Audio Detector Multi-Language Stress 
+Test (16-Sample)`,modelName:`Wav2Vec2 Deepfake Audio Detector (Extended Stress)`,architecture:`Fine-tuned 
+Wav2Vec2`,datasetName:`Extended Language & Compression Suite 
+(eval_metrics.json)`,sampleCount:16,primaryMetric:{label:`Stress 
+Accuracy`,value:`66.67%`},secondaryMetrics:[{label:`English Acc`,value:`66.67% (8/12)`},{label:`Hindi 
+Acc`,value:`100.0% (2/2)`},{label:`Marathi Acc`,value:`0.0% (0/1 FP)`},{label:`Short Audio Edge`,value:`1 Excluded 
+(<0.5s)`}],confusionMatrix:{tp:5,tn:5,fp:3,fn:2,uncertain:1},notes:`Revealed vulnerability to lossy MP3 compression 
+(64kbps) and regional Indic accents. Handled <0.5s via UNAVAILABLE 
+failsafe.`,status:`experimental`},{title:`Multimodal Regression Test Suite`,modelName:`TruthLensAI Complete PyTest 
+Verification Suite`,architecture:`Automated PyTest Runner with Mocking & Live Torch Guards`,datasetName:`Unit, 
+Regression & End-to-End API Contracts`,sampleCount:98,primaryMetric:{label:`Pass Rate`,value:`100.0% 
+(98/98)`},secondaryMetrics:[{label:`Audio Module`,value:`22 / 22 Passed`},{label:`Video Module`,value:`55 / 55 
+Passed`},{label:`Integration API`,value:`21 / 21 Passed`}],notes:`All 98 tests pass cleanly in 32 seconds on Windows 
+11 / Python 3.11 with RTX 3050 Laptop GPU.`,status:`verified`}],c=o.filter(e=>i===`all`||e.modality===i||e.modality===`
+core`||e.modality===`shared`),l=e=>{r(t=>({...t,[e]:!t[e]}))};return(0,x.jsx)(`div`,{className:`w-full flex flex-col 
+items-center`,children:(0,x.jsxs)(`div`,{className:`w-full max-w-5xl px-4 sm:px-6 py-6 pb-24 flex flex-col 
+gap-8`,children:[(0,x.jsxs)(`div`,{className:`flex items-center justify-between pt-1 border-b 
+border-outline-variant/30 pb-3`,children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+gap-2`,children:[(0,x.jsx)(`span`,{className:`w-2 h-2 rounded-full bg-primary 
+animate-pulse`}),(0,x.jsx)(`span`,{className:`text-[11px] font-mono uppercase text-primary tracking-wider 
+font-semibold`,children:`PIPELINE AUDIT // v3.4 ARCHITECTURE`})]}),(0,x.jsx)(`span`,{className:`text-[10px] font-mono 
+text-on-surface-variant bg-surface-container px-2 py-0.5 rounded border 
+border-outline-variant/30`,children:`SYS_SHA256: 9b2d..e810`})]}),(0,x.jsxs)(`header`,{className:`flex flex-col 
+gap-2`,children:[(0,x.jsx)(`h1`,{className:`font-serif text-2xl sm:text-3xl lg:text-4xl text-tertiary tracking-tight 
+leading-snug`,children:`Algorithmic Architecture & Verification Methodology`}),(0,x.jsx)(`p`,{className:`text-xs 
+sm:text-sm text-on-surface-variant leading-relaxed max-w-3xl`,children:`A transparent technical disclosure of the 
+multi-layered forensic inspection apparatus engineered for accredited newsrooms, human rights monitors, and sovereign 
+open-source investigators.`}),(0,x.jsxs)(`div`,{className:`flex flex-wrap items-center gap-3 
+mt-1`,children:[(0,x.jsxs)(`div`,{className:`flex items-center gap-1.5 bg-surface-container-high px-2.5 py-1 
+rounded-lg border border-outline-variant/40`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[14px] text-secondary`,children:`verified_user`}),(0,x.jsx)(`span`,{className:`text-[10px] font-mono 
+text-secondary uppercase font-semibold`,children:`IFCN Fact-Checking Standards 
+Compliant`})]}),(0,x.jsx)(`span`,{className:`text-[10px] font-mono text-outline`,children:`Audit Cycle: Q1 2025 • 
+Hardware: RTX 3050 Laptop GPU (4GB VRAM)`})]})]}),(0,x.jsxs)(`section`,{className:`bg-surface-container rounded-xl p-5 
+sm:p-6 border border-outline-variant/50 shadow-lg flex flex-col gap-5`,children:[(0,x.jsxs)(`div`,{className:`flex 
+flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-outline-variant/30 
+pb-4`,children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+gap-2`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[20px] 
+text-primary`,children:`account_tree`}),(0,x.jsx)(`h2`,{className:`font-serif text-lg sm:text-xl text-tertiary 
+font-semibold`,children:`Multimodal Pipeline Hierarchy (5 Levels)`})]}),(0,x.jsxs)(`div`,{className:`flex flex-wrap 
+items-center gap-2`,children:[(0,x.jsx)(`div`,{className:`flex items-center gap-1 bg-surface-container-lowest p-1 
+rounded-lg border border-outline-variant/40 text-[10px] font-mono`,children:[`all`,`text`,`image`,`video`,`audio`].map(
+e=>(0,x.jsx)(`button`,{type:`button`,onClick:()=>a(e),className:`px-2 py-0.5 rounded capitalize transition-colors 
+${i===e?`bg-surface-container-high text-primary font-semibold`:`text-on-surface-variant 
+hover:text-on-surface`}`,children:e},e))}),(0,x.jsxs)(`div`,{className:`flex items-center gap-1 text-[11px] 
+font-mono`,children:[(0,x.jsx)(`button`,{type:`button`,onClick:()=>{r({1:!0,2:!0,3:!0,4:!0,5:!0})},className:`px-2 
+py-1 rounded bg-surface-container-high hover:bg-surface-bright text-tertiary border 
+border-outline-variant/30`,children:`Expand 
+All`}),(0,x.jsx)(`button`,{type:`button`,onClick:()=>{r({1:!1,2:!1,3:!1,4:!1,5:!1})},className:`px-2 py-1 rounded 
+bg-surface-container-high hover:bg-surface-bright text-tertiary border border-outline-variant/30`,children:`Collapse 
+All`})]})]})]}),(0,x.jsx)(`div`,{className:`flex flex-col gap-4`,children:[1,2,3,4,5].map(r=>{let i={1:`Level 1 — 
+Input & Ingestion Layer`,2:`Level 2 — Preprocessing & Signal Normalization`,3:`Level 3 — Modality-Specific Forensic 
+Branches`,4:`Level 4 — Shared Verification & Bayesian Fusion`,5:`Level 5 — Final Adjudication & Evidence 
+Dossier`},a=c.filter(e=>e.level===r);if(a.length===0)return null;let 
+o=n[r];return(0,x.jsxs)(`div`,{className:`bg-surface-container-low rounded-lg border border-outline-variant/40 
+overflow-hidden`,children:[(0,x.jsxs)(`button`,{type:`button`,onClick:()=>l(r),className:`w-full px-4 py-2.5 
+bg-surface-container-high/60 hover:bg-surface-container-high transition-colors flex items-center justify-between 
+text-left`,children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+gap-2`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono font-semibold 
+text-primary`,children:i[r]}),(0,x.jsxs)(`span`,{className:`text-[10px] font-mono 
+text-outline`,children:[`(`,a.length,` nodes)`]})]}),(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[16px] text-outline`,children:o?`expand_less`:`expand_more`})]}),o&&(0,x.jsx)(`div`,{className:`p-3 sm:p-4 grid 
+grid-cols-1 md:grid-cols-2 gap-3`,children:a.map(n=>{let 
+r=e?.id===n.id;return(0,x.jsxs)(`div`,{onClick:()=>t(n),className:`p-3 rounded-lg border transition-all cursor-pointer 
+flex flex-col gap-1.5 ${r?`bg-surface-container-highest border-primary shadow-sm`:`bg-surface-container 
+hover:bg-surface-container-high border-outline-variant/40`}`,children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+justify-between gap-2`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono font-semibold 
+text-tertiary`,children:n.label}),(0,x.jsx)(`span`,{className:`text-[9px] font-mono uppercase px-1.5 py-0.2 rounded 
+${n.modality===`text`?`bg-primary/20 text-primary`:n.modality===`image`?`bg-secondary/20 
+text-secondary`:n.modality===`video`?`bg-amber-400/20 text-amber-300`:n.modality===`audio`?`bg-cyan-400/20 
+text-cyan-300`:`bg-surface-container-highest 
+text-tertiary`}`,children:n.modality})]}),(0,x.jsx)(`p`,{className:`text-[11px] text-on-surface-variant font-sans 
+line-clamp-2`,children:n.description}),n.entryPoint&&(0,x.jsxs)(`div`,{className:`mt-1 pt-1 border-t 
+border-outline-variant/20 flex items-center justify-between text-[10px] font-mono 
+text-outline`,children:[(0,x.jsxs)(`span`,{className:`truncate max-w-[200px]`,children:[`fn: 
+`,n.entryPoint]}),(0,x.jsx)(`span`,{className:`text-primary hover:underline`,children:`Click to Inspect 
+→`})]})]},n.id)})})]},r)})}),e&&(0,x.jsxs)(`div`,{className:`mt-2 p-4 sm:p-5 rounded-xl bg-surface-container-lowest 
+border-2 border-primary/40 flex flex-col gap-3 relative shadow-2xl`,children:[(0,x.jsxs)(`div`,{className:`flex 
+items-center justify-between border-b border-outline-variant/30 pb-2`,children:[(0,x.jsxs)(`div`,{className:`flex 
+items-center gap-2`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[18px] 
+text-primary`,children:`data_object`}),(0,x.jsxs)(`span`,{className:`text-xs font-mono uppercase text-tertiary 
+font-bold tracking-wider`,children:[`Node Inspector: 
+`,e.label]})]}),(0,x.jsx)(`button`,{type:`button`,onClick:()=>t(null),className:`text-outline hover:text-tertiary 
+text-xs font-mono px-2 py-0.5 rounded bg-surface-container`,children:`Close ×`})]}),(0,x.jsxs)(`div`,{className:`grid 
+grid-cols-1 sm:grid-cols-2 gap-3 text-xs 
+font-mono`,children:[(0,x.jsxs)(`div`,{children:[(0,x.jsx)(`span`,{className:`text-[10px] text-outline 
+block`,children:`CORE FUNCTION / ENTRY 
+POINT:`}),(0,x.jsx)(`span`,{className:`text-primary`,children:e.entryPoint||`Internal Pipeline 
+Engine`})]}),(0,x.jsxs)(`div`,{children:[(0,x.jsx)(`span`,{className:`text-[10px] text-outline 
+block`,children:`ESTIMATED LATENCY:`}),(0,x.jsx)(`span`,{className:`text-tertiary`,children:e.latency||`N/A`})]}),e.mod
+els&&(0,x.jsxs)(`div`,{className:`sm:col-span-2`,children:[(0,x.jsx)(`span`,{className:`text-[10px] text-outline 
+block`,children:`BACKBONE MODELS & 
+LIBRARIES:`}),(0,x.jsx)(`span`,{className:`text-secondary`,children:e.models.join(`, 
+`)})]}),(0,x.jsxs)(`div`,{className:`sm:col-span-2`,children:[(0,x.jsx)(`span`,{className:`text-[10px] text-outline 
+block`,children:`FULL ARCHITECTURAL PURPOSE:`}),(0,x.jsx)(`p`,{className:`text-[11px] text-on-surface font-sans 
+leading-relaxed mt-0.5`,children:e.description})]}),e.limitations&&(0,x.jsxs)(`div`,{className:`sm:col-span-2 
+bg-error-container/20 p-2.5 rounded border 
+border-error-container/30`,children:[(0,x.jsx)(`span`,{className:`text-[10px] text-error block 
+font-bold`,children:`OPERATIONAL BOUNDARY / LIMITATION:`}),(0,x.jsx)(`p`,{className:`text-[11px] 
+text-on-error-container font-sans 
+mt-0.5`,children:e.limitations})]})]})]})]}),(0,x.jsxs)(`section`,{className:`bg-surface-container rounded-xl p-5 
+sm:p-6 border border-outline-variant/50 shadow-lg flex flex-col gap-4`,children:[(0,x.jsxs)(`div`,{className:`flex 
+items-center gap-2 border-b border-outline-variant/30 
+pb-3`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[20px] 
+text-primary`,children:`memory`}),(0,x.jsx)(`h2`,{className:`font-serif text-lg sm:text-xl text-tertiary 
+font-semibold`,children:`Foundational Models & Analytical Subroutines`})]}),(0,x.jsxs)(`div`,{className:`grid 
+grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5`,children:[(0,x.jsxs)(`div`,{className:`bg-surface-container-low p-4 
+rounded-lg border border-outline-variant/40 flex flex-col justify-between 
+gap-2`,children:[(0,x.jsxs)(`div`,{children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+justify-between`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono font-bold 
+text-tertiary`,children:`qwen3.8-27b`}),(0,x.jsx)(`span`,{className:`text-[9px] font-mono px-1.5 py-0.2 rounded 
+bg-primary/20 text-primary`,children:`LLM`})]}),(0,x.jsx)(`span`,{className:`text-[10px] font-mono text-outline block 
+mt-0.5`,children:`Provider: Groq Cloud`}),(0,x.jsx)(`p`,{className:`text-[11px] text-on-surface-variant font-sans 
+mt-1.5`,children:`Orchestrates Query Planning, decomposes complex articles into atomic verifiable claims, and executes 
+Bayesian evidence reasoning.`})]}),(0,x.jsxs)(`div`,{className:`text-[10px] font-mono text-outline pt-2 border-t 
+border-outline-variant/20 flex justify-between`,children:[(0,x.jsx)(`span`,{children:`Role: 
+Reasoning`}),(0,x.jsx)(`span`,{children:`Latency: 
+~600ms`})]})]}),(0,x.jsxs)(`div`,{className:`bg-surface-container-low p-4 rounded-lg border border-outline-variant/40 
+flex flex-col justify-between gap-2`,children:[(0,x.jsxs)(`div`,{children:[(0,x.jsxs)(`div`,{className:`flex 
+items-center justify-between`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono font-bold 
+text-tertiary`,children:`VideoMAE-base (Linear Probe)`}),(0,x.jsx)(`span`,{className:`text-[9px] font-mono px-1.5 
+py-0.2 rounded bg-secondary/20 text-secondary`,children:`Visual`})]}),(0,x.jsx)(`span`,{className:`text-[10px] 
+font-mono text-outline block mt-0.5`,children:`MCG-NJU/videomae-base`}),(0,x.jsx)(`p`,{className:`text-[11px] 
+text-on-surface-variant font-sans mt-1.5`,children:`Visual Misinformation Classifier trained on Fake Video Corpus 
+(FVC). Extracts 16-frame spatiotemporal features with 61.90% test 
+accuracy.`})]}),(0,x.jsxs)(`div`,{className:`text-[10px] font-mono text-outline pt-2 border-t 
+border-outline-variant/20 flex justify-between`,children:[(0,x.jsx)(`span`,{children:`Role: Visual 
+Heuristic`}),(0,x.jsx)(`span`,{children:`Params: 86M`})]})]}),(0,x.jsxs)(`div`,{className:`bg-surface-container-low 
+p-4 rounded-lg border border-outline-variant/40 flex flex-col justify-between 
+gap-2`,children:[(0,x.jsxs)(`div`,{children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+justify-between`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono font-bold 
+text-tertiary`,children:`EfficientNet-B0 + BiGRU`}),(0,x.jsx)(`span`,{className:`text-[9px] font-mono px-1.5 py-0.2 
+rounded bg-amber-400/20 text-amber-300`,children:`AI-Gen Vid`})]}),(0,x.jsx)(`span`,{className:`text-[10px] font-mono 
+text-outline block mt-0.5`,children:`Custom Trained Checkpoint`}),(0,x.jsx)(`p`,{className:`text-[11px] 
+text-on-surface-variant font-sans mt-1.5`,children:`Dedicated AI-generated video detection model. Achieved 98.33% 
+accuracy on in-distribution test set; stress-tested against OpenSora 
+(81.44%).`})]}),(0,x.jsxs)(`div`,{className:`text-[10px] font-mono text-outline pt-2 border-t 
+border-outline-variant/20 flex justify-between`,children:[(0,x.jsx)(`span`,{children:`Role: Video 
+Synthesis`}),(0,x.jsx)(`span`,{children:`VRAM: 54 MB`})]})]}),(0,x.jsxs)(`div`,{className:`bg-surface-container-low 
+p-4 rounded-lg border border-outline-variant/40 flex flex-col justify-between 
+gap-2`,children:[(0,x.jsxs)(`div`,{children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+justify-between`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono font-bold 
+text-tertiary`,children:`Deepfake-audio-detection`}),(0,x.jsx)(`span`,{className:`text-[9px] font-mono px-1.5 py-0.2 
+rounded bg-cyan-400/20 text-cyan-300`,children:`Speech`})]}),(0,x.jsx)(`span`,{className:`text-[10px] font-mono 
+text-outline block mt-0.5`,children:`mo-thecreator / HuggingFace`}),(0,x.jsx)(`p`,{className:`text-[11px] 
+text-on-surface-variant font-sans mt-1.5`,children:`Wav2Vec2 architecture measuring vocoder phase discontinuity and 
+formant trajectory naturalness. 75% accuracy in 8-sample benchmark.`})]}),(0,x.jsxs)(`div`,{className:`text-[10px] 
+font-mono text-outline pt-2 border-t border-outline-variant/20 flex 
+justify-between`,children:[(0,x.jsx)(`span`,{children:`Role: Synthetic Speech`}),(0,x.jsx)(`span`,{children:`Latency: 
+~40ms`})]})]}),(0,x.jsxs)(`div`,{className:`bg-surface-container-low p-4 rounded-lg border border-outline-variant/40 
+flex flex-col justify-between gap-2`,children:[(0,x.jsxs)(`div`,{children:[(0,x.jsxs)(`div`,{className:`flex 
+items-center justify-between`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono font-bold 
+text-tertiary`,children:`AI-image-detector (ViT)`}),(0,x.jsx)(`span`,{className:`text-[9px] font-mono px-1.5 py-0.2 
+rounded bg-secondary/20 text-secondary`,children:`Image`})]}),(0,x.jsx)(`span`,{className:`text-[10px] font-mono 
+text-outline block mt-0.5`,children:`umm-maybe / HuggingFace`}),(0,x.jsx)(`p`,{className:`text-[11px] 
+text-on-surface-variant font-sans mt-1.5`,children:`Vision Transformer fine-tuned to classify synthetic image 
+diffusion generators (Midjourney, DALL-E, Stable Diffusion) vs camera 
+captures.`})]}),(0,x.jsxs)(`div`,{className:`text-[10px] font-mono text-outline pt-2 border-t 
+border-outline-variant/20 flex justify-between`,children:[(0,x.jsx)(`span`,{children:`Role: Image 
+Provenance`}),(0,x.jsx)(`span`,{children:`Latency: 
+~340ms`})]})]}),(0,x.jsxs)(`div`,{className:`bg-surface-container-low p-4 rounded-lg border border-outline-variant/40 
+flex flex-col justify-between gap-2`,children:[(0,x.jsxs)(`div`,{children:[(0,x.jsxs)(`div`,{className:`flex 
+items-center justify-between`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono font-bold 
+text-tertiary`,children:`Whisper base & YOLO11n`}),(0,x.jsx)(`span`,{className:`text-[9px] font-mono px-1.5 py-0.2 
+rounded bg-surface-container-highest text-tertiary`,children:`Sensors`})]}),(0,x.jsx)(`span`,{className:`text-[10px] 
+font-mono text-outline block mt-0.5`,children:`OpenAI & Ultralytics`}),(0,x.jsx)(`p`,{className:`text-[11px] 
+text-on-surface-variant font-sans mt-1.5`,children:`Whisper provides robust multi-lingual speech-to-text; YOLO11n 
+provides real-time bounding box detection for contextual claim 
+grounding.`})]}),(0,x.jsxs)(`div`,{className:`text-[10px] font-mono text-outline pt-2 border-t 
+border-outline-variant/20 flex justify-between`,children:[(0,x.jsx)(`span`,{children:`Role: Perception / 
+OCR`}),(0,x.jsx)(`span`,{children:`Local GPU`})]})]})]})]}),(0,x.jsxs)(`section`,{className:`bg-surface-container 
+rounded-xl p-5 sm:p-6 border border-outline-variant/50 shadow-lg flex flex-col 
+gap-5`,children:[(0,x.jsxs)(`div`,{className:`flex items-center justify-between border-b border-outline-variant/30 
+pb-3`,children:[(0,x.jsxs)(`div`,{className:`flex items-center 
+gap-2`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[20px] 
+text-primary`,children:`analytics`}),(0,x.jsx)(`h2`,{className:`font-serif text-lg sm:text-xl text-tertiary 
+font-semibold`,children:`Empirical Evaluation & Measured Test Results`})]}),(0,x.jsx)(`span`,{className:`text-[10px] 
+font-mono text-outline`,children:`SOURCED DIRECT FROM REPO JSON ARTIFACTS`})]}),(0,x.jsx)(`div`,{className:`grid 
+grid-cols-1 md:grid-cols-2 gap-4`,children:s.map((e,t)=>(0,x.jsx)(`div`,{className:`bg-surface-container-low p-4 
+rounded-lg border border-outline-variant/40 flex flex-col justify-between 
+gap-3`,children:(0,x.jsxs)(`div`,{children:[(0,x.jsxs)(`div`,{className:`flex items-start justify-between 
+gap-2`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono font-bold 
+text-tertiary`,children:e.title}),(0,x.jsx)(`span`,{className:`text-[9px] font-mono uppercase px-1.5 py-0.2 rounded 
+flex-shrink-0 ${e.status===`verified`?`bg-primary/20 text-primary border border-primary/30`:`bg-secondary/20 
+text-secondary border border-secondary/30`}`,children:e.status})]}),(0,x.jsxs)(`span`,{className:`text-[10px] 
+font-mono text-outline block mt-0.5`,children:[`Dataset: `,e.datasetName,` (`,e.sampleCount,` 
+samples)`]}),(0,x.jsxs)(`div`,{className:`my-2.5 p-2.5 rounded bg-surface-container-lowest border 
+border-outline-variant/30 flex items-center justify-between`,children:[(0,x.jsxs)(`span`,{className:`text-xs font-mono 
+text-on-surface-variant`,children:[e.primaryMetric.label,`:`]}),(0,x.jsx)(`span`,{className:`font-serif text-xl 
+font-bold text-primary`,children:e.primaryMetric.value})]}),(0,x.jsx)(`div`,{className:`grid grid-cols-2 
+sm:grid-cols-3 gap-1.5 text-[10px] 
+font-mono`,children:e.secondaryMetrics.map((e,t)=>(0,x.jsxs)(`div`,{className:`bg-surface-container px-2 py-1 
+rounded`,children:[(0,x.jsx)(`span`,{className:`text-outline block 
+truncate`,children:e.label}),(0,x.jsx)(`span`,{className:`text-tertiary 
+font-semibold`,children:e.value})]},t))}),e.confusionMatrix&&(0,x.jsxs)(`div`,{className:`mt-2 text-[9px] font-mono 
+text-outline flex items-center justify-between bg-surface-container-lowest/80 px-2 py-1 
+rounded`,children:[(0,x.jsxs)(`span`,{children:[`TP: `,e.confusionMatrix.tp]}),(0,x.jsxs)(`span`,{children:[`TN: 
+`,e.confusionMatrix.tn]}),(0,x.jsxs)(`span`,{children:[`FP: 
+`,e.confusionMatrix.fp]}),(0,x.jsxs)(`span`,{children:[`FN: 
+`,e.confusionMatrix.fn]}),e.confusionMatrix.uncertain!==void 0&&(0,x.jsxs)(`span`,{children:[`UNC: 
+`,e.confusionMatrix.uncertain]})]}),(0,x.jsx)(`p`,{className:`text-[11px] text-on-surface-variant font-sans 
+mt-2`,children:e.notes})]})},t))})]}),(0,x.jsxs)(`section`,{className:`bg-surface-container rounded-xl p-5 sm:p-6 
+border border-outline-variant/50 shadow-lg flex flex-col gap-4`,children:[(0,x.jsxs)(`div`,{className:`flex 
+items-center gap-2 border-b border-outline-variant/30 
+pb-3`,children:[(0,x.jsx)(`span`,{className:`material-symbols-outlined text-[20px] 
+text-secondary`,children:`warning`}),(0,x.jsx)(`h2`,{className:`font-serif text-lg sm:text-xl text-tertiary 
+font-semibold`,children:`Operational Boundary Disclosures & Failure Modes`})]}),(0,x.jsxs)(`div`,{className:`grid 
+grid-cols-1 md:grid-cols-3 gap-3.5`,children:[(0,x.jsxs)(`div`,{className:`bg-surface-container-low p-4 rounded-lg 
+border border-outline-variant/40 flex flex-col gap-1.5`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono 
+uppercase text-secondary font-semibold`,children:`1. Lossy Re-Compression`}),(0,x.jsx)(`p`,{className:`text-[11px] 
+text-on-surface-variant font-sans leading-relaxed`,children:`WhatsApp, TikTok, and 64kbps MP3 re-encodings strip 
+high-frequency vocoder phase cues and PRNU camera sensor patterns, causing false positives on legitimate broadcast 
+speech.`})]}),(0,x.jsxs)(`div`,{className:`bg-surface-container-low p-4 rounded-lg border border-outline-variant/40 
+flex flex-col gap-1.5`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono uppercase text-secondary 
+font-semibold`,children:`2. Linguistic & Dialect Bias`}),(0,x.jsx)(`p`,{className:`text-[11px] text-on-surface-variant 
+font-sans leading-relaxed`,children:`Wav2Vec2 models trained primarily on Western English datasets exhibit high 
+false-positive rates on regional Indic languages (Marathi evaluated at 0% accuracy due to prosodic 
+mismatch).`})]}),(0,x.jsxs)(`div`,{className:`bg-surface-container-low p-4 rounded-lg border border-outline-variant/40 
+flex flex-col gap-1.5`,children:[(0,x.jsx)(`span`,{className:`text-xs font-mono uppercase text-secondary 
+font-semibold`,children:`3. Ultra-Brief Audio Failsafe`}),(0,x.jsx)(`p`,{className:`text-[11px] 
+text-on-surface-variant font-sans leading-relaxed`,children:`Speech clips under 0.5 seconds lack sufficient phoneme 
+representation for reliable inference. The system automatically enforces an UNAVAILABLE failsafe instead of 
+guessing.`})]})]})]}),(0,x.jsxs)(`footer`,{className:`bg-surface-container rounded-xl p-6 border 
+border-outline-variant/50 text-center flex flex-col items-center gap-2.5`,children:[(0,x.jsx)(`div`,{className:`w-10 
+h-10 rounded-full bg-surface-container-highest flex items-center justify-center 
+text-primary`,children:(0,x.jsx)(`span`,{className:`material-symbols-outlined 
+text-[22px]`,children:`policy`})}),(0,x.jsx)(`h3`,{className:`font-serif text-lg text-tertiary 
+font-semibold`,children:`Cryptographic Transparency & Integrity Protocol`}),(0,x.jsx)(`p`,{className:`text-xs 
+text-on-surface-variant max-w-lg leading-relaxed`,children:`Every verification adjudication emits an immutable 
+SHA-signed cryptographic evidence receipt pegged to standard investigative auditing 
+ledgers.`}),(0,x.jsxs)(`div`,{className:`flex flex-wrap items-center justify-center gap-2 pt-1 text-[10px] font-mono 
+text-outline`,children:[(0,x.jsx)(`span`,{className:`px-2 py-0.5 rounded bg-surface-container-low border 
+border-outline-variant/30`,children:`IFCN CODE OF PRINCIPLES`}),(0,x.jsx)(`span`,{className:`px-2 py-0.5 rounded 
+bg-surface-container-low border border-outline-variant/30`,children:`C2PA v2.1 
+COMPLIANT`}),(0,x.jsx)(`span`,{className:`px-2 py-0.5 rounded bg-surface-container-low border 
+border-outline-variant/30`,children:`ISO-17025 FORENSIC SPEC`})]})]})]})})};y.createRoot(document.getElementById(`root`
+)).render((0,x.jsx)(b.StrictMode,{children:(0,x.jsx)(()=>{let[e,t]=(0,b.useState)(`verify`),[n,r]=(0,b.useState)(null),
+[i,a]=(0,b.useState)(null),[o,s]=(0,b.useState)(0);return(0,b.useEffect)(()=>{let e=!0,t=async()=>{try{let t=await 
+C();e&&(r(t),a(!0))}catch(t){e&&(console.warn(`API health check error:`,t),a(!1))}};t();let 
+n=setInterval(t,3e4);return()=>{e=!1,clearInterval(n)}},[]),(0,x.jsxs)(`div`,{className:`min-h-screen bg-surface 
+text-on-surface flex flex-col font-sans selection:bg-primary-container selection:text-on-primary`,children:[(0,x.jsx)(e
+e,{activeTab:e,onTabChange:t,investigationCount:o,apiHealthy:i}),(0,x.jsx)(`main`,{className:`flex-1 w-full pt-16 flex 
+flex-col items-center`,children:e===`verify`?(0,x.jsx)(de,{health:n,onAnalysisComplete:e=>{s(e=>e+1)}}):(0,x.jsx)(fe,{}
+)}),(0,x.jsx)(S,{activeTab:e,onTabChange:t})]})},{})}));
+  scratch\acceptance.py:38:for f in state.get("scrape_failures", []):
+  scratch\acceptance.py:39:    print(" -", f.get("url"), "|", f.get("reason"), "| fallback:", f.get("fallback_used"))
+  scratch\acceptance.py:40:print("=== SUPPORTING EVIDENCE ===")
+> scratch\acceptance.py:41:for e in fv.get("supporting_evidence", []):
+  scratch\acceptance.py:42:    print(" -", e.get("url"), "|", e.get("domain"), "| score", e.get("evidence_score"), 
+"|", e.get("chunk", "")[:120])
+  scratch\acceptance.py:43:print("=== CONTRADICTING EVIDENCE ===")
+  scratch\acceptance.py:44:for e in fv.get("contradicting_evidence", []):
+  scratch\acceptance.py:45:    print(" -", e.get("url"), "|", e.get("domain"), "| score", e.get("evidence_score"), 
+"|", e.get("chunk", "")[:120])
+  scratch\acceptance_matrix.py:176:
+  scratch\acceptance_matrix.py:177:check("True claim", v1, "REAL",
+  scratch\acceptance_matrix.py:178:      v1["verdict"] == "REAL" and v1["independent_supporting"] >= 2,
+> scratch\acceptance_matrix.py:179:      "supported by two independent publishers")
+  scratch\acceptance_matrix.py:180:check("False claim (wrong date)", v2, "UNVERIFIED",
+  scratch\acceptance_matrix.py:181:      v2["verdict"] == "UNVERIFIED" and v2["independent_contradicting"] >= 2,
+  scratch\acceptance_matrix.py:182:      "two independent contradicting publishers")
+  scratch\acceptance_matrix.py:183:check("Incorrect date (single source)", v3, "UNVERIFIED",
+  scratch\acceptance_matrix.py:184:      v3["verdict"] == "UNVERIFIED" and v3["independent_contradicting"] == 1,
+  scratch\measure_text_run.py:170:                "score": e.get("evidence_score"),
+  scratch\measure_text_run.py:171:                "nli": e.get("chunk", "")[:260],
+  scratch\measure_text_run.py:172:            }
+> scratch\measure_text_run.py:173:            for e in verdict.get("supporting_evidence") or []
+  scratch\measure_text_run.py:174:        ],
+  scratch\measure_text_run.py:175:        "contradicting_passages": [
+  scratch\measure_text_run.py:176:            {
+  scratch\measure_text_run.py:177:                "url": e.get("url"),
+  scratch\measure_text_run.py:178:                "domain": e.get("domain"),
+  scratch\repro_evidence_defects.py:181:      "REPRODUCED" if "MISLEADING" in gate["permitted_verdicts"] else "not 
+reproduced")
+  scratch\repro_evidence_defects.py:182:
+  scratch\repro_evidence_defects.py:183:# ---------------------------------------------------------------------------
+> scratch\repro_evidence_defects.py:184:hdr("DEFECT 7: UNVERIFIED mislabels supporting_evidence as contradiction")
+  scratch\repro_evidence_defects.py:185:# ---------------------------------------------------------------------------
+  scratch\repro_evidence_defects.py:186:mixed = [
+  scratch\repro_evidence_defects.py:187:    chunk(1, "https://www.reuters.com/a", "SUPPORT", 0.9),
+  scratch\repro_evidence_defects.py:188:    chunk(2, "https://www.bbc.com/b", "CONTRADICTION", 0.9),
+  scratch\repro_evidence_defects.py:189:]
+  scratch\repro_evidence_defects.py:190:verdict = decide(mixed)
+  scratch\repro_evidence_defects.py:191:print("  FINAL VERDICT              :", verdict["verdict"])
+> scratch\repro_evidence_defects.py:192:print("  supporting_evidence classes:",
+> scratch\repro_evidence_defects.py:193:      [e.get("url") for e in verdict["supporting_evidence"]])
+  scratch\repro_evidence_defects.py:194:print("  contradicting_evidence     :",
+  scratch\repro_evidence_defects.py:195:      [e.get("url") for e in verdict["contradicting_evidence"]])
+  scratch\repro_evidence_defects.py:196:print("  >>> supporting list holds contradiction chunks:",
+  scratch\repro_evidence_defects.py:197:      "REPRODUCED"
+> scratch\repro_evidence_defects.py:198:      if verdict["supporting_evidence"]
+> scratch\repro_evidence_defects.py:199:      and verdict["supporting_evidence"][0]["url"].endswith("/b")
+  scratch\repro_evidence_defects.py:200:      else "not reproduced")
+  scratch\repro_evidence_defects.py:201:
+  scratch\repro_evidence_defects.py:202:# ---------------------------------------------------------------------------
+  scratch\repro_evidence_defects.py:203:hdr("DEFECT 8: agent verdict extraction picks an incidental label")
+  scratch\repro_evidence_defects.py:204:# ---------------------------------------------------------------------------
+  scratch\run_acceptance_A.py:38:for f in state.get("scrape_failures", []):
+  scratch\run_acceptance_A.py:39:    print(" -", f.get("url"), "|", f.get("reason"), "| fallback:", 
+f.get("fallback_used"))
+  scratch\run_acceptance_A.py:40:print("=== SUPPORTING EVIDENCE ===")
+> scratch\run_acceptance_A.py:41:for e in fv.get("supporting_evidence", []):
+  scratch\run_acceptance_A.py:42:    print(" -", e.get("url"), "|", e.get("domain"), "| score", 
+e.get("evidence_score"), "|", e.get("chunk", "")[:120])
+  scratch\run_acceptance_A.py:43:print("=== CONTRADICTING EVIDENCE ===")
+  scratch\run_acceptance_A.py:44:for e in fv.get("contradicting_evidence", []):
+  scratch\run_acceptance_A.py:45:    print(" -", e.get("url"), "|", e.get("domain"), "| score", 
+e.get("evidence_score"), "|", e.get("chunk", "")[:120])
+  scratch\verify_smithsonian.py:132:print(f"  gate reason                 : {gate['permitted_reason']}")
+  scratch\verify_smithsonian.py:133:print(f"  FINAL VERDICT               : {verdict['verdict']}")
+  scratch\verify_smithsonian.py:134:print(f"  confidence                  : {verdict['confidence']} 
+({verdict['confidence_basis']})")
+> scratch\verify_smithsonian.py:135:print(f"  supporting sources          : {[e['domain'] for e in 
+verdict['supporting_evidence']]}")
+  scratch\write_timeline.py:78:        tool_or_model: 'Deterministic Evidence Fusion Engine',
+  scratch\write_timeline.py:79:        input_summary: `${fact.independent_supporting || 0} support vs 
+${fact.independent_contradicting || 0} contra.`,
+  scratch\write_timeline.py:80:        output_summary: `Evidence Sufficiency: ${fact.evidence_sufficiency || 
+'UNKNOWN'}; Agreement: ${((fact.source_agreement || 0)).toFixed(2)}`,
+> scratch\write_timeline.py:81:        metric: { label: 'Agreement Score', value: `${((fact.source_agreement || 
+agreement.agreement_score || 0) * 100).toFixed(1)}%`, meaning: 'Harmonic agreement among independent publishers.', 
+scale: '0-100%' },
+  scratch\write_timeline.py:82:      });
+  scratch\write_timeline.py:83:    }
+  scratch\write_timeline.py:84:
+  scratch\write_timeline.py:85:    if (finalV.verification_verdict || fact.agent_verdict) {
+  scratch\write_timeline.py:86:      stages.push({
+  tests\test_apollo11_claim_evidence.py:176:# 2. Relevant NASA article text can be classified as supporting evidence
+  tests\test_apollo11_claim_evidence.py:177:# 
+===========================================================================
+  tests\test_apollo11_claim_evidence.py:178:
+> tests\test_apollo11_claim_evidence.py:179:def test_relevant_nasa_article_text_is_supporting_evidence():
+  tests\test_apollo11_claim_evidence.py:180:    date_check, level, signals, klass = _classify(NASA_TEXT)
+  tests\test_apollo11_claim_evidence.py:181:
+  tests\test_apollo11_claim_evidence.py:182:    assert date_check["status"] == "match", date_check["reason"]
+  tests\test_apollo11_claim_evidence.py:183:    assert level == "strong"
+  tests\test_apollo11_claim_evidence.py:184:    assert signals["claim_has_location"] is False
+  tests\test_apollo11_claim_evidence.py:576:    # The supporting passages are reported as SUPPORT, not as 
+contradictions.
+  tests\test_apollo11_claim_evidence.py:577:    assert all(
+  tests\test_apollo11_claim_evidence.py:578:        e["url"].endswith(("nasa.gov/apollo-11", 
+"si.edu/spotlight/apollo-11"))
+> tests\test_apollo11_claim_evidence.py:579:        for e in verdict["supporting_evidence"]
+  tests\test_apollo11_claim_evidence.py:580:    )
+  tests\test_apollo11_claim_evidence.py:581:    assert verdict["contradicting_evidence"] == []
+  tests\test_event_date_association.py:335:
+  tests\test_event_date_association.py:336:def test_8d_the_deterministic_gate_is_unchanged():
+  tests\test_event_date_association.py:337:    """
+> tests\test_event_date_association.py:338:    The gate still requires two independent publishers and a primary
+  tests\test_event_date_association.py:339:    article; the date fix does not relax it.
+  tests\test_event_date_association.py:340:    """
+  tests\test_event_date_association.py:341:    records = [
+  tests\test_event_date_association.py:342:        _record(UN_URL, UN_PASSAGE, "CONTRADICTION", source_id=1),
+  tests\test_event_date_association.py:343:        _record("https://www.nasa.gov/apollo-11", UN_PASSAGE, 
+"CONTRADICTION",
+  tests\test_evidence_pipeline_audit.py:125:    ]
+  tests\test_evidence_pipeline_audit.py:126:    verdict = decide(results, FAKE_AGENT, FAKE_AGENT)
+  tests\test_evidence_pipeline_audit.py:127:    assert verdict["verdict"] == "UNVERIFIED"
+> tests\test_evidence_pipeline_audit.py:128:    assert verdict["supporting_evidence"] == []
+  tests\test_evidence_pipeline_audit.py:129:    assert verdict["contradicting_evidence"] == []
+  tests\test_evidence_pipeline_audit.py:130:
+  tests\test_evidence_pipeline_audit.py:131:
+  tests\test_evidence_pipeline_audit.py:132:# 
+===========================================================================
+  tests\test_evidence_pipeline_audit.py:133:# 3. Two snippet-only publishers -> cannot establish REAL or FAKE
+  tests\test_evidence_pipeline_audit.py:710:        "contradiction_score", "context_chunks", "permitted_verdicts",
+  tests\test_evidence_pipeline_audit.py:711:        "permitted_reason", "deterministic_gate_reason", 
+"verification_verdict",
+  tests\test_evidence_pipeline_audit.py:712:        "critic_verdict", "agents_agree", "verdict_overridden_by_evidence",
+> tests\test_evidence_pipeline_audit.py:713:        "agent_confidence", "critic_confidence", "supporting_evidence",
+  tests\test_evidence_pipeline_audit.py:714:        "contradicting_evidence", "reasoning", "verification_result",
+  tests\test_evidence_pipeline_audit.py:715:        "critic_result",
+  tests\test_evidence_pipeline_audit.py:716:    ):
+  tests\test_evidence_pipeline_audit.py:717:        assert field in verdict, f"the verdict dict must keep '{field}'"
+  tests\test_evidence_pipeline_audit.py:718:
+  tests\test_evidence_pipeline_audit.py:773:        chunk(2, "https://www.bbc.com/b", "CONTRADICTION", 0.9),
+  tests\test_evidence_pipeline_audit.py:774:    ]
+  tests\test_evidence_pipeline_audit.py:775:    verdict = decide(results)
+> tests\test_evidence_pipeline_audit.py:776:    assert [e["url"] for e in verdict["supporting_evidence"]] == [
+  tests\test_evidence_pipeline_audit.py:777:        "https://www.reuters.com/a"
+  tests\test_evidence_pipeline_audit.py:778:    ]
+  tests\test_evidence_pipeline_audit.py:779:    assert [e["url"] for e in verdict["contradicting_evidence"]] == [
+  tests\test_evidence_pipeline_audit.py:780:        "https://www.bbc.com/b"
+  tests\test_evidence_pipeline_audit.py:781:    ]
+  tests\test_evidence_retrieval_reliability.py:238:    assert classify_evidence(signals, "search_snippet", profile) != 
+"SUPPORT"
+  tests\test_evidence_retrieval_reliability.py:239:
+  tests\test_evidence_retrieval_reliability.py:240:
+> tests\test_evidence_retrieval_reliability.py:241:def test_3b_a_snippet_source_produces_no_supporting_evidence():
+  tests\test_evidence_retrieval_reliability.py:242:    """
+  tests\test_evidence_retrieval_reliability.py:243:    Even with the window fix, a search snippet can never be support.
+  tests\test_evidence_retrieval_reliability.py:244:    """
+  tests\test_evidence_retrieval_reliability.py:245:    snippet = (
+  tests\test_evidence_retrieval_reliability.py:246:        "Apollo 11 landed the first humans on the Moon in July 
+1969, NASA said. "
+  tests\test_evidence_retrieval_reliability.py:405:
+  tests\test_evidence_retrieval_reliability.py:406:    verdict = generate_final_verdict(
+  tests\test_evidence_retrieval_reliability.py:407:        results, agreement, calculate_fusion_score(results, 
+agreement),
+> tests\test_evidence_retrieval_reliability.py:408:        "Verdict:\nREAL\n\nConfidence:\n95%\n\nReasoning:\nTwo 
+independent publishers.",
+  tests\test_evidence_retrieval_reliability.py:409:        "Verdict:\nREAL\n\nConfidence:\n93%\n\nReasoning:\nAccept.",
+  tests\test_evidence_retrieval_reliability.py:410:    )
+  tests\test_evidence_retrieval_reliability.py:411:    assert verdict["verdict"] == "REAL"
+  tests\test_evidence_retrieval_reliability.py:412:    assert verdict["confidence_basis"] == "evidence_strength"
+  tests\test_evidence_retrieval_reliability.py:413:    assert verdict["independent_supporting"] == 2
+> tests\test_evidence_retrieval_reliability.py:414:    assert verdict["supporting_evidence"]
+  tests\test_evidence_retrieval_reliability.py:415:    assert verdict["contradicting_evidence"] == []
+  tests\test_evidence_retrieval_reliability.py:416:
+  tests\test_evidence_retrieval_reliability.py:417:
+  tests\test_evidence_retrieval_reliability.py:418:def test_6c_a_window_may_support_but_may_not_refute():
+  tests\test_evidence_retrieval_reliability.py:419:    """
+  tests\test_frontend_type_contract.py:123:    fields = interfaces["ResearchClaimResult"]
+  tests\test_frontend_type_contract.py:124:    for required in (
+  tests\test_frontend_type_contract.py:125:        "claim_text", "verdict", "confidence", "evidence_sufficiency", 
+"reasoning",
+> tests\test_frontend_type_contract.py:126:        "supporting_evidence", "contradicting_evidence", "source_name",
+  tests\test_frontend_type_contract.py:127:        "source_url", "timestamps", "frame_references", "source_modality",
+  tests\test_frontend_type_contract.py:128:        "selection_reason", "priority_score", "limitations",
+  tests\test_frontend_type_contract.py:129:    ):
+  tests\test_frontend_type_contract.py:130:        assert required in fields, f"ResearchClaimResult must declare 
+'{required}'"
+  tests\test_frontend_type_contract.py:131:
+  tests\test_report_api_contract.py:89:            "permitted_verdicts": ["REAL", "UNVERIFIED"],
+  tests\test_report_api_contract.py:90:            "permitted_reason": "One publisher corroborates the claim.",
+  tests\test_report_api_contract.py:91:            "reasoning": "One publisher corroborates the claim.",
+> tests\test_report_api_contract.py:92:            "supporting_evidence": [
+  tests\test_report_api_contract.py:93:                {"url": "https://news.example/sky", "domain": "news.example",
+  tests\test_report_api_contract.py:94:                 "chunk": "The sky appears blue because of Rayleigh 
+scattering."}
+  tests\test_report_api_contract.py:95:            ],
+  tests\test_report_api_contract.py:96:            "contradicting_evidence": [],
+  tests\test_report_api_contract.py:97:        },
+  tests\test_report_api_contract.py:127:    assert method["nli_evaluated"] == 1
+  tests\test_report_api_contract.py:128:
+  tests\test_report_api_contract.py:129:    assert report["claims"][0]["verdict"] == "REAL"
+> tests\test_report_api_contract.py:130:    assert report["claims"][0]["supporting_evidence"]
+  tests\test_report_api_contract.py:131:
+  tests\test_report_api_contract.py:132:
+  tests\test_report_api_contract.py:133:@patch("image_pipeline.run_image_pipeline")
+  tests\test_report_api_contract.py:134:def test_image_response_contains_research_report(mock_img):
+  tests\test_report_api_contract.py:135:    mock_img.return_value = {
+  tests\test_research_report.py:120:            "permitted_reason": "No independent corroboration was found.",
+  tests\test_research_report.py:121:            "reasoning": "No independent corroboration was found.",
+  tests\test_research_report.py:122:            "deterministic_gate_reason": "No independent corroboration was found.",
+> tests\test_research_report.py:123:            "supporting_evidence": [],
+  tests\test_research_report.py:124:            "contradicting_evidence": [],
+  tests\test_research_report.py:125:        },
+  tests\test_research_report.py:126:    }
+  tests\test_research_report.py:127:
+  tests\test_research_report.py:128:
+  tests\test_research_report.py:130:# 1. Text with supporting evidence
+  tests\test_research_report.py:131:# ---------------------------------------------------------------------------
+  tests\test_research_report.py:132:
+> tests\test_research_report.py:133:def test_supporting_evidence_produces_supporting_findings():
+  tests\test_research_report.py:134:    state = _state(
+  tests\test_research_report.py:135:        claim="City council approved the new transit plan on 4 March 2020.",
+  tests\test_research_report.py:136:        evidence=[_evidence("SUPPORT", score=0.88)],
+  tests\test_research_report.py:137:        final_verdict={
+  tests\test_research_report.py:138:            "verdict": "REAL",
+  tests\test_research_report.py:142:            "independent_contradicting": 0,
+  tests\test_research_report.py:143:            "total_sources": 2,
+  tests\test_research_report.py:144:            "permitted_verdicts": ["MISLEADING", "REAL", "UNVERIFIED"],
+> tests\test_research_report.py:145:            "permitted_reason": "Two independent publishers corroborate the 
+claim.",
+> tests\test_research_report.py:146:            "reasoning": "Two independent publishers corroborate the claim.",
+> tests\test_research_report.py:147:            "supporting_evidence": [{
+  tests\test_research_report.py:148:                "url": "https://example.org/article",
+  tests\test_research_report.py:149:                "domain": "example.org",
+  tests\test_research_report.py:150:                "evidence_type": "scraped_article",
+  tests\test_research_report.py:151:                "source_tier": "major_outlet",
+  tests\test_research_report.py:152:                "date_status": "match",
+  tests\test_research_report.py:190:            "independent_contradicting": 2,
+  tests\test_research_report.py:191:            "total_sources": 2,
+  tests\test_research_report.py:192:            "permitted_verdicts": ["FAKE", "UNVERIFIED"],
+> tests\test_research_report.py:193:            "permitted_reason": "Two independent publishers contradict the claim.",
+> tests\test_research_report.py:194:            "reasoning": "Two independent publishers contradict the claim.",
+> tests\test_research_report.py:195:            "supporting_evidence": [],
+  tests\test_research_report.py:196:            "contradicting_evidence": [{
+  tests\test_research_report.py:197:                "url": "https://example.org/factcheck",
+  tests\test_research_report.py:198:                "domain": "example.org",
+  tests\test_research_report.py:199:                "evidence_type": "scraped_article",
+  tests\test_research_report.py:200:                "source_tier": "major_outlet",
+  tests\test_research_report.py:274:            "permitted_verdicts": ["UNVERIFIED"],
+  tests\test_research_report.py:275:            "permitted_reason": "No evidence.",
+  tests\test_research_report.py:276:            "reasoning": "No evidence.",
+> tests\test_research_report.py:277:            "supporting_evidence": [],
+  tests\test_research_report.py:278:            "contradicting_evidence": [],
+  tests\test_research_report.py:279:        },
+  tests\test_research_report.py:280:    )
+  tests\test_research_report.py:281:
+  tests\test_research_report.py:282:    report = build_research_report(state, "text", state["claim"])
+  agents.py:136:MULTI-SOURCE CORROBORATION RULE
+  agents.py:137:============================================================
+  agents.py:138:
+> agents.py:139:Count independent PUBLISHERS, not passages.
+  agents.py:140:
+  agents.py:141:- Several passages from one article are ONE source.
+  agents.py:142:- Several domains that republished one wire story are ONE source.
+  agents.py:143:- Only a different publisher that independently reports the claimed
+  agents.py:144:  event, date and location counts as a second confirmation.
+  evidence_brief.py:111:    lines.append(f"Sources retrieved           : {total_sources}")
+  evidence_brief.py:112:    lines.append(f"Sources with article text   : {article_sources}")
+  evidence_brief.py:113:    lines.append(f"Sources snippet-only        : {snippet_only_sources}")
+> evidence_brief.py:114:    lines.append(f"Independent publishers      : {total_groups}")
+  evidence_brief.py:115:    lines.append(f"  supporting               : {supporting_sources}")
+  evidence_brief.py:116:    lines.append(f"  contradicting            : {contradicting_sources}")
+  evidence_brief.py:117:    lines.append(f"  neutral (conflicting)    : {neutral_sources}")
+  evidence_brief.py:118:    lines.append(f"  related context          : {context_sources}")
+  evidence_brief.py:119:    lines.append(f"  non-evidence             : {non_evidence_sources}")
+  evidence_fusion.py:520:    # Evidence sufficiency: can a strong verdict even be considered?
+  evidence_fusion.py:521:    #
+  evidence_fusion.py:522:    # These labels mirror the deterministic gate exactly: a verdict needs
+> evidence_fusion.py:523:    # independent publishers AND primary reporting, in both directions.
+  evidence_fusion.py:524:    # --------------------------------------------------------
+  evidence_fusion.py:525:    if independent_supporting >= 2 and primary_supporting_groups >= 2:
+  evidence_fusion.py:526:        sufficiency = "strong_support"
+  evidence_fusion.py:527:    elif independent_supporting >= 2 and primary_supporting_groups >= 1:
+  evidence_fusion.py:528:        sufficiency = "support"
+  final_verdict.py:28:
+  final_verdict.py:29:VALID_VERDICTS = {"REAL", "FAKE", "MISLEADING", "UNVERIFIED"}
+  final_verdict.py:30:
+> final_verdict.py:31:# A strong REAL/FAKE requires this many INDEPENDENT publishers.
+  final_verdict.py:32:MIN_INDEPENDENT_SOURCES = 2
+  final_verdict.py:33:
+  final_verdict.py:34:# At least this many of the supporting/contradicting publishers must be
+  final_verdict.py:35:# retrieved articles from primary publishers, not search snippets.
+  final_verdict.py:36:MIN_PRIMARY_GROUPS = 1
+  final_verdict.py:245:
+  final_verdict.py:246:    The policy is symmetric in both directions:
+  final_verdict.py:247:
+> final_verdict.py:248:      * a verdict needs INDEPENDENT publishers, and at least one of them must
+  final_verdict.py:249:        be a primary publisher whose article text was actually retrieved.
+  final_verdict.py:250:        Search snippets alone can never establish or refute a claim.
+  final_verdict.py:251:      * support and contradiction are treated the same way: two independent
+  final_verdict.py:252:        contradicting publishers are not enough unless one of them is primary
+  final_verdict.py:253:        reporting we actually read.
+  final_verdict.py:338:                f"the claim, but only {primary_supporting} of them are primary "
+  final_verdict.py:339:                f"publishers whose article text was actually retrieved "
+  final_verdict.py:340:                f"({article_supporting} with retrievable article text). REAL requires "
+> final_verdict.py:341:                f"at least {MIN_INDEPENDENT_SOURCES} independent publishers including "
+  final_verdict.py:342:                f"at least {MIN_PRIMARY_GROUPS} primary article, so REAL is not "
+  final_verdict.py:343:                f"permitted."
+  final_verdict.py:344:            )
+  final_verdict.py:345:            return gate
+  final_verdict.py:346:
+  final_verdict.py:349:        if primary_correction_groups >= MIN_CORRECTION_GROUPS:
+  final_verdict.py:350:            gate["permitted_verdicts"].add("MISLEADING")
+  final_verdict.py:351:            gate["permitted_reason"] = (
+> final_verdict.py:352:                f"{independent_supporting} independent publishers, "
+  final_verdict.py:353:                f"{primary_supporting} of them primary publishers with retrieved "
+  final_verdict.py:354:                f"article text, directly support the claim. "
+  final_verdict.py:355:                f"{primary_correction_groups} primary publisher(s) contain an explicit "
+  final_verdict.py:356:                f"correction of a material claim detail, so MISLEADING may also be "
+  final_verdict.py:357:                f"considered."
+  final_verdict.py:358:            )
+  final_verdict.py:359:        else:
+  final_verdict.py:360:            gate["permitted_reason"] = (
+> final_verdict.py:361:                f"{independent_supporting} independent publishers, "
+  final_verdict.py:362:                f"{primary_supporting} of them primary publishers with retrieved "
+  final_verdict.py:363:                f"article text, directly support the claim. No retrieved primary "
+  final_verdict.py:364:                f"evidence contains an explicit correction of a material claim "
+  final_verdict.py:365:                f"detail, so MISLEADING is not permitted."
+  final_verdict.py:366:            )
+  final_verdict.py:376:                f"claim, but only {primary_contradicting} of them are primary "
+  final_verdict.py:377:                f"publishers whose article text was actually retrieved "
+  final_verdict.py:378:                f"({article_contradicting} with retrievable article text). FAKE "
+> final_verdict.py:379:                f"requires at least {MIN_INDEPENDENT_SOURCES} independent publishers "
+  final_verdict.py:380:                f"including at least {MIN_PRIMARY_GROUPS} primary article, so FAKE is "
+  final_verdict.py:381:                f"not permitted. Search snippets alone can never refute a claim."
+  final_verdict.py:382:            )
+  final_verdict.py:383:            return gate
+  final_verdict.py:384:
+  final_verdict.py:385:        gate["permitted_verdicts"] = {"FAKE", "UNVERIFIED"}
+  final_verdict.py:386:        gate["permitted_reason"] = (
+> final_verdict.py:387:            f"{independent_contradicting} independent publishers, "
+  final_verdict.py:388:            f"{primary_contradicting} of them primary publishers with retrieved "
+  final_verdict.py:389:            f"article text, directly contradict the claim."
+  final_verdict.py:390:        )
+  final_verdict.py:391:        return gate
+  final_verdict.py:392:
+  final_verdict.py:426:
+  final_verdict.py:427:    requirement = (
+  final_verdict.py:428:        f"A settled verdict requires at least {MIN_INDEPENDENT_SOURCES} "
+> final_verdict.py:429:        f"independent publishers, including at least {MIN_PRIMARY_GROUPS} "
+  final_verdict.py:430:        f"primary publisher whose article text was actually retrieved."
+  final_verdict.py:431:    )
+  final_verdict.py:432:
+  final_verdict.py:433:    if snippet_only_sources and not article_sources:
+  final_verdict.py:434:        gate["permitted_reason"] = (
+  final_verdict.py:444:            f"search snippets rather than retrieved articles, and a snippet can "
+  final_verdict.py:445:            f"never establish or refute a claim. {supporting_sources} source(s) "
+  final_verdict.py:446:            f"support the claim and {contradicting_sources} contradict it, which "
+> final_verdict.py:447:            f"does not reach the required number of independent publishers. "
+  final_verdict.py:448:            f"{requirement}"
+  final_verdict.py:449:        )
+  final_verdict.py:450:        return gate
+  final_verdict.py:451:
+  final_verdict.py:452:    gate["permitted_reason"] = (
+  final_verdict.py:684:        "verdict_overridden_by_evidence": consistency["verdict_overridden_by_evidence"],
+  final_verdict.py:685:        "agent_confidence": verification_confidence,
+  final_verdict.py:686:        "critic_confidence": critic_confidence,
+> final_verdict.py:687:        "supporting_evidence": _primary_evidence("SUPPORT", results),
+  final_verdict.py:688:        "contradicting_evidence": _primary_evidence("CONTRADICTION", results),
+  final_verdict.py:689:        "reasoning": reason,
+  final_verdict.py:690:        "verification_result": verification_output,
+  final_verdict.py:691:        "critic_result": critic_output,
+  final_verdict.py:692:    }
+  research_report.py:940:                "confidence": confidence,
+  research_report.py:941:                "evidence_sufficiency": final_v.get("evidence_sufficiency"),
+  research_report.py:942:                "reasoning": _clean_text(final_v.get("reasoning")) or None,
+> research_report.py:943:                "supporting_evidence": final_v.get("supporting_evidence") or [],
+  research_report.py:944:                "contradicting_evidence": final_v.get("contradicting_evidence") or [],
+  research_report.py:945:                "source_name": None,
+  research_report.py:946:                "source_url": None,
+  research_report.py:947:                "timestamps": entry.get("timestamps"),
+  research_report.py:948:                "frame_references": entry.get("frame_references"),
+  research_report.py:965:    if confidence is not None and confidence > 1.0:
+  research_report.py:966:        confidence = confidence / 100.0
+  research_report.py:967:
+> research_report.py:968:    supporting = final_v.get("supporting_evidence") or []
+  research_report.py:969:    contradicting = final_v.get("contradicting_evidence") or []
+  research_report.py:970:
+  research_report.py:971:    def _first_link(items: Any) -> Tuple[Optional[str], Optional[str]]:
+  research_report.py:972:        if not isinstance(items, list) or not items:
+  research_report.py:973:            return None, None
+  research_report.py:986:        "confidence": confidence,
+  research_report.py:987:        "evidence_sufficiency": final_v.get("evidence_sufficiency"),
+  research_report.py:988:        "reasoning": _clean_text(final_v.get("reasoning")) or None,
+> research_report.py:989:        "supporting_evidence": supporting,
+  research_report.py:990:        "contradicting_evidence": contradicting,
+  research_report.py:991:        "source_name": support_domain or contradict_domain,
+  research_report.py:992:        "source_url": support_url or contradict_url,
+  research_report.py:993:        "timestamps": None,
+  research_report.py:994:        "frame_references": None,
+  research_report.py:1243:            ),
+  research_report.py:1244:            "what_would_help": (
+  research_report.py:1245:                "A source that resolves the conflict directly, or corroboration of one 
+account "
+> research_report.py:1246:                "from further independent publishers."
+  research_report.py:1247:            ),
+  research_report.py:1248:        })
+  research_report.py:1249:
+  research_report.py:1250:    snippet_only = [
+  research_report.py:1251:        f for f in (supporting + contradicting)
+
+

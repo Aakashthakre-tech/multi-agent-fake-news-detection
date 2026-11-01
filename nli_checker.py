@@ -33,23 +33,36 @@ NLI_SAFETY_MARGIN = SAFETY_MARGIN
 DEFAULT_LABELS = ("contradiction", "entailment", "neutral")
 
 # If the model exposes a non-standard label set, map it onto the canonical one.
+#
+# The generic ``label_N`` entries are OVERRIDDEN at runtime by the model's own
+# ``id2label`` (see ``_label_aliases``). The values here are the fallback for
+# when the config cannot be read, and they match the real order of
+# cross-encoder/nli-deberta-v3-base: {0: contradiction, 1: entailment,
+# 2: neutral}. The previous fallback was a rotation of that order, which would
+# have inverted every label if the model ever exposed generic labels.
 LABEL_ALIASES = {
     "entailment": "entailment",
     "entail": "entailment",
-    "label_0": "entailment",
+    "label_0": "contradiction",
     "contradiction": "contradiction",
     "contradict": "contradiction",
     "contradictory": "contradiction",
-    "label_2": "contradiction",
+    "label_2": "neutral",
     "neutral": "neutral",
     "not_entailment": "neutral",
     "not_entail": "neutral",
     "unrelated": "neutral",
-    "label_1": "neutral",
+    "label_1": "entailment",
 }
 
 _nli_model = None
 _model_limits = {}
+_tokenizer = None
+
+# Memoised NLI results, keyed by (claim, evidence). Bounded so a long-running
+# process cannot grow without limit.
+_NLI_CACHE = {}
+_NLI_CACHE_MAX = 4096
 
 
 def _load_model():
@@ -92,10 +105,17 @@ def _model_max_tokens(model):
     return limit
 
 
-def _tokenizer():
-    from transformers import AutoTokenizer
+def get_tokenizer():
+    """Return the shared tokenizer instance (loaded once per process)."""
+    global _tokenizer
+    if _tokenizer is None:
+        from transformers import AutoTokenizer
+        _tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    return _tokenizer
 
-    return AutoTokenizer.from_pretrained(MODEL_NAME)
+
+def _tokenizer():
+    return get_tokenizer()
 
 
 def _neutral(reason, status="unavailable"):
@@ -109,6 +129,53 @@ def _neutral(reason, status="unavailable"):
     }
 
 
+def _canonical_label_name(label):
+    """Map a model's own label name onto the canonical one."""
+    name = str(label or "").strip().lower()
+    if name in ("entailment", "entail"):
+        return "entailment"
+    if name in ("contradiction", "contradict", "contradictory"):
+        return "contradiction"
+    if name in ("neutral", "not_entailment", "not_entail", "unrelated"):
+        return "neutral"
+    return None
+
+
+@lru_cache(maxsize=1)
+def _label_aliases():
+    """
+    The label map, derived from the model's own ``id2label`` when it can be
+    read.
+
+    The generic ``label_N`` names are positional: their meaning comes from the
+    model configuration, not from a guess. For
+    cross-encoder/nli-deberta-v3-base the config says
+    ``{0: contradiction, 1: entailment, 2: neutral}``, so ``label_0`` is
+    contradiction. Reading the config removes the possibility of inverting
+    every label.
+    """
+    aliases = dict(LABEL_ALIASES)
+
+    try:
+        from transformers import AutoConfig
+
+        config = AutoConfig.from_pretrained(MODEL_NAME)
+        id2label = getattr(config, "id2label", None) or {}
+        for index, label in dict(id2label).items():
+            try:
+                index = int(index)
+            except (TypeError, ValueError):
+                continue
+            canonical = _canonical_label_name(label)
+            if canonical:
+                aliases[f"label_{index}"] = canonical
+    except Exception:
+        # The hardcoded fallback already matches this model's real order.
+        pass
+
+    return aliases
+
+
 def _canonical_scores(raw_outputs):
     """
     Fold the raw model output into {entailment, contradiction, neutral}.
@@ -116,6 +183,7 @@ def _canonical_scores(raw_outputs):
     Handles both the standard 3-label set and paraphrase-style 2-label sets.
     """
     folded = {"entailment": 0.0, "contradiction": 0.0, "neutral": 0.0}
+    aliases = _label_aliases()
 
     for item in raw_outputs:
         raw_label = str(item.get("label", "")).lower().strip()
@@ -124,7 +192,7 @@ def _canonical_scores(raw_outputs):
         except (TypeError, ValueError):
             score = 0.0
 
-        canonical = LABEL_ALIASES.get(raw_label)
+        canonical = aliases.get(raw_label)
         if canonical:
             folded[canonical] = max(folded[canonical], score)
 
@@ -194,6 +262,13 @@ def check_nli(claim, evidence):
         truncated  True if the premise/hypothesis had to be shortened
         status     ok | shrunk | error | unavailable
         reason     short machine-readable explanation
+
+    Results are memoised per (premise, hypothesis) pair. The NLI model is the
+    measured bottleneck of the pipeline, and the same passage is frequently
+    evaluated more than once - across a source's paragraph and window
+    candidates, across duplicate URLs, and across repeated runs of the same
+    claim. The cache changes no entailment decision: an identical pair always
+    produced an identical answer.
     """
     if not claim or not str(claim).strip() or not evidence or not str(evidence).strip():
         return _neutral("Empty claim or evidence.", status="unavailable")
@@ -201,6 +276,20 @@ def check_nli(claim, evidence):
     claim = str(claim).strip()
     evidence = str(evidence).strip()
 
+    cached = _NLI_CACHE.get((claim, evidence))
+    if cached is not None:
+        return dict(cached)
+
+    result = _check_nli_uncached(claim, evidence)
+    if result.get("status") in ("ok", "shrunk"):
+        if len(_NLI_CACHE) >= _NLI_CACHE_MAX:
+            _NLI_CACHE.clear()
+        _NLI_CACHE[(claim, evidence)] = dict(result)
+    return result
+
+
+def _check_nli_uncached(claim, evidence):
+    """The actual inference. See check_nli for the contract."""
     try:
         model = _load_model()
     except Exception as exc:

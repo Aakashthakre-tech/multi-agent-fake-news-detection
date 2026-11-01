@@ -1,0 +1,150 @@
+{
+ "label": "apollo_final",
+ "claim": "NASA's Apollo 11 mission landed humans on the Moon in July 1969.",
+ "total_sec": 825.08,
+ "retrieval_calls": 1,
+ "retrieval_sec": 57.24,
+ "scrape_calls": 7,
+ "scrape_sec": 21.8,
+ "scrape_failures": 2,
+ "nli_calls": 29,
+ "nli_sec": 82.45,
+ "verdict": "REAL",
+ "confidence": 79.9,
+ "confidence_basis": "evidence_strength",
+ "evidence_sufficiency": "strong_support",
+ "permitted_verdicts": [
+  "REAL",
+  "UNVERIFIED"
+ ],
+ "gate_reason": "3 independent publishers, 3 of them primary publishers with retrieved article text, directly support the claim. No retrieved primary evidence contains an explicit correction of a material claim detail, so MISLEADING is not permitted.",
+ "independent_supporting": 3,
+ "independent_contradicting": 0,
+ "primary_supporting_groups": 3,
+ "primary_contradicting_groups": 0,
+ "article_supporting_groups": 3,
+ "article_contradicting_groups": 0,
+ "total_sources": 7,
+ "independence_groups": 7,
+ "snippet_only_sources": 0,
+ "article_sources": 7,
+ "verification_coverage": 1.0,
+ "policy_data_valid": true,
+ "policy_data_errors": [],
+ "search_queries": [
+  "NASA's Apollo 11 mission landed humans on the Moon in July 1969.",
+  "\"July, 1969\" \"nasa's apollo mission\" \"apollo mission landed\" humans moon",
+  "nasa's apollo mission fact check",
+  "1969-07 \"nasa's apollo mission\" \"apollo mission landed\" humans moon official statement"
+ ],
+ "source_decisions": [
+  {
+   "decision": "entailment",
+   "group": "bbc.co.uk",
+   "domain": "bbc.co.uk",
+   "url": "https://www.bbc.co.uk/newsround/articles/cq62yzdr47jro",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.95
+  },
+  {
+   "decision": "related_context",
+   "group": "diyd2016.wordpress.com",
+   "domain": "diyd2016.wordpress.com",
+   "url": "https://diyd2016.wordpress.com/2026/10/16/mystery-of-moon-landing",
+   "retrieval": "scraped_article",
+   "primary": false,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.25
+  },
+  {
+   "decision": "related_context",
+   "group": "nasa.gov",
+   "domain": "nasa.gov",
+   "url": "https://www.nasa.gov/wp-content/uploads/2024/05/apollo-11-goodwill-messages.pdf",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.25
+  },
+  {
+   "decision": "entailment",
+   "group": "mit.edu",
+   "domain": "news.mit.edu",
+   "url": "https://news.mit.edu/2026/margaret-hamilton-computing-pioneer-dies-1007",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.89
+  },
+  {
+   "decision": "non_evidence",
+   "group": "newsnationnow.com",
+   "domain": "newsnationnow.com",
+   "url": "https://www.newsnationnow.com/space/ufo/ross-coulthart-nasa-uap-disclosure-incomplete",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "entailment",
+   "group": "rocketstem.org",
+   "domain": "rocketstem.org",
+   "url": "https://www.rocketstem.org/apollo-50th-celebration",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.9133
+  },
+  {
+   "decision": "related_context",
+   "group": "rtl.lu",
+   "domain": "today.rtl.lu",
+   "url": "https://today.rtl.lu/news/science-and-environment/margaret-hamilton-scientist-who-worked-on-nasas-apollo-program-dead-at-90-467986544",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.0837
+  }
+ ],
+ "supporting_passages": [
+  {
+   "url": "https://www.bbc.co.uk/newsround/articles/cq62yzdr47jro",
+   "domain": "bbc.co.uk",
+   "score": 0.95,
+   "nli": "On 20 July 1969, US astronauts Buzz Aldrin and Neil Armstrong became the first people to walk on the Moon.\n\nA camera was able to transmit the historic moment to around 650 million people around the world, who were watching the Apollo mission on television."
+  },
+  {
+   "url": "https://www.rocketstem.org/apollo-50th-celebration",
+   "domain": "rocketstem.org",
+   "score": 0.9133,
+   "nli": "I n July of 1969, the Apollo 11 mission marked humanity’s first steps on the Moon by Neil Armstrong and Buzz Aldrin. We continue to celebrate the entire Apollo program here at RocketSTEM. Our social media channels will often feature an Apollo Image of the Day."
+  },
+  {
+   "url": "https://www.rocketstem.org/apollo-50th-celebration",
+   "domain": "rocketstem.org",
+   "score": 0.9123,
+   "nli": "TITLE: Project Apollo Celebration - RocketSTEM\n\nI n July of 1969, the Apollo 11 mission marked humanity’s first steps on the Moon by Neil Armstrong and Buzz Aldrin. We continue to celebrate the entire Apollo program here at RocketSTEM. Our social media channel"
+  }
+ ],
+ "contradicting_passages": [],
+ "class_counts": {
+  "SUPPORT": 5,
+  "CONTRADICTION": 0,
+  "RELATED_CONTEXT": 14,
+  "NON_EVIDENCE": 7
+ },
+ "passage_kinds": {
+  "paragraph": 18,
+  "window": 8
+ }
+}

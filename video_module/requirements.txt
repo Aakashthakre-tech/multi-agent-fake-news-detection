@@ -1,0 +1,8 @@
+# Video processing
+opencv-python>=4.8.0
+
+# Speech recognition
+openai-whisper>=20231117
+
+# Testing
+pytest>=7.0.0

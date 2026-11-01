@@ -1,0 +1,89 @@
+{
+ "label": "biden_final",
+ "claim": "Joe Biden withdrew from the 2024 United States presidential race in July 2024.",
+ "total_sec": 630.52,
+ "retrieval_calls": 1,
+ "retrieval_sec": 7.98,
+ "scrape_calls": 4,
+ "scrape_sec": 24.46,
+ "scrape_failures": 3,
+ "nli_calls": 16,
+ "nli_sec": 53.04,
+ "verdict": "UNVERIFIED",
+ "confidence": 100.0,
+ "confidence_basis": "verification_coverage",
+ "evidence_sufficiency": "context_only",
+ "permitted_verdicts": [
+  "UNVERIFIED"
+ ],
+ "gate_reason": "Retrieved sources provide related context only (2 context source(s) of 3 retrieved, 1 non-evidence); none establishes the claimed event with the claimed date. A settled verdict requires at least 2 independent publishers, including at least 1 primary publisher whose article text was actually retrieved.",
+ "independent_supporting": 0,
+ "independent_contradicting": 0,
+ "primary_supporting_groups": 0,
+ "primary_contradicting_groups": 0,
+ "article_supporting_groups": 0,
+ "article_contradicting_groups": 0,
+ "total_sources": 3,
+ "independence_groups": 3,
+ "snippet_only_sources": 0,
+ "article_sources": 3,
+ "verification_coverage": 1.0,
+ "policy_data_valid": true,
+ "policy_data_errors": [],
+ "search_queries": [
+  "Joe Biden withdrew from the 2024 United States presidential race in July 2024.",
+  "\"July 2024\" \"United States\" \"joe biden withdrew\" \"presidential race\"",
+  "\"July, 2024\" \"United States\" \"joe biden withdrew\" \"presidential race\"",
+  "\"United States\" \"joe biden withdrew\" \"presidential race\"",
+  "\"Joe Biden withdrew from the 2024 United States presidential race in July 2024.\" fact check",
+  "2024-07 \"United States\" \"joe biden withdrew\" \"presidential race\" official statement",
+  "2024 \"United States\" \"presidential race\""
+ ],
+ "source_decisions": [
+  {
+   "decision": "related_context",
+   "group": "mainstreetdailynews.com",
+   "domain": "mainstreetdailynews.com",
+   "url": "https://www.mainstreetdailynews.com/govt-politics/biden-withdraws-presidential-race",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.1774
+  },
+  {
+   "decision": "related_context",
+   "group": "nbcnews.com",
+   "domain": "nbcnews.com",
+   "url": "https://www.nbcnews.com/politics/2026-elections/florida-results",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.1562
+  },
+  {
+   "decision": "non_evidence",
+   "group": "wsj.com",
+   "domain": "wsj.com",
+   "url": "https://www.wsj.com/politics/elections/the-candidates-defining-2026-704d3d62",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  }
+ ],
+ "supporting_passages": [],
+ "contradicting_passages": [],
+ "class_counts": {
+  "SUPPORT": 0,
+  "CONTRADICTION": 0,
+  "RELATED_CONTEXT": 5,
+  "NON_EVIDENCE": 7
+ },
+ "passage_kinds": {
+  "paragraph": 9,
+  "window": 3
+ }
+}

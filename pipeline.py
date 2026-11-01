@@ -1,5 +1,6 @@
 import re
 import sys
+from typing import Optional
 from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
 
 from agents import (
@@ -23,8 +24,10 @@ from source_reliability import (
     is_near_duplicate,
     registrable_domain,
 )
-from tools import search_with_diagnostics, scrape_url, scrape_url_detailed
+from tools import search_with_diagnostics, scrape_url, scrape_url_detailed, query_google_fact_check
 from final_verdict import generate_final_verdict, deterministic_gate
+from second_opinion import build_second_opinion
+from independent_llm_analysis import build_independent_llm_analysis
 from research_report import redact_sensitive
 
 
@@ -315,7 +318,7 @@ def _diagnose_unverified_reason(state: dict) -> str:
     return "Evidence insufficient to reach a settled verdict."
 
 
-def run_research_pipeline(claim: str) -> dict:
+def run_research_pipeline(claim: str, extracted_text: Optional[str] = None) -> dict:
 
     state = {}
 
@@ -658,6 +661,121 @@ def run_research_pipeline(claim: str) -> dict:
         claim,
         source_data
     )
+
+    # ============================================================
+    # STEP 3.25 - GOOGLE FACT CHECK API
+    # ============================================================
+    #
+    # Calls the Google Fact Check Tools API as a supplementary evidence
+    # source. Results are normalized into the same evidence format and
+    # merged into evidence_analysis before reconciliation, so they go
+    # through the same dedup, source-independence, and verdict gates as
+    # web-scraped evidence. The API is supplementary: it never overrides
+    # the deterministic verdict gate.
+    #
+    state["google_fact_check"] = None
+    state["google_fact_check_error"] = None
+
+    try:
+        gc_result = query_google_fact_check(claim)
+        state["google_fact_check"] = gc_result
+
+        if gc_result.get("status") == "success" and gc_result.get("claims"):
+            print(f"\nGoogle Fact Check: {len(gc_result['claims'])} claim(s) found")
+
+            google_evidence = []
+            for gc_claim in gc_result["claims"]:
+                for review in gc_claim.get("claimReview", []):
+                    publisher = review.get("publisher", {})
+                    publisher_name = publisher.get("name", "Unknown")
+                    review_url = review.get("url", "")
+                    rating = (review.get("textualRating") or "").strip()
+
+                    # Map fact-check rating to evidence class
+                    rating_lower = rating.lower()
+                    if rating_lower in ("true", "mostly true"):
+                        ev_class = "SUPPORT"
+                        nli_label = "entailment"
+                        nli_score = 0.90
+                    elif rating_lower in ("false", "mostly false"):
+                        ev_class = "CONTRADICTION"
+                        nli_label = "contradiction"
+                        nli_score = 0.90
+                    elif rating_lower in ("mixture", "misleading", "half true", "half-true"):
+                        ev_class = "RELATED_CONTEXT"
+                        nli_label = "neutral"
+                        nli_score = 0.50
+                    else:
+                        ev_class = "RELATED_CONTEXT"
+                        nli_label = "neutral"
+                        nli_score = 0.50
+
+                    # Get source profile for independence grouping
+                    source_profile = get_source_profile(review_url, "scraped_article")
+
+                    google_evidence.append({
+                        "source_id": f"gfc-{len(state['evidence_analysis']) + len(google_evidence) + 1}",
+                        "url": review_url,
+                        "domain": extract_domain(review_url),
+                        "title": publisher_name,
+                        "content": (
+                            f"CLAIM: {gc_claim.get('text', '')}\n"
+                            f"PUBLISHER: {publisher_name}\n"
+                            f"RATING: {rating}\n"
+                            f"REVIEW: {review.get('textualRating', '')}"
+                        ),
+                        "evidence_type": "fact_check",
+                        "scrape_status": "SUCCESS",
+                        "retrieval_class": "factcheck",
+                        "found_via": ["google_fact_check"],
+                        "search_query": claim,
+                        "published_date": gc_claim.get("claimDate", ""),
+                        "independence_group": registrable_domain(review_url) or extract_domain(review_url),
+                        "similarity": 0.85,
+                        "raw_nli_label": nli_label,
+                        "raw_nli_score": nli_score,
+                        "nli_label": nli_label,
+                        "nli_score": nli_score,
+                        "nli_status": "ok",
+                        "source_reliability": source_profile.get("reliability", 0.5),
+                        "source_tier": source_profile.get("tier", "unknown"),
+                        "evidence_score": nli_score * source_profile.get("reliability", 0.5),
+                        "evidence_class": ev_class,
+                        "date_status": "match",
+                        "event_match": "strong",
+                        "location_match": True,
+                        "detail_coverage": 0.7,
+                        "debunking": False,
+                        "passage_kind": "paragraph",
+                        "claim_type": state.get("claim_type", "other_factual_claim"),
+                        "event_date_conflict": False,
+                        "event_date_mismatch": False,
+                        "is_primary_source": source_profile.get("is_primary_source", False),
+                        "claim_has_location": False,
+                        "chunk": (
+                            f"FACT-CHECK: {gc_claim.get('text', '')}\n"
+                            f"Publisher: {publisher_name}\n"
+                            f"Rating: {rating}\n"
+                            f"Review: {review.get('textualRating', '')}"
+                        ),
+                    })
+
+            state["evidence_analysis"].extend(google_evidence)
+            print(f"  Added {len(google_evidence)} Google Fact Check evidence item(s)")
+        else:
+            err_msg = gc_result.get("error_message", "No results returned")
+            print(f"\nGoogle Fact Check: {err_msg}")
+            state["google_fact_check_error"] = err_msg
+
+    except Exception as e:
+        state["google_fact_check"] = {
+            "status": "error",
+            "error_category": "request_error",
+            "error_message": str(e)[:200],
+            "claims": [],
+        }
+        state["google_fact_check_error"] = str(e)[:200]
+        print(f"  [Google Fact Check] Error: {str(e)[:160]}")
 
     # Detailed evidence layer logging
     print("\n" + "=" * 60)
@@ -1018,27 +1136,76 @@ def run_research_pipeline(claim: str) -> dict:
 
             state["verification"],
 
-            state["feedback"]
+            state["feedback"],
+
+            state["google_fact_check"],
         )
     )
 
-
     # ============================================================
-    # FINAL RESULT
+    # STEP 8.5 - LLM SECOND OPINION (independent review)
+    # ============================================================
+    #
+    # A separate LLM reviews the claim and the evidence package already
+    # collected. It never re-runs search/scraping and never overrides the
+    # deterministic evidence gate. Its verdict is reported alongside the
+    # system verdict for comparison only.
     # ============================================================
 
-    print("\n")
+    print("\n" + "=" * 60)
+    print("STEP 8.5 - LLM SECOND OPINION")
+    print("=" * 60)
 
-    print(
-        "=" * 60
+    final_verdict = state.get("final_verdict", {}) or {}
+    permitted = final_verdict.get("permitted_verdicts") or []
+    if isinstance(permitted, str):
+        permitted = [permitted]
+
+    state["llm_second_opinion"] = build_second_opinion(
+        claim=claim,
+        evidence_analysis=state["evidence_analysis"],
+        source_agreement=state["source_agreement"],
+        existing_verdict=final_verdict.get("verdict"),
+        permitted_verdicts=permitted,
     )
 
     print(
-        "TRUTHLENS AI - FINAL ASSESSMENT"
+        "\nLLM Second Opinion:\n"
+    )
+    print(
+        state["llm_second_opinion"].get("comparison", {}).get(
+            "comparison_summary",
+            "(second opinion unavailable)",
+        )
+    )
+
+    # ============================================================
+    # STEP 8.6 - INDEPENDENT LLM ANALYSIS (direct LLM call)
+    # ============================================================
+    # A separate direct LLM analysis of the original claim using the LLM's
+    # own knowledge. It never re-runs search/scraping and never overrides the
+    # deterministic evidence gate. Reported separately from the system verdict
+    # and from the LLM second opinion.
+    # ============================================================
+
+    print("\n" + "=" * 60)
+    print("STEP 8.6 - INDEPENDENT LLM ANALYSIS")
+    print("=" * 60)
+
+    state["independent_llm_analysis"] = build_independent_llm_analysis(
+        claim=claim,
+        existing_verdict=final_verdict.get("verdict"),
+        extracted_text=extracted_text or claim,
     )
 
     print(
-        "=" * 60
+        "\nIndependent LLM Analysis:\n"
+    )
+    print(
+        state["independent_llm_analysis"].get("comparison", {}).get(
+            "comparison_summary",
+            "(independent analysis unavailable)",
+        )
     )
 
 

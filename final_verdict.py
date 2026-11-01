@@ -575,6 +575,7 @@ def generate_final_verdict(
     fusion_score,
     verification_output="",
     critic_output="",
+    google_fact_check=None,
 ):
     """
     Deterministic final verdict.
@@ -687,6 +688,7 @@ def generate_final_verdict(
         "critic_verdict": critic_verdict,
         "agents_agree": agents_agree,
         "verdict_overridden_by_evidence": consistency["verdict_overridden_by_evidence"],
+        "google_fact_check": google_fact_check,
         "agent_confidence": verification_confidence,
         "critic_confidence": critic_confidence,
         "supporting_evidence": _primary_evidence("SUPPORT", results),

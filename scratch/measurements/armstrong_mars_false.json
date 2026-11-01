@@ -1,0 +1,99 @@
+{
+ "label": "armstrong_mars_false",
+ "claim": "Neil Armstrong was the first human to walk on Mars in July 1969.",
+ "total_sec": 224.14,
+ "retrieval_calls": 1,
+ "retrieval_sec": 53.8,
+ "scrape_calls": 4,
+ "scrape_sec": 49.15,
+ "scrape_failures": 4,
+ "nli_calls": 16,
+ "nli_sec": 53.35,
+ "verdict": "UNVERIFIED",
+ "confidence": 50.0,
+ "confidence_basis": "verification_coverage",
+ "evidence_sufficiency": "context_only",
+ "permitted_verdicts": [
+  "UNVERIFIED"
+ ],
+ "gate_reason": "2 of 4 retrieved source(s) were search snippets rather than retrieved articles, and a snippet can never establish or refute a claim. 0 source(s) support the claim and 0 contradict it, which does not reach the required number of independent publishers. A settled verdict requires at least 2 independent publishers, including at least 1 primary publisher whose article text was actually retrieved.",
+ "independent_supporting": 0,
+ "independent_contradicting": 0,
+ "primary_supporting_groups": 0,
+ "primary_contradicting_groups": 0,
+ "article_supporting_groups": 0,
+ "article_contradicting_groups": 0,
+ "total_sources": 4,
+ "independence_groups": 3,
+ "snippet_only_sources": 2,
+ "article_sources": 2,
+ "verification_coverage": 0.5,
+ "policy_data_valid": true,
+ "policy_data_errors": [],
+ "search_queries": [
+  "Neil Armstrong was the first human to walk on Mars in July 1969.",
+  "\"July, 1969\" neil armstrong human",
+  "neil armstrong human fact check",
+  "1969-07 neil official statement",
+  "\"July 1969\" \"neil armstrong\"",
+  "\"July 1969\" \"neil armstrong\""
+ ],
+ "source_decisions": [
+  {
+   "decision": "related_context",
+   "group": "apnews.com",
+   "domain": "apnews.com",
+   "url": "https://apnews.com/article/apollo-artemis-nasa-moon-6fd9cb210d40c59a729d5103c0994351",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.25
+  },
+  {
+   "decision": "related_context",
+   "group": "apnews.com",
+   "domain": "apnews.com",
+   "url": "https://apnews.com/article/neil-armstrong-museum-gemini-8-4fb53a2c8b4735c6262313edd7a63348",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.082
+  },
+  {
+   "decision": "related_context",
+   "group": "sileon.com",
+   "domain": "sileon.com",
+   "url": "https://sileon.com/portfolio/rMzL0E5FE099/First-Man-The-Life-Of-Neil-A-Armstrong-James-R-Hansen",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.1765
+  },
+  {
+   "decision": "related_context",
+   "group": "thecanadianpressnews.ca",
+   "domain": "thecanadianpressnews.ca",
+   "url": "https://www.thecanadianpressnews.ca/science/retired-pilot-helps-historical-society-buy-neil-armstrongs-boyhood-home-for-tours/article_d07c1c89-3bef-50b9-bfb5-2ca97b4bdcbf.html",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.1757
+  }
+ ],
+ "supporting_passages": [],
+ "contradicting_passages": [],
+ "class_counts": {
+  "SUPPORT": 0,
+  "CONTRADICTION": 0,
+  "RELATED_CONTEXT": 9,
+  "NON_EVIDENCE": 5
+ },
+ "passage_kinds": {
+  "paragraph": 8,
+  "window": 6
+ }
+}

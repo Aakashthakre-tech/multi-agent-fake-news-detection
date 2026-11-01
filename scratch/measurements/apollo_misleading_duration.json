@@ -1,0 +1,98 @@
+{
+ "label": "apollo_misleading_duration",
+ "claim": "The Apollo 11 mission landed humans on the Moon in July 1969, and the astronauts stayed on the lunar surface for three days.",
+ "total_sec": 130.58,
+ "retrieval_calls": 1,
+ "retrieval_sec": 54.03,
+ "scrape_calls": 4,
+ "scrape_sec": 17.46,
+ "scrape_failures": 2,
+ "nli_calls": 14,
+ "nli_sec": 46.91,
+ "verdict": "UNVERIFIED",
+ "confidence": 75.0,
+ "confidence_basis": "verification_coverage",
+ "evidence_sufficiency": "context_only",
+ "permitted_verdicts": [
+  "UNVERIFIED"
+ ],
+ "gate_reason": "1 of 4 retrieved source(s) were search snippets rather than retrieved articles, and a snippet can never establish or refute a claim. 0 source(s) support the claim and 0 contradict it, which does not reach the required number of independent publishers. A settled verdict requires at least 2 independent publishers, including at least 1 primary publisher whose article text was actually retrieved.",
+ "independent_supporting": 0,
+ "independent_contradicting": 0,
+ "primary_supporting_groups": 0,
+ "primary_contradicting_groups": 0,
+ "article_supporting_groups": 0,
+ "article_contradicting_groups": 0,
+ "total_sources": 4,
+ "independence_groups": 4,
+ "snippet_only_sources": 1,
+ "article_sources": 3,
+ "verification_coverage": 0.75,
+ "policy_data_valid": true,
+ "policy_data_errors": [],
+ "search_queries": [
+  "The Apollo 11 mission landed humans on the Moon in July 1969, and the astronauts stayed on the lunar surface for three days.",
+  "\"July, 1969\" apollo mission landed",
+  "apollo mission landed fact check",
+  "1969-07 apollo official statement",
+  "\"July 1969\" \"apollo mission landed\""
+ ],
+ "source_decisions": [
+  {
+   "decision": "related_context",
+   "group": "diyd2016.wordpress.com",
+   "domain": "diyd2016.wordpress.com",
+   "url": "https://diyd2016.wordpress.com/2026/10/16/mystery-of-moon-landing",
+   "retrieval": "scraped_article",
+   "primary": false,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.25
+  },
+  {
+   "decision": "related_context",
+   "group": "fodmapeveryday.com",
+   "domain": "fodmapeveryday.com",
+   "url": "https://www.fodmapeveryday.com/can-science-prove-beyond-any-doubt-that-man-has-landed-on-the-moon",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.1556
+  },
+  {
+   "decision": "related_context",
+   "group": "nasa.gov",
+   "domain": "nasa.gov",
+   "url": "https://www.nasa.gov/wp-content/uploads/2024/05/apollo-11-goodwill-messages.pdf",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.25
+  },
+  {
+   "decision": "related_context",
+   "group": "rocketstem.org",
+   "domain": "rocketstem.org",
+   "url": "https://www.rocketstem.org/apollo-50th-celebration",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.25
+  }
+ ],
+ "supporting_passages": [],
+ "contradicting_passages": [],
+ "class_counts": {
+  "SUPPORT": 0,
+  "CONTRADICTION": 0,
+  "RELATED_CONTEXT": 11,
+  "NON_EVIDENCE": 3
+ },
+ "passage_kinds": {
+  "paragraph": 10,
+  "window": 4
+ }
+}

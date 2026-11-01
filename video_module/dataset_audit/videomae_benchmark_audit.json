@@ -1,0 +1,63 @@
+{
+  "model_id": "MCG-NJU/videomae-base",
+  "load_time_sec": 5.4,
+  "model_ram_mb": 337.9,
+  "avg_total_sec_per_video": 2.77,
+  "est_train_extract_min": 9.4,
+  "est_val_extract_min": 2.0,
+  "samples": [
+    {
+      "split": "train",
+      "cascade_id": "f0",
+      "label": "fake",
+      "decode_sec": 0.17,
+      "proc_sec": 0.029,
+      "fwd_sec": 1.252,
+      "total_sec": 1.45,
+      "embedding_dim": [
+        768
+      ],
+      "is_valid": true,
+      "norm": 13.1764
+    },
+    {
+      "split": "val",
+      "cascade_id": "f104",
+      "label": "fake",
+      "decode_sec": 3.392,
+      "proc_sec": 0.107,
+      "fwd_sec": 1.426,
+      "total_sec": 4.926,
+      "embedding_dim": [
+        768
+      ],
+      "is_valid": true,
+      "norm": 12.5924
+    },
+    {
+      "split": "test",
+      "cascade_id": "f102",
+      "label": "fake",
+      "decode_sec": 0.405,
+      "proc_sec": 0.024,
+      "fwd_sec": 1.501,
+      "total_sec": 1.931,
+      "embedding_dim": [
+        768
+      ],
+      "is_valid": true,
+      "norm": 13.174
+    }
+  ],
+  "ram_start_gb": {
+    "total_gb": 15.82,
+    "available_gb": 4.19,
+    "used_percent": 73.5
+  },
+  "ram_final_gb": {
+    "total_gb": 15.82,
+    "available_gb": 3.71,
+    "used_percent": 76.6
+  },
+  "system_stable": true
+}

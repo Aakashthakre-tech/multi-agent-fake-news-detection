@@ -80,26 +80,47 @@ def run_image_pipeline(image_path):
         image_claim.get("headline_text")
     )
 
-    claim = normalized_claim["claim"]
+    claim = normalized_claim.get("claim")
 
     if not claim:
-        raise ValueError(
-            "No verifiable claim could be extracted from the image."
+        print("\nNo verifiable factual claim or headline extracted from image.")
+        print("Factual research skipped (no verifiable claim to research).")
+        verification_result = {
+            "final_verdict": {
+                "verdict": "INSUFFICIENT_VERIFIABLE_CLAIMS",
+                "confidence": None,
+                "evidence_sufficiency": "INSUFFICIENT",
+                "reasoning": (
+                    "No verifiable headline, on-screen text, or factual claim could be extracted "
+                    "from the image. Visual authenticity is evaluated independently via forensic models."
+                ),
+                "total_sources": 0,
+                "supporting_sources": 0,
+                "contradicting_sources": 0,
+                "independent_supporting": 0,
+                "independent_contradicting": 0,
+            },
+            "evidence_package": {},
+            "evidence_brief": "",
+            "verification_agent_analysis": "",
+            "critic_agent_analysis": "",
+        }
+    else:
+        print("\nNORMALIZED CLAIM:")
+        print(claim)
+
+        # ==================================
+        # STEP 5 - EXISTING RESEARCH PIPELINE
+        # ==================================
+
+        print("\nSTEP 5 - Sending claim to Evidence Engine...")
+
+        verification_result = run_research_pipeline(
+            claim,
+            extracted_text=_build_image_extracted_text(
+                cleaned_results, image_claim, normalized_claim
+            ),
         )
-
-    print("\nNORMALIZED CLAIM:")
-    print(claim)
-
-
-    # ==================================
-    # STEP 5 - EXISTING RESEARCH PIPELINE
-    # ==================================
-
-    print("\nSTEP 5 - Sending claim to Evidence Engine...")
-
-    verification_result = run_research_pipeline(
-        claim
-    )
 
 
     # ==================================
@@ -135,6 +156,37 @@ def run_image_pipeline(image_path):
         "ai_generation": ai_generation,
         "ai_generation_note": ai_generation_note
     }
+
+
+def _build_image_extracted_text(
+    ocr_results: list,
+    image_claim: dict,
+    normalized_claim: dict,
+) -> str:
+    """
+    Build a concise extracted-text representation for an image:
+    OCR text, the extracted image claim, and the normalized claim.
+    No OCR is re-run here; only already-collected outputs are reused.
+    """
+    parts = []
+
+    ocr_texts = []
+    for result in (ocr_results or []):
+        text = (result or {}).get("text")
+        if text:
+            ocr_texts.append(str(text).strip())
+    if ocr_texts:
+        parts.append("OCR text: " + " | ".join(ocr_texts))
+
+    image_claim_text = (image_claim or {}).get("claim") or (image_claim or {}).get("ocr_text")
+    if image_claim_text:
+        parts.append("Extracted claim: " + str(image_claim_text).strip())
+
+    normalized_claim_text = (normalized_claim or {}).get("claim")
+    if normalized_claim_text and normalized_claim_text != image_claim_text:
+        parts.append("Normalized claim: " + str(normalized_claim_text).strip())
+
+    return " ".join(parts)
 
 
 if __name__ == "__main__":

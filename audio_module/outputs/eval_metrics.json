@@ -1,0 +1,83 @@
+{
+  "total_samples": 16,
+  "classifiable_samples": 15,
+  "excluded_edge_cases": 1,
+  "uncertain_or_unavailable_predictions": 0,
+  "confusion_matrix": {
+    "true_positive": 5,
+    "false_positive": 3,
+    "true_negative": 5,
+    "false_negative": 2
+  },
+  "metrics": {
+    "accuracy": 0.6667,
+    "balanced_accuracy": 0.6696,
+    "precision": 0.625,
+    "recall": 0.7143,
+    "f1_score": 0.6667,
+    "specificity": 0.625
+  },
+  "per_language": {
+    "English": {
+      "accuracy": 0.6667,
+      "correct": 8,
+      "total": 12,
+      "false_positives": 2,
+      "false_negatives": 2
+    },
+    "Hindi": {
+      "accuracy": 1.0,
+      "correct": 2,
+      "total": 2,
+      "false_positives": 0,
+      "false_negatives": 0
+    },
+    "Marathi": {
+      "accuracy": 0.0,
+      "correct": 0,
+      "total": 1,
+      "false_positives": 1,
+      "false_negatives": 0
+    }
+  },
+  "false_positive_analysis": [
+    {
+      "id": "SAMPLE_01",
+      "filename": "human_01_reuters_news.wav",
+      "language": "English",
+      "category": "Human Broadcast (Reuters Storm Report)",
+      "probability_synthetic": 0.9902,
+      "audio_rms": 0.025768,
+      "notes": "Known false-positive in prior benchmark: model predicted AI_GENERATED with P(synth)=0.990. Investigating whether broadcast compression or recording conditions are the cause."
+    },
+    {
+      "id": "SAMPLE_03",
+      "filename": "human_03_marathi_report.wav",
+      "language": "Marathi",
+      "category": "Human Speech (Marathi Field Report)",
+      "probability_synthetic": 1.0,
+      "audio_rms": 0.045759,
+      "notes": "Known false-positive: model predicted AI_GENERATED with P(synth)=1.0. Marathi is likely out-of-distribution for this English-centric model."
+    },
+    {
+      "id": "EXT_05",
+      "filename": "human_07_en_compressed_64k.wav",
+      "language": "English",
+      "category": "Human Broadcast \u2014 64 kbps MP3 re-encoded (source: Reuters false-positive)",
+      "probability_synthetic": 0.9939,
+      "audio_rms": 0.024467,
+      "notes": "Source is the known false-positive (SAMPLE_01: Reuters). Tests whether 64 kbps compression changes detector behaviour compared to original."
+    }
+  ],
+  "uncertain_unavailable_analysis": [
+    {
+      "id": "EXT_08",
+      "filename": "edge_01_too_short.wav",
+      "ground_truth": "UNCERTAIN",
+      "prediction": "UNAVAILABLE",
+      "detector_available": false,
+      "inference_error": "Load failed: Audio duration (0.15s) is shorter than minimum required (0.5s).",
+      "notes": "Duration 0.15 s < 0.2 s guard. Expected: detector returns UNCERTAIN with error message, available=True. Tests that the failsafe never silently defaults to REAL. Excluded from accuracy/precision/recall metrics (not a classifiable sample)."
+    }
+  ]
+}

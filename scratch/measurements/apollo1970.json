@@ -1,0 +1,93 @@
+{
+ "label": "apollo1970",
+ "claim": "The Apollo 11 mission landed humans on the Moon on July 20, 1970.",
+ "total_sec": 111.43,
+ "retrieval_calls": 1,
+ "retrieval_sec": 46.19,
+ "scrape_calls": 3,
+ "scrape_sec": 12.39,
+ "scrape_failures": 1,
+ "nli_calls": 12,
+ "nli_sec": 49.53,
+ "verdict": "UNVERIFIED",
+ "confidence": 66.7,
+ "confidence_basis": "verification_coverage",
+ "evidence_sufficiency": "single_contradiction",
+ "permitted_verdicts": [
+  "UNVERIFIED"
+ ],
+ "gate_reason": "Only one independent publisher contradicts the claim. Independent corroboration is missing, so FAKE is not permitted.",
+ "independent_supporting": 0,
+ "independent_contradicting": 1,
+ "primary_supporting_groups": 0,
+ "primary_contradicting_groups": 1,
+ "article_supporting_groups": 0,
+ "article_contradicting_groups": 1,
+ "total_sources": 3,
+ "independence_groups": 3,
+ "snippet_only_sources": 1,
+ "article_sources": 2,
+ "verification_coverage": 0.6667,
+ "policy_data_valid": true,
+ "policy_data_errors": [],
+ "search_queries": [
+  "The Apollo 11 mission landed humans on the Moon on July 20, 1970.",
+  "\"July 20, 1970\" \"apollo mission landed\" \"mission landed humans\" moon",
+  "apollo mission landed fact check",
+  "20/07/1970 \"apollo mission landed\" \"mission landed humans\" moon official statement"
+ ],
+ "source_decisions": [
+  {
+   "decision": "related_context",
+   "group": "ucf.edu",
+   "domain": "stars.library.ucf.edu",
+   "url": "https://stars.library.ucf.edu/context/etd2020/article/2296/viewcontent",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.25
+  },
+  {
+   "decision": "related_context",
+   "group": "testbook.com",
+   "domain": "testbook.com",
+   "url": "https://testbook.com/question-answer/in-which-year-did-the-apollo-11-mission-successful--66d2d18ce5c06eeb6488a51d",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.0818
+  },
+  {
+   "decision": "contradiction",
+   "group": "un.org",
+   "domain": "un.org",
+   "url": "https://www.un.org/ungifts/es/node/3986",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.9022
+  }
+ ],
+ "supporting_passages": [],
+ "contradicting_passages": [
+  {
+   "url": "https://www.un.org/ungifts/es/node/3986",
+   "domain": "un.org",
+   "score": 0.9022,
+   "nli": "This Moon Rock was retrieved from the moon during the USA NASA Apollo 11 space mission, crewed by astronauts Neil A. Armstrong, Edwin E. Aldrin Jr., and Michael Collins, on their 20 July 1969 moon landing. They presented this gift to the United Nations at the "
+  }
+ ],
+ "class_counts": {
+  "SUPPORT": 0,
+  "CONTRADICTION": 1,
+  "RELATED_CONTEXT": 8,
+  "NON_EVIDENCE": 1
+ },
+ "passage_kinds": {
+  "paragraph": 5,
+  "window": 5
+ }
+}

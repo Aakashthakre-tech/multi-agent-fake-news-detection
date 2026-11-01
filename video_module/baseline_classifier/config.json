@@ -1,0 +1,12 @@
+{
+  "num_frames": 12,
+  "embed_dim": 1280,
+  "hidden_dim": 256,
+  "mlp_dim": 256,
+  "dropout": 0.35,
+  "batch_size": 16,
+  "learning_rate": 0.001,
+  "weight_decay": 0.0001,
+  "epochs": 35,
+  "seed": 42
+}

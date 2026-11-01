@@ -1,0 +1,139 @@
+{
+ "label": "apollo_r3",
+ "claim": "NASA's Apollo 11 mission landed humans on the Moon in July 1969.",
+ "total_sec": 136.18,
+ "retrieval_calls": 1,
+ "retrieval_sec": 33.36,
+ "scrape_calls": 6,
+ "scrape_sec": 16.24,
+ "scrape_failures": 2,
+ "nli_calls": 26,
+ "nli_sec": 74.39,
+ "verdict": "REAL",
+ "confidence": 87.8,
+ "confidence_basis": "evidence_strength",
+ "evidence_sufficiency": "strong_support",
+ "permitted_verdicts": [
+  "REAL",
+  "UNVERIFIED"
+ ],
+ "gate_reason": "3 independent publishers, 3 of them primary publishers with retrieved article text, directly support the claim. No retrieved primary evidence contains an explicit correction of a material claim detail, so MISLEADING is not permitted.",
+ "independent_supporting": 3,
+ "independent_contradicting": 0,
+ "primary_supporting_groups": 3,
+ "primary_contradicting_groups": 0,
+ "article_supporting_groups": 3,
+ "article_contradicting_groups": 0,
+ "total_sources": 6,
+ "independence_groups": 5,
+ "snippet_only_sources": 0,
+ "article_sources": 6,
+ "verification_coverage": 1.0,
+ "policy_data_valid": true,
+ "policy_data_errors": [],
+ "search_queries": [
+  "NASA's Apollo 11 mission landed humans on the Moon in July 1969.",
+  "\"July, 1969\" nasa's apollo mission",
+  "nasa's apollo mission fact check",
+  "1969-07 nasa's official statement"
+ ],
+ "source_decisions": [
+  {
+   "decision": "related_context",
+   "group": "diyd2016.wordpress.com",
+   "domain": "diyd2016.wordpress.com",
+   "url": "https://diyd2016.wordpress.com/2026/10/16/mystery-of-moon-landing",
+   "retrieval": "scraped_article",
+   "primary": false,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.25
+  },
+  {
+   "decision": "entailment",
+   "group": "nasa.gov",
+   "domain": "nasa.gov",
+   "url": "https://www.nasa.gov/history/july-20-1969-one-giant-leap-for-mankind",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.8827
+  },
+  {
+   "decision": "related_context",
+   "group": "nasa.gov",
+   "domain": "nasa.gov",
+   "url": "https://www.nasa.gov/wp-content/uploads/2024/05/apollo-11-goodwill-messages.pdf",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.25
+  },
+  {
+   "decision": "entailment",
+   "group": "mit.edu",
+   "domain": "news.mit.edu",
+   "url": "https://news.mit.edu/2026/margaret-hamilton-computing-pioneer-dies-1007",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.89
+  },
+  {
+   "decision": "non_evidence",
+   "group": "newsnationnow.com",
+   "domain": "newsnationnow.com",
+   "url": "https://www.newsnationnow.com/space/ufo/ross-coulthart-nasa-uap-disclosure-incomplete",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "entailment",
+   "group": "rocketstem.org",
+   "domain": "rocketstem.org",
+   "url": "https://www.rocketstem.org/apollo-50th-celebration",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.9133
+  }
+ ],
+ "supporting_passages": [
+  {
+   "url": "https://www.rocketstem.org/apollo-50th-celebration",
+   "domain": "rocketstem.org",
+   "score": 0.9133,
+   "nli": "I n July of 1969, the Apollo 11 mission marked humanity’s first steps on the Moon by Neil Armstrong and Buzz Aldrin. We continue to celebrate the entire Apollo program here at RocketSTEM. Our social media channels will often feature an Apollo Image of the Day."
+  },
+  {
+   "url": "https://www.rocketstem.org/apollo-50th-celebration",
+   "domain": "rocketstem.org",
+   "score": 0.9123,
+   "nli": "TITLE: Project Apollo Celebration - RocketSTEM\n\nI n July of 1969, the Apollo 11 mission marked humanity’s first steps on the Moon by Neil Armstrong and Buzz Aldrin. We continue to celebrate the entire Apollo program here at RocketSTEM. Our social media channel"
+  },
+  {
+   "url": "https://news.mit.edu/2026/margaret-hamilton-computing-pioneer-dies-1007",
+   "domain": "news.mit.edu",
+   "score": 0.89,
+   "nli": "Hamilton’s most famous contribution to the Apollo program came during the pivotal Apollo 11 mission to land on the moon in July of 1969. Moments before the Eagle module was set to land on the lunar surface, the onboard computer raised the alarm. It had detecte"
+  }
+ ],
+ "contradicting_passages": [],
+ "class_counts": {
+  "SUPPORT": 5,
+  "CONTRADICTION": 0,
+  "RELATED_CONTEXT": 10,
+  "NON_EVIDENCE": 7
+ },
+ "passage_kinds": {
+  "paragraph": 16,
+  "window": 6
+ }
+}

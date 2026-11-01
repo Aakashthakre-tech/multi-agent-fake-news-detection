@@ -822,16 +822,70 @@ class TestFinalVerdict(unittest.TestCase):
         self.assertEqual(verdict["verdict"], "FAKE")
 
     def test_gate_is_permissive_only_narrowing(self):
+        """
+        The gate may only widen what the evidence allows, never narrow it.
+
+        Note: MISLEADING is no longer part of the permitted set here. A
+        misleading verdict needs an explicit, evidence-backed correction of a
+        material claim detail, and this agreement dict contains no correction
+        evidence. Permitting MISLEADING on plain corroboration was the defect
+        this test used to lock in.
+
+        The agreement payload carries every policy counter, because the gate
+        no longer substitutes one counter for a missing one - it abstains
+        instead. See tests/test_evidence_policy_guards.py.
+        """
         gate = deterministic_gate(
             {
                 "independent_supporting": 3,
                 "independent_contradicting": 0,
                 "primary_supporting_groups": 2,
+                "primary_contradicting_groups": 0,
+                "article_supporting_groups": 2,
+                "article_contradicting_groups": 0,
+                "correction_groups": 0,
+                "primary_correction_groups": 0,
             },
             [],
         )
         self.assertEqual(gate["permitted_verdicts"],
-                         {"REAL", "MISLEADING", "UNVERIFIED"})
+                         {"REAL", "UNVERIFIED"})
+
+    def test_gate_permits_misleading_only_with_a_recorded_correction(self):
+        """
+        MISLEADING requires an explicit correction of a material claim detail
+        from a primary publisher.
+        """
+        without_correction = deterministic_gate(
+            {
+                "independent_supporting": 3,
+                "independent_contradicting": 0,
+                "primary_supporting_groups": 2,
+                "primary_contradicting_groups": 0,
+                "article_supporting_groups": 2,
+                "article_contradicting_groups": 0,
+                "correction_groups": 0,
+                "primary_correction_groups": 0,
+            },
+            [],
+        )
+        self.assertNotIn("MISLEADING", without_correction["permitted_verdicts"])
+
+        with_correction = deterministic_gate(
+            {
+                "independent_supporting": 3,
+                "independent_contradicting": 0,
+                "primary_supporting_groups": 2,
+                "primary_contradicting_groups": 0,
+                "article_supporting_groups": 2,
+                "article_contradicting_groups": 0,
+                "correction_groups": 1,
+                "primary_correction_groups": 1,
+            },
+            [],
+        )
+        self.assertIn("MISLEADING", with_correction["permitted_verdicts"])
+        self.assertIn("REAL", with_correction["permitted_verdicts"])
 
     def test_parsers(self):
         self.assertEqual(

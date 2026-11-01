@@ -1,0 +1,381 @@
+cascade_id,label,source_url,actual_url,used_fallback,status,local_path,file_size_bytes,duration_sec,error
+f0,fake,https://www.youtube.com/watch?v=Y7MJlmbnLQA,https://www.youtube.com/watch?v=Y7MJlmbnLQA,False,success,fake\f0.mp4,451935,8.2,
+f1,fake,https://www.youtube.com/watch?v=AEPvSo8bE2I,https://www.youtube.com/watch?v=XSRhFjc--_s,True,success,fake\f1.mp4,852219,13.72,
+f2,fake,https://www.youtube.com/watch?v=emNPHuWnXGU,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] emNPHuWnXGU: This video is unavailable
+f3,fake,https://www.youtube.com/watch?v=XiASPGAWYXE,https://www.youtube.com/watch?v=XiASPGAWYXE,False,success,fake\f3.mp4,16816485,23.23,
+f4,fake,https://www.youtube.com/watch?v=CXOU10WBogs,https://www.youtube.com/watch?v=CXOU10WBogs,False,success,fake\f4.mp4,3784591,6.59,
+f5,fake,https://www.youtube.com/watch?v=ZoHAf7VtIhA,https://www.youtube.com/watch?v=ZoHAf7VtIhA,False,success,fake\f5.mp4,41237166,73.94,
+f6,fake,https://www.youtube.com/watch?v=IPoJtt3X5SA,https://www.youtube.com/watch?v=3F2fkKirz58,True,success,fake\f6.mp4,2674391,52.0,
+f7,fake,https://www.youtube.com/watch?v=RXF5yZZe8nQ,https://www.youtube.com/watch?v=RXF5yZZe8nQ,False,success,fake\f7.mp4,202927989,343.67,
+f8,fake,https://www.youtube.com/watch?v=fSbssO2DR7A,https://www.youtube.com/watch?v=fSbssO2DR7A,False,success,fake\f8.mp4,2171796,67.08,
+f9,fake,https://www.youtube.com/watch?v=PtWNknwUCE8,https://www.youtube.com/watch?v=PtWNknwUCE8,False,success,fake\f9.mp4,2667233,21.33,
+f10,fake,https://www.youtube.com/watch?v=2YTntpldkhw,https://www.youtube.com/watch?v=2YTntpldkhw,False,success,fake\f10.mp4,1847610,52.63,
+f11,fake,https://www.youtube.com/watch?v=0NVUSOm8Mps,https://www.youtube.com/watch?v=0NVUSOm8Mps,False,success,fake\f11.mp4,4890176,16.26,
+f12,fake,https://www.youtube.com/watch?v=71KJUxhw2W0,,False,failed,,0,0.0,[tos_removed] ERROR: [youtube] LXANkf0QSMw: This video has been removed for violating YouTube's policy on violent or graphic content
+f13,fake,https://www.youtube.com/watch?v=F4jjR4vkwkM,https://www.youtube.com/watch?v=F4jjR4vkwkM,False,success,fake\f13.mp4,13466275,83.08,
+f14,fake,https://www.youtube.com/watch?v=jGuDpD-Y-1s,https://www.youtube.com/watch?v=jGuDpD-Y-1s,False,success,fake\f14.mp4,1468998,49.12,
+f15,fake,https://www.youtube.com/watch?v=GEPcxs5IIJI,https://www.youtube.com/watch?v=GEPcxs5IIJI,False,success,fake\f15.mp4,8894036,28.94,
+f16,fake,https://www.youtube.com/watch?v=cPoqndR5urM,https://www.youtube.com/watch?v=cPoqndR5urM,False,success,fake\f16.mp4,1058949,31.52,
+f17,fake,https://www.youtube.com/watch?v=HNXLDToqDk4,https://www.youtube.com/watch?v=HNXLDToqDk4,False,success,fake\f17.mp4,38313245,266.57,
+f18,fake,https://www.youtube.com/watch?v=TX4uJ3LChK0,https://www.youtube.com/watch?v=TX4uJ3LChK0,False,success,fake\f18.mp4,19274144,220.05,
+f19,fake,https://www.youtube.com/watch?v=qjLZodAG_Is,https://www.youtube.com/watch?v=4iUp29DGBNg,True,success,fake\f19.mp4,37657970,233.76,
+f20,fake,https://www.youtube.com/watch?v=ECJahgUyQP8,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] FP8OBwec0Iw: This video is unavailable
+f21,fake,https://www.youtube.com/watch?v=alOHdzIrp7o,https://www.youtube.com/watch?v=alOHdzIrp7o,False,success,fake\f21.mp4,8061560,249.98,
+f22,fake,https://www.youtube.com/watch?v=Uv6BOh78Xwc,https://www.youtube.com/watch?v=7_1NGOWw4Y0,True,success,fake\f22.mp4,1986118,56.79,
+f23,fake,https://www.youtube.com/watch?v=IjsuccU0dQE,https://www.youtube.com/watch?v=IjsuccU0dQE,False,success,fake\f23.mp4,468672,10.17,
+f24,fake,https://www.youtube.com/watch?v=LRqzkKhSN0U,https://www.youtube.com/watch?v=LRqzkKhSN0U,False,success,fake\f24.mp4,2110302,48.58,
+f25,fake,https://www.youtube.com/watch?v=61n51C7mcRI,https://www.youtube.com/watch?v=61n51C7mcRI,False,success,fake\f25.mp4,11410981,39.64,
+f26,fake,https://www.youtube.com/watch?v=JHOBhgjc1Jc,https://www.youtube.com/watch?v=JHOBhgjc1Jc,False,success,fake\f26.mp4,10747304,41.12,
+f27,fake,https://www.youtube.com/watch?v=d8qosgZXJ9w,https://www.youtube.com/watch?v=d8qosgZXJ9w,False,success,fake\f27.mp4,1468798,25.96,
+f28,fake,https://www.youtube.com/watch?v=waPcIe77lYc,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] OnelFUglsK0: This video is unavailable
+f29,fake,https://www.youtube.com/watch?v=hU-BOiswXvc,https://www.youtube.com/watch?v=W5-Cu3FcOMg,True,success,fake\f29.mp4,779784,30.02,
+f30,fake,https://www.youtube.com/watch?v=xPlaugjS7dg,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] xPlaugjS7dg: This video is unavailable
+f31,fake,https://www.youtube.com/watch?v=we7ms2crTzQ,https://www.youtube.com/watch?v=we7ms2crTzQ,False,success,fake\f31.mp4,918975,22.0,
+f32,fake,https://www.youtube.com/watch?v=EkcR8G7x5CU,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] U9PDbyFBk0I: This video is unavailable
+f33,fake,https://www.youtube.com/watch?v=VtZZghMpC_I,https://www.youtube.com/watch?v=VtZZghMpC_I,False,success,fake\f33.mp4,6513806,88.7,
+f34,fake,https://www.youtube.com/watch?v=JZUmDyeynGY,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 4BJVstPnrpk: This video is unavailable
+f35,fake,https://www.youtube.com/watch?v=rm-xltoIVi8,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] rm-xltoIVi8: This video is unavailable
+f36,fake,https://www.youtube.com/watch?v=PpWebxw_Zho,https://www.youtube.com/watch?v=PpWebxw_Zho,False,success,fake\f36.mp4,4722153,101.37,
+f37,fake,https://www.youtube.com/watch?v=vUnI0J3BYnI,https://www.youtube.com/watch?v=vUnI0J3BYnI,False,success,fake\f37.mp4,23822714,212.4,
+f38,fake,https://www.youtube.com/watch?v=9zv6q3tFDJw,https://www.youtube.com/watch?v=Ke7UVy0zmII,True,success,fake\f38.mp4,8914430,72.48,
+f39,fake,https://www.youtube.com/watch?v=aHfc7hpOYHQ,https://www.youtube.com/watch?v=aHfc7hpOYHQ,False,success,fake\f39.mp4,8895382,192.29,
+f40,fake,https://www.youtube.com/watch?v=ST6X0Ra7zOQ,https://www.youtube.com/watch?v=ST6X0Ra7zOQ,False,success,fake\f40.mp4,26632523,112.6,
+f41,fake,https://www.youtube.com/watch?v=Or2RbrbpNR8,https://www.youtube.com/watch?v=Or2RbrbpNR8,False,success,fake\f41.mp4,63339653,203.27,
+f42,fake,https://www.youtube.com/watch?v=ZyR1c430wk0,https://www.youtube.com/watch?v=K1-QEjmwug4,True,success,fake\f42.mp4,33941755,283.52,
+f43,fake,https://www.youtube.com/watch?v=JtwjHbcJDpA,https://www.youtube.com/watch?v=5sG_RydGBmY,True,success,fake\f43.mp4,1934894,85.0,
+f44,fake,https://www.youtube.com/watch?v=_rgRzfLmS-s,https://www.youtube.com/watch?v=H8FWEq5lIBY,True,success,fake\f44.mp4,542342,26.79,
+f45,fake,https://www.youtube.com/watch?v=Tis2wq6uMBY,https://www.youtube.com/watch?v=EbbhwUdhwJk,True,success,fake\f45.mp4,43703416,272.57,
+f46,fake,https://www.youtube.com/watch?v=7RegVOoNxuc,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 7RegVOoNxuc: This video is unavailable
+f47,fake,https://www.youtube.com/watch?v=t9DYiog-nO4,https://www.youtube.com/watch?v=LyHLGMbGBHI,True,success,fake\f47.mp4,22878026,240.46,
+f48,fake,https://www.youtube.com/watch?v=XwmHoWfwHiw,https://www.youtube.com/watch?v=XwmHoWfwHiw,False,success,fake\f48.mp4,2564481,39.1,
+f49,fake,https://www.youtube.com/watch?v=IYc3vIVrLvQ,https://www.youtube.com/watch?v=9XSshgSnm0U,True,success,fake\f49.mp4,5850180,57.6,
+f50,fake,https://www.youtube.com/watch?v=XX5X9D1ULeQ,https://www.youtube.com/watch?v=7IpHjkNtBOA,True,success,fake\f50.mp4,29566510,222.53,
+f51,fake,https://www.youtube.com/watch?v=sJuWvvTkqkk,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] sJuWvvTkqkk: Video unavailable
+f52,fake,https://www.youtube.com/watch?v=JKj96az3g5w,https://www.youtube.com/watch?v=yN_geh_JvLM,True,success,fake\f52.mp4,1538421,37.73,
+f53,fake,https://www.youtube.com/watch?v=oGDCAe6czp8,https://www.youtube.com/watch?v=oGDCAe6czp8,False,success,fake\f53.mp4,3233217,63.0,
+f54,fake,https://www.youtube.com/watch?v=SvttKmiQuCw,https://www.youtube.com/watch?v=XawuUXmCOKk,True,success,fake\f54.mp4,11031650,78.0,
+f55,fake,https://www.youtube.com/watch?v=MQL61B__OIQ,,False,failed,,0,0.0,[private_video] ERROR: [youtube] Gus-rTjXTz4: Private video
+f56,fake,https://www.youtube.com/watch?v=Vft1t63XW5U,https://www.youtube.com/watch?v=Vft1t63XW5U,False,success,fake\f56.mp4,1643871,38.14,
+f57,fake,https://www.youtube.com/watch?v=n-oJCiGCQ9c,https://www.youtube.com/watch?v=n-oJCiGCQ9c,False,success,fake\f57.mp4,7047433,13.38,
+f58,fake,https://www.youtube.com/watch?v=G950hvMghu0,https://www.youtube.com/watch?v=G950hvMghu0,False,success,fake\f58.mp4,2316478,38.3,
+f59,fake,https://www.youtube.com/watch?v=LHBmD7go8No,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] VZZonaPf7Zk: This video is unavailable
+f60,fake,https://www.youtube.com/watch?v=A_WflDki_G8,https://www.youtube.com/watch?v=A_WflDki_G8,False,success,fake\f60.mp4,2512659,14.18,
+f61,fake,https://www.youtube.com/watch?v=F06QKIzcB74,https://www.youtube.com/watch?v=F06QKIzcB74,False,success,fake\f61.mp4,23346089,50.37,
+f62,fake,https://www.youtube.com/watch?v=CSVmmPTZoqA,https://www.youtube.com/watch?v=CSVmmPTZoqA,False,success,fake\f62.mp4,4077808,16.68,
+f63,fake,https://www.youtube.com/watch?v=YJd3QNt3bMc,https://www.youtube.com/watch?v=YJd3QNt3bMc,False,success,fake\f63.mp4,159306,3.77,
+f64,fake,https://www.youtube.com/watch?v=mi9eo6f-6lo,https://www.youtube.com/watch?v=mi9eo6f-6lo,False,success,fake\f64.mp4,5680409,57.16,
+f65,fake,https://www.youtube.com/watch?v=4SqJz0NgnnE,https://www.youtube.com/watch?v=SMANWCh-Xdc,True,success,fake\f65.mp4,1584684,46.8,
+f66,fake,https://www.youtube.com/watch?v=02uWYDj-lcI,https://www.youtube.com/watch?v=02uWYDj-lcI,False,success,fake\f66.mp4,25133109,126.83,
+f67,fake,https://www.youtube.com/watch?v=7DmJZphu-7E,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 7DmJZphu-7E: This video is unavailable
+f68,fake,https://www.youtube.com/watch?v=U1VNY1d53f8,https://www.youtube.com/watch?v=TrXhcDP4Xoo,True,success,fake\f68.mp4,2518602,112.81,
+f69,fake,https://www.youtube.com/watch?v=C5C1WWAg7aI,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] BLhaaDq_EgA: This video is unavailable
+f70,fake,https://www.youtube.com/watch?v=CGywKooNMfQ,https://www.youtube.com/watch?v=CGywKooNMfQ,False,success,fake\f70.mp4,9040242,125.4,
+f71,fake,https://www.youtube.com/watch?v=VIq06bBGsPk,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] VIq06bBGsPk: This video is unavailable
+f72,fake,https://www.youtube.com/watch?v=iAjnKyb7J5Y,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] fSgjIE9efcM: This video is unavailable
+f73,fake,https://www.youtube.com/watch?v=QDoEtZD29f4,https://www.youtube.com/watch?v=QDoEtZD29f4,False,success,fake\f73.mp4,18774311,33.53,
+f74,fake,https://www.youtube.com/watch?v=bTeL8zZjNSA,,False,failed,,0,0.0,[private_video] ERROR: [youtube] bTeL8zZjNSA: Private video
+f75,fake,https://www.youtube.com/watch?v=hZHUzHbFkJs,https://www.youtube.com/watch?v=AQB6gU36y-A,True,success,fake\f75.mp4,4894633,143.01,
+f76,fake,https://www.youtube.com/watch?v=c7GJPhwSFHQ,https://www.youtube.com/watch?v=OLuMKIgbnDA,True,success,fake\f76.mp4,79186670,236.83,
+f77,fake,https://www.youtube.com/watch?v=L2cuCYAYIpI,https://www.youtube.com/watch?v=UTVxjdrXwF0,True,success,fake\f77.mp4,5689062,35.6,
+f78,fake,https://www.youtube.com/watch?v=7iVgBoGyFZY,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 7iVgBoGyFZY: This video is unavailable
+f79,fake,https://www.youtube.com/watch?v=lvN1ZQzGUqM,https://www.youtube.com/watch?v=lvN1ZQzGUqM,False,success,fake\f79.mp4,110410808,268.85,
+f80,fake,https://www.youtube.com/watch?v=cvsXiryu8jA,https://www.youtube.com/watch?v=5uCpVgtXSA0,True,success,fake\f80.mp4,9787799,134.32,
+f81,fake,https://www.youtube.com/watch?v=CE0Q904gtMI,https://www.youtube.com/watch?v=CE0Q904gtMI,False,success,fake\f81.mp4,5672565,59.43,
+f82,fake,https://www.youtube.com/watch?v=OHceCL-PY3E,https://www.youtube.com/watch?v=OHceCL-PY3E,False,success,fake\f82.mp4,1303006,9.2,
+f83,fake,https://www.youtube.com/watch?v=-m3N_BnVdOI,https://www.youtube.com/watch?v=-m3N_BnVdOI,False,success,fake\f83.mp4,24133287,98.56,
+f84,fake,https://www.youtube.com/watch?v=AniJnKqkN3E,https://www.youtube.com/watch?v=_W_t4KYcblA,True,success,fake\f84.mp4,660424,10.28,
+f85,fake,https://www.youtube.com/watch?v=ezkqpYJq70w,https://www.youtube.com/watch?v=ezkqpYJq70w,False,success,fake\f85.mp4,2249723,36.63,
+f86,fake,https://www.youtube.com/watch?v=xbE2Ew3GilI,https://www.youtube.com/watch?v=wyJBVE00bJM,True,success,fake\f86.mp4,6516830,24.98,
+f87,fake,https://www.youtube.com/watch?v=w7x_lWJNnNg,https://www.youtube.com/watch?v=w7x_lWJNnNg,False,success,fake\f87.mp4,35338722,52.52,
+f88,fake,https://www.youtube.com/watch?v=BgXOUHuHCtM,https://www.youtube.com/watch?v=BgXOUHuHCtM,False,success,fake\f88.mp4,1925412,8.34,
+f89,fake,https://www.facebook.com/NablusToday/videos/709022615787486/,https://www.youtube.com/watch?v=uWBAhR_cbus,True,success,fake\f89.mp4,9592732,227.13,
+f90,fake,https://www.youtube.com/watch?v=CQfehd6oGRQ,https://www.youtube.com/watch?v=-y0Vr7JmCek,True,success,fake\f90.mp4,48791639,224.17,
+f91,fake,https://www.youtube.com/watch?v=IZ5lgCKt5YQ,https://www.youtube.com/watch?v=iMZN5flNysM,True,success,fake\f91.mp4,3940399,63.76,
+f92,fake,https://www.facebook.com/deadpoetssocietypage/videos/10156284760923072/,https://www.facebook.com/deadpoetssocietypage/videos/10156284760923072/,False,success,fake\f92.mp4,3372578,67.89,
+f93,fake,https://www.youtube.com/watch?v=GhxqIITtTtU,https://www.youtube.com/watch?v=GhxqIITtTtU,False,success,fake\f93.mp4,6128256,42.28,
+f94,fake,https://www.youtube.com/watch?v=eK0pO79YkvY,https://www.youtube.com/watch?v=eK0pO79YkvY,False,success,fake\f94.mp4,24907762,84.05,
+f95,fake,https://www.youtube.com/watch?v=VBa4D9D6Gng,https://www.youtube.com/watch?v=VBa4D9D6Gng,False,success,fake\f95.mp4,7122549,94.64,
+f96,fake,https://www.youtube.com/watch?v=g7WjrvG1GMk,https://www.youtube.com/watch?v=g7WjrvG1GMk,False,success,fake\f96.mp4,12664376,29.06,
+f97,fake,https://www.youtube.com/watch?v=0of6v17e1kU,https://www.youtube.com/watch?v=2eYaStRAaTc,True,success,fake\f97.mp4,6531002,213.62,
+f98,fake,https://www.youtube.com/watch?v=ybJoaIzZ_Ew,https://www.youtube.com/watch?v=mvrSgYE6xjk,True,success,fake\f98.mp4,1058895,28.93,
+f99,fake,https://www.youtube.com/watch?v=_9fDPGotFFE,https://www.youtube.com/watch?v=_9fDPGotFFE,False,success,fake\f99.mp4,684555,21.04,
+f100,fake,https://www.youtube.com/watch?v=pqBymTOlMxI,https://www.youtube.com/watch?v=pqBymTOlMxI,False,success,fake\f100.mp4,8352498,67.0,
+f101,fake,https://www.youtube.com/watch?v=tIBJqmPsBg4,https://www.youtube.com/watch?v=tIBJqmPsBg4,False,success,fake\f101.mp4,9640857,75.32,
+f102,fake,https://www.youtube.com/watch?v=Ka5VcfiAGQc,https://www.youtube.com/watch?v=Ka5VcfiAGQc,False,success,fake\f102.mp4,4782661,91.73,
+f103,fake,https://www.youtube.com/watch?v=0QwRW148Jys,https://www.youtube.com/watch?v=0QwRW148Jys,False,success,fake\f103.mp4,2945828,29.68,
+f104,fake,https://www.facebook.com/skynews/videos/1321336991214228/,https://www.youtube.com/watch?v=2va1BNKfcaI,True,success,fake\f104.mp4,12430608,63.58,
+f105,fake,https://www.youtube.com/watch?v=AUF_LFWjbTY,https://www.youtube.com/watch?v=AUF_LFWjbTY,False,success,fake\f105.mp4,3372755,62.4,
+f106,fake,https://www.youtube.com/watch?v=yQSHGABh_40,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] qq2wqj8fNhI: This video is unavailable
+f107,fake,https://www.youtube.com/watch?v=4oJbVJbYf4k,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 4oJbVJbYf4k: This video is unavailable
+f108,fake,https://www.youtube.com/watch?v=kfx1za-CyDI,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] kfx1za-CyDI: This video is unavailable
+f109,fake,https://www.youtube.com/watch?v=mVYZqkMRkhc,https://www.youtube.com/watch?v=Dx4XcNtzUJw,True,success,fake\f109.mp4,44137873,152.82,
+f110,fake,https://www.youtube.com/watch?v=6411gQdfQwg,https://www.youtube.com/watch?v=6411gQdfQwg,False,success,fake\f110.mp4,4320319,108.44,
+f111,fake,https://www.youtube.com/watch?v=oefFuM4JS1c,https://www.youtube.com/watch?v=oefFuM4JS1c,False,success,fake\f111.mp4,61693732,410.54,
+f112,fake,https://www.youtube.com/watch?v=OhKcqJPsLd0,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] OhKcqJPsLd0: This video is unavailable
+f113,fake,https://www.youtube.com/watch?v=5b08s4F-Z0o,https://www.youtube.com/watch?v=5b08s4F-Z0o,False,success,fake\f113.mp4,2005672,76.81,
+f114,fake,https://www.youtube.com/watch?v=955-5Z5bawA,https://www.youtube.com/watch?v=9XGCUII4hyE,True,success,fake\f114.mp4,1649158,15.2,
+f115,fake,https://www.youtube.com/watch?v=ol4xMGgAbKE,https://www.youtube.com/watch?v=ol4xMGgAbKE,False,success,fake\f115.mp4,3498519,35.28,
+f116,fake,https://www.youtube.com/watch?v=FPfPNwhB7Ec,https://www.youtube.com/watch?v=FPfPNwhB7Ec,False,success,fake\f116.mp4,1447015,14.52,
+f117,fake,https://www.youtube.com/watch?v=4hiTDNCYTxs,https://www.youtube.com/watch?v=4hiTDNCYTxs,False,success,fake\f117.mp4,2554184,18.56,
+f118,fake,https://www.youtube.com/watch?v=2jo6HEy6fJ4,https://www.youtube.com/watch?v=2jo6HEy6fJ4,False,success,fake\f118.mp4,956771,17.15,
+f119,fake,https://www.youtube.com/watch?v=ARcSIQDv9eI,https://www.youtube.com/watch?v=ARcSIQDv9eI,False,success,fake\f119.mp4,1257665,17.15,
+f120,fake,https://www.youtube.com/watch?v=kW9RqQYGa0Y,https://www.youtube.com/watch?v=kW9RqQYGa0Y,False,success,fake\f120.mp4,5245567,20.15,
+f121,fake,https://www.youtube.com/watch?v=wOgJQ6Lcsds,https://www.youtube.com/watch?v=wOgJQ6Lcsds,False,success,fake\f121.mp4,5874524,28.26,
+f122,fake,https://www.youtube.com/watch?v=xb1Vj5P3hJY,https://www.youtube.com/watch?v=xb1Vj5P3hJY,False,success,fake\f122.mp4,1485107,20.24,
+f123,fake,https://www.youtube.com/watch?v=ka_Qe6p75Wk,https://www.youtube.com/watch?v=ka_Qe6p75Wk,False,success,fake\f123.mp4,3281126,35.6,
+f124,fake,https://www.youtube.com/watch?v=1q458uRROPI,https://www.youtube.com/watch?v=1q458uRROPI,False,success,fake\f124.mp4,962103,37.96,
+f125,fake,https://www.youtube.com/watch?v=5hfQ0aALNK4,https://www.youtube.com/watch?v=5hfQ0aALNK4,False,success,fake\f125.mp4,3161485,42.68,
+f126,fake,https://www.youtube.com/watch?v=Toh7EKvo08s,https://www.youtube.com/watch?v=Toh7EKvo08s,False,success,fake\f126.mp4,1920211,33.24,
+f127,fake,https://www.youtube.com/watch?v=V1Zu47o_rcQ,https://www.youtube.com/watch?v=V1Zu47o_rcQ,False,success,fake\f127.mp4,1269312,16.16,
+f128,fake,https://www.youtube.com/watch?v=e-WJOHfwpEM,https://www.youtube.com/watch?v=e-WJOHfwpEM,False,success,fake\f128.mp4,796522,21.16,
+f129,fake,https://www.youtube.com/watch?v=wZQlkoCzWao,https://www.youtube.com/watch?v=wZQlkoCzWao,False,success,fake\f129.mp4,2809069,34.0,
+f130,fake,https://www.youtube.com/watch?v=1IicR7-Xjt8,https://www.youtube.com/watch?v=1IicR7-Xjt8,False,success,fake\f130.mp4,1725928,31.28,
+f131,fake,https://www.youtube.com/watch?v=MH-IAt3Ih28,https://www.youtube.com/watch?v=j-0VUTjn7o8,True,success,fake\f131.mp4,664905,22.59,
+f132,fake,https://www.youtube.com/watch?v=jSrywwIiOwI,https://www.youtube.com/watch?v=jSrywwIiOwI,False,success,fake\f132.mp4,3915373,48.18,
+f133,fake,https://www.youtube.com/watch?v=Lb2qPqoG4LE,https://www.youtube.com/watch?v=Lb2qPqoG4LE,False,success,fake\f133.mp4,1795497,27.06,
+f134,fake,https://www.youtube.com/watch?v=pBEkjj9PL5I,https://www.youtube.com/watch?v=pBEkjj9PL5I,False,success,fake\f134.mp4,13412183,55.46,
+f135,fake,https://www.youtube.com/watch?v=xNPzmtYc7bc,https://www.youtube.com/watch?v=xNPzmtYc7bc,False,success,fake\f135.mp4,1794264,18.88,
+f136,fake,https://www.youtube.com/watch?v=xYYcJA34KLg,https://www.youtube.com/watch?v=xYYcJA34KLg,False,success,fake\f136.mp4,1515539,19.12,
+f137,fake,https://www.youtube.com/watch?v=Ape5grS9MEM,https://www.youtube.com/watch?v=Ape5grS9MEM,False,success,fake\f137.mp4,1396573,27.56,
+f138,fake,https://www.youtube.com/watch?v=T3k6_MMuMqw,https://www.youtube.com/watch?v=T3k6_MMuMqw,False,success,fake\f138.mp4,3364083,34.44,
+f139,fake,https://www.youtube.com/watch?v=MtMRLwnG03Q,https://www.youtube.com/watch?v=MtMRLwnG03Q,False,success,fake\f139.mp4,2058571,29.4,
+f140,fake,https://www.youtube.com/watch?v=Stnn5ZaZKJk,https://www.youtube.com/watch?v=Stnn5ZaZKJk,False,success,fake\f140.mp4,3107301,37.48,
+f141,fake,https://www.youtube.com/watch?v=9HdQhByZoUE,https://www.youtube.com/watch?v=9HdQhByZoUE,False,success,fake\f141.mp4,443784,14.8,
+f142,fake,https://www.youtube.com/watch?v=rW3zK52scJM,https://www.youtube.com/watch?v=rW3zK52scJM,False,success,fake\f142.mp4,3393384,43.76,
+f143,fake,https://www.youtube.com/watch?v=UyeAE_ryCQM,https://www.youtube.com/watch?v=UyeAE_ryCQM,False,success,fake\f143.mp4,4932199,46.45,
+f144,fake,https://www.youtube.com/watch?v=c_ahV2zV_dc,https://www.youtube.com/watch?v=c_ahV2zV_dc,False,success,fake\f144.mp4,2973632,42.52,
+f145,fake,https://www.youtube.com/watch?v=n25APqilDIA,https://www.youtube.com/watch?v=n25APqilDIA,False,success,fake\f145.mp4,5294033,72.84,
+f146,fake,https://www.youtube.com/watch?v=rTg9Uv94-Yg,https://www.youtube.com/watch?v=rTg9Uv94-Yg,False,success,fake\f146.mp4,2784161,32.72,
+f147,fake,https://www.youtube.com/watch?v=zmfEUXAUecE,https://www.youtube.com/watch?v=zmfEUXAUecE,False,success,fake\f147.mp4,2065950,17.52,
+f148,fake,https://www.youtube.com/watch?v=4UggbqKnzAM,https://www.youtube.com/watch?v=4UggbqKnzAM,False,success,fake\f148.mp4,1667779,58.4,
+f149,fake,https://www.youtube.com/watch?v=p2EcrZ5Mc2Y,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] zboweiZ0kV4: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+f150,fake,https://www.youtube.com/watch?v=CK7Qyt1U59o,https://www.youtube.com/watch?v=CK7Qyt1U59o,False,success,fake\f150.mp4,2451466,38.72,
+f151,fake,https://www.youtube.com/watch?v=nRCj2DVrboE,https://www.youtube.com/watch?v=nRCj2DVrboE,False,success,fake\f151.mp4,2297474,46.52,
+f152,fake,https://www.youtube.com/watch?v=LJqK5zxSkkI,https://www.youtube.com/watch?v=LJqK5zxSkkI,False,success,fake\f152.mp4,6049651,42.43,
+f153,fake,https://www.youtube.com/watch?v=bTpidxUy41M,,False,failed,,0,0.0,[private_video] ERROR: [youtube] nkQ-ij3LTTM: Private video
+f154,fake,https://www.youtube.com/watch?v=HjgcdFtcj-E,,False,failed,,0,0.0,[private_video] ERROR: [youtube] HjgcdFtcj-E: Private video
+f155,fake,https://www.youtube.com/watch?v=llJWNNU9EEA,https://www.youtube.com/watch?v=llJWNNU9EEA,False,success,fake\f155.mp4,622500,8.03,
+f156,fake,https://www.youtube.com/watch?v=gjDT1Ur4kq8,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] PlOOhi-erVc: This video is unavailable
+f157,fake,https://www.youtube.com/watch?v=an_nNqjNUIo,https://www.youtube.com/watch?v=an_nNqjNUIo,False,success,fake\f157.mp4,10756386,251.93,
+f158,fake,https://www.youtube.com/watch?v=P3alkDsoHNc,https://www.youtube.com/watch?v=P3alkDsoHNc,False,success,fake\f158.mp4,9591003,22.97,
+f159,fake,https://www.youtube.com/watch?v=kcnzkqVIu_Q,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] kcnzkqVIu_Q: This video is unavailable
+f160,fake,https://www.youtube.com/watch?v=ibUNzW9jGR8,https://www.youtube.com/watch?v=jIzO-Hk2i3I,True,success,fake\f160.mp4,42758979,139.93,
+f161,fake,https://www.youtube.com/watch?v=Q8AQler0Dq0,https://www.youtube.com/watch?v=dtAeVl8Erhg,True,success,fake\f161.mp4,351845,8.51,
+f162,fake,https://www.youtube.com/watch?v=oxOPg7IQm2w,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] BHXq3fuJJow: This video is unavailable
+f163,fake,https://www.youtube.com/watch?v=Vx-1LQu6mAE,https://www.youtube.com/watch?v=Vx-1LQu6mAE,False,success,fake\f163.mp4,66386990,573.52,
+f164,fake,https://www.youtube.com/watch?v=XIdaEoBuu3Q,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] XIdaEoBuu3Q: This video is unavailable
+f165,fake,https://www.youtube.com/watch?v=_CdJ4oae8f4,https://www.youtube.com/watch?v=_CdJ4oae8f4,False,success,fake\f165.mp4,2736990,29.96,
+f166,fake,https://www.youtube.com/watch?v=SNPJMk2fgJU,https://www.youtube.com/watch?v=SNPJMk2fgJU,False,success,fake\f166.mp4,25396865,311.62,
+f167,fake,https://www.youtube.com/watch?v=3zBDkYiupvc,https://www.youtube.com/watch?v=3zBDkYiupvc,False,success,fake\f167.mp4,2161630,42.92,
+f168,fake,https://www.facebook.com/tribe7s/videos/667333080091232/,https://www.facebook.com/tribe7s/videos/667333080091232/,False,success,fake\f168.mp4,2209771,56.63,
+f169,fake,https://www.youtube.com/watch?v=5tqH-Un9SFU,https://www.youtube.com/watch?v=5tqH-Un9SFU,False,success,fake\f169.mp4,6183052,84.36,
+f170,fake,https://www.youtube.com/watch?v=MIa94J9cKoA,https://www.youtube.com/watch?v=8UjjZE-YHCM,True,success,fake\f170.mp4,37419753,224.84,
+f171,fake,https://www.youtube.com/watch?v=2gIex0pd96U,https://www.youtube.com/watch?v=d7t9B1qs-uE,True,success,fake\f171.mp4,896426,18.72,
+f172,fake,https://www.youtube.com/watch?v=bOkZPQwPz8E,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 4axafu-18_o: This video is unavailable
+f173,fake,https://www.facebook.com/freshmemeserryday/videos/416189661818764/,https://www.facebook.com/freshmemeserryday/videos/416189661818764/,False,success,fake\f173.mp4,6486066,36.74,
+f174,fake,https://www.facebook.com/AdamSalehOfficial/videos/616048861921044/,https://www.facebook.com/AdamSalehOfficial/videos/616048861921044/,False,success,fake\f174.mp4,15189942,85.59,
+f175,fake,https://www.youtube.com/watch?v=GtrBZJ9pYC0,https://www.youtube.com/watch?v=SfKdjec1Nso,True,success,fake\f175.mp4,2406251,86.8,
+f176,fake,https://www.youtube.com/watch?v=8_imQQdav-Q,https://www.youtube.com/watch?v=8_imQQdav-Q,False,success,fake\f176.mp4,7829759,40.88,
+f177,fake,https://www.youtube.com/watch?v=KCF7Gt90gkk,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] KCF7Gt90gkk: Video unavailable
+f178,fake,https://www.youtube.com/watch?v=W8SK0rk5jdE,https://www.youtube.com/watch?v=W8SK0rk5jdE,False,success,fake\f178.mp4,10139311,54.38,
+f179,fake,https://www.youtube.com/watch?v=GLT9_K0WBfM,https://www.youtube.com/watch?v=GLT9_K0WBfM,False,success,fake\f179.mp4,14064073,37.57,
+f180,fake,https://www.facebook.com/anwnation/videos/10155633090029395/,https://www.facebook.com/anwnation/videos/10155633090029395/,False,success,fake\f180.mp4,218669906,378.75,
+f181,fake,https://www.youtube.com/watch?v=3wAjpMP5eyo,https://www.youtube.com/watch?v=3wAjpMP5eyo,False,success,fake\f181.mp4,2248033,44.84,
+f182,fake,https://www.facebook.com/handytoyota/videos/10153411974693429/,https://www.youtube.com/watch?v=MYjeWGH8Z1c,True,success,fake\f182.mp4,614018,14.21,
+f183,fake,https://www.facebook.com/AmericanaMedia/videos/1422771991353931/,https://www.youtube.com/watch?v=tpNpDM-enLw,True,success,fake\f183.mp4,20986927,109.34,
+f184,fake,https://www.youtube.com/watch?v=TCwwgVFu_WE,https://www.youtube.com/watch?v=k7CRLV-92qI,True,success,fake\f184.mp4,62947447,223.6,
+f185,fake,https://www.youtube.com/watch?v=Gpa5S8DgPzs,https://www.youtube.com/watch?v=Gpa5S8DgPzs,False,success,fake\f185.mp4,18054342,177.06,
+f186,fake,https://www.facebook.com/djflipthaboss/videos/1773135242931134/,https://www.facebook.com/djflipthaboss/videos/1773135242931134/,False,success,fake\f186.mp4,1113111,24.69,
+f187,fake,https://www.youtube.com/watch?v=jauN_VU-9qE,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] HDZWj6MjYbk: This video is unavailable
+f188,fake,https://www.youtube.com/watch?v=C_TBE1aPHzg,https://www.youtube.com/watch?v=C_TBE1aPHzg,False,success,fake\f188.mp4,16990711,203.34,
+f189,fake,https://www.youtube.com/watch?v=dx9KpwVe8uk,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] qtOxx9Dlj84: This video is unavailable
+f190,fake,https://www.youtube.com/watch?v=pAVWWORnQWo,https://www.youtube.com/watch?v=LxFRUZr2tec,True,success,fake\f190.mp4,17395757,100.74,
+f191,fake,https://www.youtube.com/watch?v=aWzJz3rGR6E,https://www.youtube.com/watch?v=aWzJz3rGR6E,False,success,fake\f191.mp4,2536997,49.73,
+f192,fake,https://www.facebook.com/MobilePhoneMovie/videos/656225827781122/,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] ECeeZZ9Fr6Q: Video unavailable
+f193,fake,https://www.youtube.com/watch?v=NlMw4EwkSE0,https://www.youtube.com/watch?v=NlMw4EwkSE0,False,success,fake\f193.mp4,8163521,14.6,
+f194,fake,https://www.youtube.com/watch?v=BIWeEFV59d4,https://www.youtube.com/watch?v=BIWeEFV59d4,False,success,fake\f194.mp4,1836906,54.43,
+f195,fake,https://www.youtube.com/watch?v=QuCiScr2tz8,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 9vTutKz6Z3I: This video is unavailable
+f196,fake,https://www.youtube.com/watch?v=YersIyzsOpc,https://www.youtube.com/watch?v=YersIyzsOpc,False,success,fake\f196.mp4,4606599,126.7,
+f197,fake,https://www.youtube.com/watch?v=l7yt-VPYtOA,https://www.youtube.com/watch?v=l7yt-VPYtOA,False,success,fake\f197.mp4,36400329,56.56,
+f198,fake,https://www.youtube.com/watch?v=mWbPrDGtCj0,https://www.youtube.com/watch?v=2JbwBzDLyUw,True,success,fake\f198.mp4,11048985,88.48,
+f199,fake,https://www.youtube.com/watch?v=_nWZKnzwG48,https://www.youtube.com/watch?v=_nWZKnzwG48,False,success,fake\f199.mp4,2034307,70.23,
+r0,real,https://www.facebook.com/kalikudukka/videos/510223752354499/,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] NLfRkLMchcY: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r1,real,https://www.youtube.com/watch?v=T65WI1o0aKA,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] T65WI1o0aKA: This video is unavailable
+r2,real,https://www.facebook.com/Thomastown3074/videos/10154445158101317/,https://www.facebook.com/Thomastown3074/videos/10154445158101317/,False,success,real\r2.mp4,2613558,77.61,
+r3,real,https://www.youtube.com/watch?v=FLUjak-EYxA,,False,failed,,0,0.0,[download_error] ERROR: unable to download video data: HTTP Error 403: Forbidden
+r4,real,https://www.youtube.com/watch?v=4oC5FbymejE,,False,failed,,0,0.0,[tos_removed] ERROR: [youtube] -fJqS2dA8hI: This video has been removed for violating YouTube's policy on violent or graphic content
+r5,real,https://www.youtube.com/watch?v=W2Z2g0x8GWA,https://www.youtube.com/watch?v=zb4XGKneEbI,True,success,real\r5.mp4,16722939,145.31,
+r6,real,https://www.youtube.com/watch?v=4XnGKJAarhA,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] XBlhxlqeFHE: Video unavailable
+r7,real,https://www.facebook.com/bukanmeme/videos/584705081685693/,https://www.youtube.com/watch?v=KTyWvoGtVpA,True,success,real\r7.mp4,6227279,170.03,
+r8,real,https://www.youtube.com/watch?v=HDZP08LZlKM,https://www.youtube.com/watch?v=r-Ww_Mm2VZw,True,success,real\r8.mp4,4899171,34.84,
+r9,real,https://www.youtube.com/watch?v=MCy73kt0p4w,https://www.youtube.com/watch?v=AYRaGvjHmjs,True,success,real\r9.mp4,9848031,145.77,
+r10,real,https://www.youtube.com/watch?v=OXhvd5Hmkqw,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] g3tDWMWf2Ek: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r11,real,https://www.youtube.com/watch?v=j4lVxK8R39g,https://www.youtube.com/watch?v=j4lVxK8R39g,False,success,real\r11.mp4,183769194,524.19,
+r12,real,https://www.youtube.com/watch?v=g_I6mripDlA,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] g_I6mripDlA: This video is unavailable
+r13,real,https://www.youtube.com/watch?v=UoMDjmLGA1I,https://www.youtube.com/watch?v=UoMDjmLGA1I,False,success,real\r13.mp4,2402998,33.47,
+r14,real,https://www.youtube.com/watch?v=LG4btWVrtB4,https://www.youtube.com/watch?v=ti0oIhcpL3s,True,success,real\r14.mp4,4421230,110.43,
+r15,real,https://www.facebook.com/pmwhiphop/videos/1292422170775751/,https://www.youtube.com/watch?v=rBClQgvrM1U,True,success,real\r15.mp4,1013966,29.73,
+r16,real,https://www.youtube.com/watch?v=GdODXdLtjg4,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] GdODXdLtjg4: This video is unavailable
+r17,real,https://www.youtube.com/watch?v=0iR-mCOX308,https://www.youtube.com/watch?v=0iR-mCOX308,False,success,real\r17.mp4,5455811,147.88,
+r18,real,https://www.youtube.com/watch?v=9RHdbRw6ZRE,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 9RHdbRw6ZRE: Video unavailable
+r19,real,https://www.facebook.com/TheWatchmanMinistries/videos/1105939256144051/,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] Ow7_oRGfcq8: This video is unavailable
+r20,real,https://www.youtube.com/watch?v=QbJhLSmtlZg,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] QbJhLSmtlZg: Video unavailable
+r21,real,https://www.facebook.com/CBSEveningNews/videos/10154910638434073/,https://www.facebook.com/CBSEveningNews/videos/10154910638434073/,False,success,real\r21.mp4,4528548,52.29,
+r22,real,https://www.youtube.com/watch?v=rvOAG6OwaRY,https://www.youtube.com/watch?v=rvOAG6OwaRY,False,success,real\r22.mp4,3918453,101.8,
+r23,real,https://www.facebook.com/tounesalyoum.officiel/videos/1069026979789992/,https://www.youtube.com/watch?v=oXYQSv8BUJA,True,success,real\r23.mp4,8850445,44.17,
+r24,real,https://www.youtube.com/watch?v=gLTculVDUac,,False,failed,,0,0.0,[private_video] ERROR: [youtube] t2HwfqKMaSM: Private video
+r25,real,https://www.youtube.com/watch?v=btQ7zZ3cyuw,https://www.youtube.com/watch?v=I2s6HhpHHD0,True,success,real\r25.mp4,6652450,78.83,
+r26,real,https://www.youtube.com/watch?v=yhO7gZobaqY,https://www.youtube.com/watch?v=_pa2bxuWDQo,True,success,real\r26.mp4,918482,23.88,
+r27,real,https://www.youtube.com/watch?v=fg3GrfR2wiQ,https://www.youtube.com/watch?v=aK1KOnFsbak,True,success,real\r27.mp4,52716250,220.9,
+r28,real,https://www.youtube.com/watch?v=Ttyxt3bjq2k,https://www.youtube.com/watch?v=Ttyxt3bjq2k,False,success,real\r28.mp4,37959641,247.71,
+r29,real,https://www.youtube.com/watch?v=DSv-rvGrkgU,https://www.youtube.com/watch?v=DSv-rvGrkgU,False,success,real\r29.mp4,38532831,90.0,
+r30,real,https://www.youtube.com/watch?v=PfqCJJcOX8U,https://www.youtube.com/watch?v=PfqCJJcOX8U,False,success,real\r30.mp4,2002463,40.77,
+r31,real,https://www.youtube.com/watch?v=heSOBf-sOm8,https://www.youtube.com/watch?v=heSOBf-sOm8,False,success,real\r31.mp4,31179597,296.7,
+r32,real,https://www.facebook.com/linda.mcnamara.7543/videos/10152728829596514/,https://www.youtube.com/watch?v=BUREX8aFbMs,True,success,real\r32.mp4,9439472,63.3,
+r33,real,https://www.facebook.com/ExclusiveVideosAll/videos/1406953265999170/,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] fVNKXf7WYJM: This video is unavailable
+r34,real,https://www.youtube.com/watch?v=VOq6owl8k4M,https://www.youtube.com/watch?v=7-E0vaSf-qI,True,success,real\r34.mp4,9232644,94.76,
+r35,real,https://www.youtube.com/watch?v=4NiGeXo8dok,https://www.youtube.com/watch?v=4NiGeXo8dok,False,success,real\r35.mp4,6008167,98.93,
+r36,real,https://www.youtube.com/watch?v=nDKenAmTmyQ,https://www.youtube.com/watch?v=nDKenAmTmyQ,False,success,real\r36.mp4,12943773,42.28,
+r37,real,https://www.youtube.com/watch?v=0qEosFIoSnA,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] 0qEosFIoSnA: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r38,real,https://www.youtube.com/watch?v=tusRN2EIC_M,https://www.youtube.com/watch?v=tusRN2EIC_M,False,success,real\r38.mp4,35376672,130.77,
+r39,real,https://www.youtube.com/watch?v=FMAjINH_rAs,https://www.youtube.com/watch?v=FMAjINH_rAs,False,success,real\r39.mp4,170514405,846.16,
+r40,real,https://www.youtube.com/watch?v=a6sG41GDwtA,https://www.youtube.com/watch?v=a6sG41GDwtA,False,success,real\r40.mp4,1154732,23.5,
+r41,real,https://www.youtube.com/watch?v=3GpzWnWKxkE,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] XJ-IF46ExeQ: This video is unavailable
+r42,real,https://www.youtube.com/watch?v=vvU2h4-rgsw,https://www.youtube.com/watch?v=vvU2h4-rgsw,False,success,real\r42.mp4,24020732,192.52,
+r43,real,https://www.youtube.com/watch?v=A4N73DY-NX4,https://www.youtube.com/watch?v=A4N73DY-NX4,False,success,real\r43.mp4,1524804,35.2,
+r44,real,https://www.youtube.com/watch?v=Zg2ebJ3reQM,https://www.youtube.com/watch?v=Zg2ebJ3reQM,False,success,real\r44.mp4,11758582,60.4,
+r45,real,https://www.youtube.com/watch?v=4IfS86pJ4uM,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 6T2N2TEbQcw: This video is unavailable
+r46,real,https://www.youtube.com/watch?v=90Omh7_I8vI,https://www.youtube.com/watch?v=FKbMkbsmc_o,True,success,real\r46.mp4,3901272,44.76,
+r47,real,https://www.youtube.com/watch?v=LtFrsa7Yico,https://www.youtube.com/watch?v=LtFrsa7Yico,False,success,real\r47.mp4,589126,22.29,
+r48,real,https://www.youtube.com/watch?v=QcGMHjb1W5k,,False,failed,,0,0.0,[private_video] ERROR: [youtube] QcGMHjb1W5k: Private video
+r49,real,https://www.youtube.com/watch?v=Sn-q-HdAxco,https://www.youtube.com/watch?v=Sn-q-HdAxco,False,success,real\r49.mp4,2900395,69.94,
+r50,real,https://www.youtube.com/watch?v=Bg8Sw319J60,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] SCCCqAIt4II: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r51,real,https://www.youtube.com/watch?v=24gECuCSYec,https://www.youtube.com/watch?v=24gECuCSYec,False,success,real\r51.mp4,22683572,230.43,
+r52,real,https://www.youtube.com/watch?v=zCliWb4rdsY,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] zCliWb4rdsY: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r53,real,https://www.youtube.com/watch?v=dRoM4RSCOOg,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] C4u5wcd6hY4: Video unavailable
+r54,real,https://www.youtube.com/watch?v=geNbBg7avgY,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] geNbBg7avgY: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r55,real,https://www.youtube.com/watch?v=EMCghdsQu4s,https://www.youtube.com/watch?v=HD89wPiicCg,True,success,real\r55.mp4,26269309,63.4,
+r56,real,https://www.youtube.com/watch?v=JEE8f98MlnA,https://www.youtube.com/watch?v=daR6fjsNcqI,True,success,real\r56.mp4,308439,12.1,
+r57,real,https://www.youtube.com/watch?v=WD4ELHz0gd0,https://www.youtube.com/watch?v=WD4ELHz0gd0,False,success,real\r57.mp4,22331706,93.5,
+r58,real,https://www.youtube.com/watch?v=j50DAVSH23c,https://www.youtube.com/watch?v=j50DAVSH23c,False,success,real\r58.mp4,4003234,134.87,
+r59,real,https://www.youtube.com/watch?v=S6-GkIzzzFg,https://www.youtube.com/watch?v=S6-GkIzzzFg,False,success,real\r59.mp4,30631873,381.45,
+r60,real,https://www.youtube.com/watch?v=EiT-FQVyoe8,https://www.youtube.com/watch?v=EiT-FQVyoe8,False,success,real\r60.mp4,23649044,416.18,
+r61,real,https://www.youtube.com/watch?v=Ndk1d5lSUNg,https://www.youtube.com/watch?v=Ndk1d5lSUNg,False,success,real\r61.mp4,31739072,183.56,
+r62,real,https://www.youtube.com/watch?v=1ovTo30_myI,https://www.youtube.com/watch?v=1ovTo30_myI,False,success,real\r62.mp4,19319474,147.13,
+r63,real,https://www.youtube.com/watch?v=MgbYdnL6e8Q,https://www.youtube.com/watch?v=MgbYdnL6e8Q,False,success,real\r63.mp4,13745828,150.48,
+r64,real,https://www.youtube.com/watch?v=wR4QAS9rB7E,https://www.youtube.com/watch?v=wR4QAS9rB7E,False,success,real\r64.mp4,9734205,148.9,
+r65,real,https://www.youtube.com/watch?v=kjx-JlwYtyE,https://www.youtube.com/watch?v=epXhWu8Xhxg,True,success,real\r65.mp4,3667158,94.16,
+r66,real,https://www.youtube.com/watch?v=HB2jgJJG2is,https://www.youtube.com/watch?v=hL-nOaO8SNA,True,success,real\r66.mp4,7285564,121.57,
+r67,real,https://www.youtube.com/watch?v=j3fUqdGXLbM,https://www.youtube.com/watch?v=j3fUqdGXLbM,False,success,real\r67.mp4,66927961,254.25,
+r68,real,https://www.youtube.com/watch?v=x9QNzGY0qxw,https://www.youtube.com/watch?v=dapCg3Wymxs,True,success,real\r68.mp4,13391078,48.75,
+r69,real,https://www.youtube.com/watch?v=p_6iDBoOvb0,https://www.youtube.com/watch?v=p_6iDBoOvb0,False,success,real\r69.mp4,6835460,94.4,
+r70,real,https://www.youtube.com/watch?v=DhucLrfxQVI,https://www.youtube.com/watch?v=-SDDogvNU5Q,True,success,real\r70.mp4,11473419,45.47,
+r71,real,https://www.youtube.com/watch?v=eSiSWPnHpG4,https://www.youtube.com/watch?v=eSiSWPnHpG4,False,success,real\r71.mp4,1153774,19.62,
+r72,real,https://www.youtube.com/watch?v=3HrdgaiM9sY,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 3HrdgaiM9sY: This video is unavailable
+r73,real,https://www.facebook.com/KeithDanielsFOX45/videos/921639941277777/,https://www.facebook.com/KeithDanielsFOX45/videos/921639941277777/,False,success,real\r73.mp4,1860549,54.96,
+r74,real,https://www.youtube.com/watch?v=TfpR8AFegdI,https://www.youtube.com/watch?v=TfpR8AFegdI,False,success,real\r74.mp4,16486008,124.0,
+r75,real,https://www.youtube.com/watch?v=XgCByAtNXmY,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] FX5aeuJFQ64: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r76,real,https://www.youtube.com/watch?v=eu4DlwE0Bu8,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] eu4DlwE0Bu8: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r77,real,https://www.youtube.com/watch?v=SRkdwrmzYXg,https://www.youtube.com/watch?v=Fe5HNtfTdGE,True,success,real\r77.mp4,91345980,442.04,
+r78,real,https://www.youtube.com/watch?v=PrZ56-47TWg,https://www.youtube.com/watch?v=PrZ56-47TWg,False,success,real\r78.mp4,18418817,190.04,
+r79,real,https://www.youtube.com/watch?v=g7FXeaahRsg,https://www.youtube.com/watch?v=g7FXeaahRsg,False,success,real\r79.mp4,2992339,64.73,
+r80,real,https://www.youtube.com/watch?v=ASdN8JCdMY4,https://www.youtube.com/watch?v=RQIRJEa4__s,True,success,real\r80.mp4,96507275,445.35,
+r81,real,https://www.youtube.com/watch?v=94N9MLRulX8,https://www.youtube.com/watch?v=94N9MLRulX8,False,success,real\r81.mp4,3493401,118.97,
+r82,real,https://www.facebook.com/BestBoats24.net/videos/547289088653236/,https://www.facebook.com/BestBoats24.net/videos/547289088653236/,False,success,real\r82.mp4,10675385,101.36,
+r83,real,https://www.youtube.com/watch?v=mHxPpgAzd3Y,https://www.youtube.com/watch?v=mHxPpgAzd3Y,False,success,real\r83.mp4,38355167,83.67,
+r84,real,https://www.youtube.com/watch?v=tmhzte6N9nM,https://www.youtube.com/watch?v=ZphxlX1JuLU,True,success,real\r84.mp4,17248082,87.0,
+r85,real,https://www.youtube.com/watch?v=RXn1g0xtUMk,https://www.youtube.com/watch?v=RXn1g0xtUMk,False,success,real\r85.mp4,31837873,60.76,
+r86,real,https://www.youtube.com/watch?v=AovFfdcy28E,https://www.youtube.com/watch?v=AovFfdcy28E,False,success,real\r86.mp4,48872567,93.39,
+r87,real,https://www.youtube.com/watch?v=4mD1qG0c1dE,https://www.youtube.com/watch?v=4mD1qG0c1dE,False,success,real\r87.mp4,5633200,38.63,
+r88,real,https://www.youtube.com/watch?v=gfd8XjWptA0,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] gfd8XjWptA0: This video is unavailable
+r89,real,https://www.youtube.com/watch?v=ekmMD8oYtJ0,https://www.youtube.com/watch?v=XZp_Zy96kY0,True,success,real\r89.mp4,7586599,27.83,
+r90,real,https://www.youtube.com/watch?v=rbE53XUtVw0,https://www.youtube.com/watch?v=XHFHD8F00hk,True,success,real\r90.mp4,28396671,86.0,
+r91,real,https://www.youtube.com/watch?v=GbWHwAH4Wyc,,False,failed,,0,0.0,[tos_removed] ERROR: [youtube] PBIHJe-ERoU: This video has been removed for violating YouTube's policy on hate speech. Learn more about combating hate speech in your country.
+r92,real,https://www.youtube.com/watch?v=nfPoaOIKJi0,,False,failed,,0,0.0,[download_error] ERROR: unable to download video data: HTTP Error 403: Forbidden
+r93,real,https://www.youtube.com/watch?v=046MuD1pYJg,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] CP9Oziuiqgo: Video unavailable
+r94,real,https://www.youtube.com/watch?v=HqaGJ50Cz7o,https://www.youtube.com/watch?v=HqaGJ50Cz7o,False,success,real\r94.mp4,260280395,552.82,
+r95,real,https://www.facebook.com/170520334564/videos/10101373686098937/,https://www.facebook.com/170520334564/videos/10101373686098937/,False,success,real\r95.mp4,10512010,62.9,
+r96,real,https://www.youtube.com/watch?v=271mWThTjd8,https://www.youtube.com/watch?v=271mWThTjd8,False,success,real\r96.mp4,76164037,150.69,
+r97,real,https://www.youtube.com/watch?v=qzem7myNcCY,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] wijVnE7fNgc: This video is unavailable
+r98,real,https://www.youtube.com/watch?v=qqHwCzGPhC0,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] xDiQwK_EDgs: This video is unavailable
+r99,real,https://www.youtube.com/watch?v=3aKz2wcpeQo,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] Zo6acW_s_ec: This video is unavailable
+r100,real,https://www.facebook.com/KOAA/videos/10153557201923939/,https://www.facebook.com/KOAA/videos/10153557201923939/,False,success,real\r100.mp4,13966712,103.74,
+r101,real,https://www.youtube.com/watch?v=EtsrIpeMIkE,https://www.youtube.com/watch?v=nv1kTZFp-Yo,True,success,real\r101.mp4,40567701,204.27,
+r102,real,https://www.youtube.com/watch?v=qeukyfbtmVw,https://www.youtube.com/watch?v=iQvpkWxLNo0,True,success,real\r102.mp4,3264155,20.13,
+r103,real,https://www.youtube.com/watch?v=6IuFoxpPNAM,https://www.youtube.com/watch?v=6IuFoxpPNAM,False,success,real\r103.mp4,10056509,222.92,
+r104,real,https://www.youtube.com/watch?v=gfqmA8FCEyU,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] gfqmA8FCEyU: This video is unavailable
+r105,real,https://www.youtube.com/watch?v=_PSctJPU0ss,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 5ssoZCODdjY: Video unavailable
+r106,real,https://www.youtube.com/watch?v=Bxy3-v7hsXE,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] XXeLZ5ozplc: This video is unavailable
+r107,real,https://www.youtube.com/watch?v=MbGcExkci08,https://www.youtube.com/watch?v=MuAtaWzMGUM,True,success,real\r107.mp4,4754649,50.96,
+r108,real,https://www.youtube.com/watch?v=Hu-jDPctDn0,https://www.youtube.com/watch?v=Hu-jDPctDn0,False,success,real\r108.mp4,12293517,64.03,
+r109,real,https://www.youtube.com/watch?v=4sRH85Pom7Y,https://www.youtube.com/watch?v=vN4BmurMD8k,True,success,real\r109.mp4,3307518,20.56,
+r110,real,https://www.youtube.com/watch?v=8GtnS_cdSNs,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] CP0MVJQULd4: Video unavailable
+r111,real,https://www.youtube.com/watch?v=D2Y2pU-_u4U,https://www.youtube.com/watch?v=D2Y2pU-_u4U,False,success,real\r111.mp4,1396580,42.4,
+r112,real,https://www.youtube.com/watch?v=k-mAM55fxsA,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] OE9Z-12A9Ts: Video unavailable
+r113,real,https://www.youtube.com/watch?v=ofCZNgnPtqU,https://www.youtube.com/watch?v=ofCZNgnPtqU,False,success,real\r113.mp4,13745897,61.0,
+r114,real,https://www.youtube.com/watch?v=SLMa5-n2OVc,https://www.youtube.com/watch?v=SLMa5-n2OVc,False,success,real\r114.mp4,87862450,272.42,
+r115,real,https://www.youtube.com/watch?v=KJ3xykygNJ4,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] OvXhUuYPV2E: Video unavailable
+r116,real,https://www.youtube.com/watch?v=Y7bBoKkvLWY,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] Y7bBoKkvLWY: Video unavailable
+r117,real,https://www.youtube.com/watch?v=2w3KeAuOQxI,https://www.youtube.com/watch?v=PKNndy3O_4A,True,success,real\r117.mp4,13332504,83.2,
+r118,real,https://www.facebook.com/cgtnamerica/videos/1328826410545961/,https://www.facebook.com/cgtnamerica/videos/1328826410545961/,False,success,real\r118.mp4,3833423,14.4,
+r119,real,https://www.youtube.com/watch?v=qOGWQPI9aP4,https://www.youtube.com/watch?v=qOGWQPI9aP4,False,success,real\r119.mp4,6382490,221.87,
+r120,real,https://www.youtube.com/watch?v=rEg6oeazTNY,https://www.youtube.com/watch?v=YI4GG79cXC8,True,success,real\r120.mp4,25120169,102.66,
+r121,real,https://www.youtube.com/watch?v=4nuzUOuYEjs,https://www.youtube.com/watch?v=fBVt9Za3TXU,True,success,real\r121.mp4,2895519,55.52,
+r122,real,https://www.youtube.com/watch?v=2UnzZX5w6OQ,,False,failed,,0,0.0,[download_error] ERROR: unable to download video data: HTTP Error 403: Forbidden
+r123,real,https://www.youtube.com/watch?v=9ECb-yH2DBo,https://www.youtube.com/watch?v=9ECb-yH2DBo,False,success,real\r123.mp4,3993404,88.12,
+r124,real,https://www.youtube.com/watch?v=-79oB38Jhjk,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] -79oB38Jhjk: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r125,real,https://www.youtube.com/watch?v=V5AN0jRzPMI,https://www.youtube.com/watch?v=V5AN0jRzPMI,False,success,real\r125.mp4,24570941,36.44,
+r126,real,https://www.youtube.com/watch?v=9KBCzQmKj70,https://www.youtube.com/watch?v=9KBCzQmKj70,False,success,real\r126.mp4,790215,26.04,
+r127,real,https://www.youtube.com/watch?v=nLKovcqeMbQ,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] WiDy-AE3Lnw: This video is unavailable
+r128,real,https://www.facebook.com/MakeAmericaMexicoAgain/videos/1513325712044610/,https://www.facebook.com/MakeAmericaMexicoAgain/videos/1513325712044610/,False,success,real\r128.mp4,2609163,23.43,
+r129,real,https://www.youtube.com/watch?v=glCVH7v8uVs,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] glCVH7v8uVs: Video unavailable
+r130,real,https://www.youtube.com/watch?v=4rBezl64SNo,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] 4rBezl64SNo: Video unavailable
+r131,real,https://www.youtube.com/watch?v=yKuLpc4GP1o,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] yKuLpc4GP1o: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r132,real,https://www.facebook.com/WRALTV/videos/10154906056012178/,https://www.facebook.com/WRALTV/videos/10154906056012178/,False,success,real\r132.mp4,8999614,24.26,
+r133,real,https://www.youtube.com/watch?v=xNJxDWX-qes,https://www.youtube.com/watch?v=xNJxDWX-qes,False,success,real\r133.mp4,36620592,120.0,
+r134,real,https://www.youtube.com/watch?v=lda3gBc3S1A,https://www.youtube.com/watch?v=n72YR5g3zss,True,success,real\r134.mp4,1341122,44.98,
+r135,real,https://www.facebook.com/taeshotit/videos/485107975159174/,https://www.youtube.com/watch?v=xfAx-GEjRjs,True,success,real\r135.mp4,24748223,94.19,
+r136,real,https://www.youtube.com/watch?v=U0I25KZPgsQ,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] U0I25KZPgsQ: Video unavailable
+r137,real,https://www.youtube.com/watch?v=uK76aZ4vku0,https://www.youtube.com/watch?v=uK76aZ4vku0,False,success,real\r137.mp4,7311962,120.85,
+r138,real,https://www.youtube.com/watch?v=XTOEXAGB4UY,https://www.youtube.com/watch?v=XTOEXAGB4UY,False,success,real\r138.mp4,125713231,459.13,
+r139,real,https://www.youtube.com/watch?v=Gvtie5mdz9I,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] Gvtie5mdz9I: This video is unavailable
+r140,real,https://www.youtube.com/watch?v=PUqtu1kIfKU,https://www.youtube.com/watch?v=PUqtu1kIfKU,False,success,real\r140.mp4,658117,15.0,
+r141,real,https://www.youtube.com/watch?v=cv0hHeEHlbo,https://www.youtube.com/watch?v=cv0hHeEHlbo,False,success,real\r141.mp4,8334461,16.72,
+r142,real,https://www.youtube.com/watch?v=MxCVbISr21U,https://www.youtube.com/watch?v=MxCVbISr21U,False,success,real\r142.mp4,6413018,52.87,
+r143,real,https://www.youtube.com/watch?v=O0FI4bfhb7k,https://www.youtube.com/watch?v=O0FI4bfhb7k,False,success,real\r143.mp4,41600372,718.27,
+r144,real,https://www.youtube.com/watch?v=919ip9_urEo,https://www.youtube.com/watch?v=yg5Z-8FWEYE,True,success,real\r144.mp4,134273014,748.9,
+r145,real,https://www.youtube.com/watch?v=5RBcIPuKDUc,https://www.youtube.com/watch?v=5RBcIPuKDUc,False,success,real\r145.mp4,153112064,268.32,
+r146,real,https://www.youtube.com/watch?v=Y1gA5aNLznM,https://www.youtube.com/watch?v=Y1gA5aNLznM,False,success,real\r146.mp4,2868383,31.63,
+r147,real,https://www.youtube.com/watch?v=CEEx9rSDQ2w,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] XeDH6xkLQak: This video is unavailable
+r148,real,https://www.youtube.com/watch?v=Fl4QY5Cqtxc,https://www.youtube.com/watch?v=mDM-8BW9pDk,True,success,real\r148.mp4,25082565,59.59,
+r149,real,https://www.youtube.com/watch?v=jmjya46Cm6s,,False,failed,,0,0.0,[tos_removed] ERROR: [youtube] jdd5Yi9WDC4: This video has been removed for violating YouTube's Terms of Service
+r150,real,https://www.youtube.com/watch?v=ihQ1-LQOkns,https://www.youtube.com/watch?v=ihQ1-LQOkns,False,success,real\r150.mp4,21578529,110.58,
+r151,real,https://www.youtube.com/watch?v=MYZd8Rpzt9c,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] MYZd8Rpzt9c: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r152,real,https://www.youtube.com/watch?v=QXLge_iRblk,https://www.youtube.com/watch?v=QXLge_iRblk,False,success,real\r152.mp4,95884534,190.99,
+r153,real,https://www.youtube.com/watch?v=3ZRxXcE9mmQ,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] xRGZ6sLaA6Y: This video is unavailable
+r154,real,https://www.youtube.com/watch?v=fmrxFcTTv-c,https://www.youtube.com/watch?v=fmrxFcTTv-c,False,success,real\r154.mp4,3556762,158.8,
+r155,real,https://www.youtube.com/watch?v=iX0Qvk7YbnU,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] iX0Qvk7YbnU: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r156,real,https://www.youtube.com/watch?v=yxRGm3ymVAk,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] yxRGm3ymVAk: Video unavailable
+r157,real,https://www.youtube.com/watch?v=YQRVvpytYic,https://www.youtube.com/watch?v=YQRVvpytYic,False,success,real\r157.mp4,4108583,60.03,
+r158,real,https://www.youtube.com/watch?v=jH53_XjO_6E,https://www.youtube.com/watch?v=nWhX6lNWOCM,True,success,real\r158.mp4,25385775,90.13,
+r159,real,https://www.facebook.com/AllGoalsOfficial/videos/1034051783285640/,https://www.facebook.com/AllGoalsOfficial/videos/1034051783285640/,False,success,real\r159.mp4,6295902,99.63,
+r160,real,https://www.facebook.com/TELEGRAPH.CO.UK/videos/10153246571324749/,https://www.facebook.com/TELEGRAPH.CO.UK/videos/10153246571324749/,False,success,real\r160.mp4,14686501,156.12,
+r161,real,https://www.youtube.com/watch?v=D0K3nJdymyY,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] D0K3nJdymyY: Video unavailable
+r162,real,https://www.youtube.com/watch?v=zDeUzatoUhs,https://www.youtube.com/watch?v=hsHrkAAmI3U,True,success,real\r162.mp4,4422906,149.53,
+r163,real,https://www.facebook.com/7NewsAustralia/videos/1251928631483994/,https://www.facebook.com/7NewsAustralia/videos/1251928631483994/,False,success,real\r163.mp4,1179301,20.01,
+r164,real,https://www.facebook.com/nextquake/videos/2367575976800037/,https://www.youtube.com/watch?v=oarWP81I7uc,True,success,real\r164.mp4,652744,13.87,
+r165,real,https://www.youtube.com/watch?v=6QO_PGr1Rso,https://www.youtube.com/watch?v=6QO_PGr1Rso,False,success,real\r165.mp4,1074795,22.63,
+r166,real,https://www.youtube.com/watch?v=HixMIKyUqSM,https://www.youtube.com/watch?v=HixMIKyUqSM,False,success,real\r166.mp4,4008435,26.99,
+r167,real,https://www.youtube.com/watch?v=izNDNHK3_N8,https://www.youtube.com/watch?v=RGsMzlGpAWU,True,success,real\r167.mp4,3789184,78.88,
+r168,real,https://www.youtube.com/watch?v=e_DirfBKATM,,False,failed,,0,0.0,[tos_removed] ERROR: [youtube] WPZUs1OSS6w: This video has been removed for violating YouTube's policy on violent or graphic content
+r169,real,https://www.youtube.com/watch?v=c0ztLtpuwkM,https://www.youtube.com/watch?v=c0ztLtpuwkM,False,success,real\r169.mp4,177955706,728.53,
+r170,real,https://www.youtube.com/watch?v=aWpFxEmtIDA,https://www.youtube.com/watch?v=aWpFxEmtIDA,False,success,real\r170.mp4,4375178,30.73,
+r171,real,https://www.youtube.com/watch?v=t9kfJUQnawU,https://www.youtube.com/watch?v=t9kfJUQnawU,False,success,real\r171.mp4,3013073,60.03,
+r172,real,https://www.youtube.com/watch?v=0fNy_tWYkd4,https://www.youtube.com/watch?v=0fNy_tWYkd4,False,success,real\r172.mp4,29269686,417.02,
+r173,real,https://www.youtube.com/watch?v=tE86aIDQeBQ,,False,failed,,0,0.0,[age_restricted_sign_in_required] ERROR: [youtube] E4FM9WGRWdQ: Sign in to confirm your age. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dl
+r174,real,https://www.youtube.com/watch?v=XvMoYEUVcB4,https://www.youtube.com/watch?v=XvMoYEUVcB4,False,success,real\r174.mp4,14218970,97.03,
+r175,real,https://www.youtube.com/watch?v=lYFpga7kJxE,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] gPtfxrTToFQ: This video is unavailable
+r176,real,https://www.youtube.com/watch?v=WNjFFTQsIAg,https://www.youtube.com/watch?v=WNjFFTQsIAg,False,success,real\r176.mp4,3291640,23.68,
+r177,real,https://www.facebook.com/findmeafunnyvideo/videos/1983050238386609/,,False,failed,,0,0.0,[video_unavailable] ERROR: [youtube] LmM0YDckPf4: This video is unavailable
+r178,real,https://www.youtube.com/watch?v=x76VEPXYaI0,https://www.youtube.com/watch?v=x76VEPXYaI0,False,success,real\r178.mp4,76347749,123.16,
+r179,real,https://www.youtube.com/watch?v=VESBrSWm3Yg,https://www.youtube.com/watch?v=VESBrSWm3Yg,False,success,real\r179.mp4,3274532,10.7,

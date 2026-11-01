@@ -1,0 +1,44 @@
+{
+  "candidate_id": "vmae_exp0_linear",
+  "checkpoint_path": "C:\\Users\\ASUS\\Installation\\AgenticAI\\Multi_Agent_System\\video_module\\baseline_classifier\\checkpoints\\vmae_exp0_linear.pt",
+  "validation_macro_f1": 0.8314,
+  "validation_balanced_accuracy": 0.8289,
+  "test_total_samples": 42,
+  "test_accuracy": 0.619,
+  "test_balanced_accuracy": 0.6042,
+  "test_macro_precision": 0.6082,
+  "test_macro_recall": 0.6042,
+  "test_macro_f1": 0.6047,
+  "test_weighted_f1": 0.6155,
+  "test_roc_auc": 0.6759,
+  "per_class": {
+    "real": {
+      "precision": 0.5625,
+      "recall": 0.5,
+      "f1_score": 0.5294,
+      "support": 18
+    },
+    "fake": {
+      "precision": 0.6538,
+      "recall": 0.7083,
+      "f1_score": 0.68,
+      "support": 24
+    }
+  },
+  "confusion_matrix": {
+    "true_real_pred_real (TN)": 9,
+    "true_real_pred_fake (FP)": 9,
+    "true_fake_pred_real (FN)": 7,
+    "true_fake_pred_fake (TP)": 17
+  },
+  "comparison_vs_baseline_exp6": {
+    "baseline_model": "exp6_compact_proj64 (EfficientNet)",
+    "baseline_test_macro_f1": 0.5411,
+    "videomae_test_macro_f1": 0.6047,
+    "macro_f1_delta": 0.0636,
+    "baseline_test_balanced_accuracy": 0.5417,
+    "videomae_test_balanced_accuracy": 0.6042,
+    "balanced_accuracy_delta": 0.0625,
+    "videomae_outperforms_on_test": true
+  }
+}

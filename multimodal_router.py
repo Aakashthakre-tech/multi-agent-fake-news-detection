@@ -975,6 +975,8 @@ def verify_text(claim: str) -> Dict[str, Any]:
             "primary_supporting_groups": final_verdict.get("primary_supporting_groups", 0),
             "supporting_evidence": final_verdict.get("supporting_evidence", []),
             "contradicting_evidence": final_verdict.get("contradicting_evidence", []),
+            "llm_second_opinion": state.get("llm_second_opinion"),
+            "independent_llm_analysis": state.get("independent_llm_analysis"),
             **_evidence_policy_fields(final_verdict),
         }
 
@@ -1085,6 +1087,8 @@ def verify_image(
             "agent_confidence": final_v.get("agent_confidence"),
             "critic_confidence": final_v.get("critic_confidence"),
             "primary_supporting_groups": final_v.get("primary_supporting_groups", 0),
+            "llm_second_opinion": verif.get("llm_second_opinion"),
+            "independent_llm_analysis": verif.get("independent_llm_analysis"),
             **_evidence_policy_fields(final_v),
         }
 
@@ -1272,6 +1276,16 @@ def verify_video_file(
             "agent_confidence": final_v.get("agent_confidence"),
             "critic_confidence": final_v.get("critic_confidence"),
             "primary_supporting_groups": final_v.get("primary_supporting_groups", 0),
+            "llm_second_opinion": (
+                (verified_claims[0].get("verification", {}) or {}).get("llm_second_opinion")
+                if verified_claims
+                else None
+            ),
+            "independent_llm_analysis": (
+                (verified_claims[0].get("verification", {}) or {}).get("independent_llm_analysis")
+                if verified_claims
+                else None
+            ),
             **_evidence_policy_fields(final_v),
         }
 
@@ -1428,6 +1442,8 @@ def verify_audio_file(
             "agent_confidence": details.get("agent_confidence") or final_v.get("agent_confidence"),
             "critic_confidence": details.get("critic_confidence") or final_v.get("critic_confidence"),
             "primary_supporting_groups": final_v.get("primary_supporting_groups", 0),
+            "llm_second_opinion": verif_sub.get("llm_second_opinion"),
+            "independent_llm_analysis": verif_sub.get("independent_llm_analysis"),
             **_evidence_policy_fields(final_v),
         }
 

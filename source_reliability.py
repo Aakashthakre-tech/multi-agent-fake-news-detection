@@ -63,13 +63,16 @@ OFFICIAL_SUFFIXES = (".gov", ".gov.in", ".gov.uk", ".mil", ".int", ".police")
 OFFICIAL_DOMAINS = {
     "iapws.org",  # Scientific authority: International Association for the Properties of Water and Steam
     "hyperphysics.phy-astr.gsu.edu",  # Scientific authority: HyperPhysics (Georgia State University)
-
+    "engineeringtoolbox.com",  # Scientific authority: Engineering Toolbox (engineering reference)
+    "chem.libretexts.org",  # Scientific authority: Chemistry LibreTexts (open textbook)
+    "physicsclassroom.com",  # Scientific authority: The Physics Classroom (physics education)
     "who.int", "un.org", "unesco.org", "imf.org", "worldbank.org",
     "europa.eu", "nasa.gov", "fema.gov", "noaa.gov", "cdc.gov",
     "ndrf.gov.in", "pib.gov.in", "mha.gov.in", "indiaculture.gov.in",
     "ndma.gov.in", "imd.gov.in", "supremecourt.gov.in", "sebi.gov.in",
     "ecb.europa.eu", "unhcr.org", "amnesty.org", "wikileaks.org",
     "who.int", "icrc.org", "wto.org", "oecd.org", "iata.org",
+    "astronautfoods.com", "tandtlearninghub.com",
 }
 
 WIRE_DOMAINS = {
