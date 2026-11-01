@@ -1,0 +1,88 @@
+﻿
+  evidence_analyzer.py:32:    strip_publication_boilerplate,
+  evidence_analyzer.py:33:)
+  evidence_analyzer.py:34:from query_planner import WORDING_VARIANTS
+  evidence_analyzer.py:35:from evidence_matcher import calculate_similarity, calculate_similarity_batch
+  evidence_analyzer.py:36:from nli_checker import check_nli, NLI_MAX_TOKENS, NLI_SAFETY_MARGIN
+> evidence_analyzer.py:37:from evidence_scorer import calculate_evidence_score, apply_class_ceiling
+> evidence_analyzer.py:38:from source_reliability import get_source_profile
+  evidence_analyzer.py:39:from tools import is_rolling_page
+  evidence_analyzer.py:40:
+  evidence_analyzer.py:41:
+  evidence_analyzer.py:42:# ============================================================
+  evidence_analyzer.py:43:# TOKENIZER
+  evidence_analyzer.py:44:# ============================================================
+  evidence_analyzer.py:45:
+  evidence_analyzer.py:46:tokenizer = AutoTokenizer.from_pretrained(
+  evidence_analyzer.py:973:
+  evidence_analyzer.py:974:# ============================================================
+  evidence_analyzer.py:975:# EVIDENCE CLASSIFICATION
+  evidence_analyzer.py:976:# ============================================================
+  evidence_analyzer.py:977:
+> evidence_analyzer.py:978:def classify_evidence(signals, evidence_type, source_profile, claim_type=None):
+  evidence_analyzer.py:979:    """
+  evidence_analyzer.py:980:    Classify one chunk into SUPPORT / CONTRADICTION / RELATED_CONTEXT /
+  evidence_analyzer.py:981:    NON_EVIDENCE.
+  evidence_analyzer.py:982:
+  evidence_analyzer.py:983:    Hard rules (none of them can be bypassed by similarity):
+  evidence_analyzer.py:984:      * a search snippet can only ever be RELATED_CONTEXT or NON_EVIDENCE
+  evidence_analyzer.py:985:      * a non-primary source (blog, social, aggregator) can never SUPPORT or
+  evidence_analyzer.py:986:        CONTRADICT on its own
+  evidence_analyzer.py:1177:        location_match=signals.get("location_match", False),
+  evidence_analyzer.py:1178:        claim_has_location=signals.get("claim_has_location", True),
+  evidence_analyzer.py:1179:        debunking=signals.get("debunking", False),
+  evidence_analyzer.py:1180:    )
+  evidence_analyzer.py:1181:
+> evidence_analyzer.py:1182:    return apply_class_ceiling(score, evidence_class, evidence_type)
+  evidence_analyzer.py:1183:
+  evidence_analyzer.py:1184:
+  evidence_analyzer.py:1185:def analyze_evidence(claim, sources, verbose=True):
+  evidence_analyzer.py:1186:    """
+  evidence_analyzer.py:1187:    Analyse every retrieved source and return classified evidence chunks.
+  evidence_analyzer.py:1188:
+  evidence_analyzer.py:1189:    Each returned chunk records *why* it was classified as it was: date status
+  evidence_analyzer.py:1190:    and reason, location match, claim-detail coverage, event-match level, NLI
+  evidence_analyzer.py:1202:        content = source.get("content", "") or ""
+  evidence_analyzer.py:1203:        evidence_type = source.get("evidence_type", "scraped_article")
+  evidence_analyzer.py:1204:        domain = source.get("domain", "")
+  evidence_analyzer.py:1205:        title = source.get("title", "")
+  evidence_analyzer.py:1206:
+> evidence_analyzer.py:1207:        source_profile = get_source_profile(url, evidence_type)
+  evidence_analyzer.py:1208:        reliability = source_profile["reliability"]
+  evidence_analyzer.py:1209:
+  evidence_analyzer.py:1210:        if not content or len(content.strip()) < 60:
+  evidence_analyzer.py:1211:            if verbose:
+  evidence_analyzer.py:1212:                print(f"\nSkipping unusable source {source_id}: {url}")
+  evidence_analyzer.py:1213:            continue
+  evidence_analyzer.py:1214:
+  evidence_analyzer.py:1215:        chunks = split_into_chunks(content, max_tokens=chunk_budget)
+  evidence_analyzer.py:1400:                    "date_status": signals.get("date_status"),
+  evidence_analyzer.py:1401:                    "passage_kind": signals.get("passage_kind"),
+  evidence_analyzer.py:1402:                },
+  evidence_analyzer.py:1403:            )
+  evidence_analyzer.py:1404:
+> evidence_analyzer.py:1405:            evidence_class = classify_evidence(
+  evidence_analyzer.py:1406:                signals, evidence_type, source_profile
+  evidence_analyzer.py:1407:            )
+  evidence_analyzer.py:1408:
+  evidence_analyzer.py:1409:            # The scorer must see the label the *evidence layer* assigned, so a
+  evidence_analyzer.py:1410:            # neutral NLI result can never be scored as an entailment.
+  evidence_analyzer.py:1411:            signals["evidence_class_label"] = (
+  evidence_analyzer.py:1412:                "entailment" if evidence_class == "SUPPORT"
+  evidence_analyzer.py:1413:                else "contradiction" if evidence_class == "CONTRADICTION"
+  evidence_analyzer.py:1487:                print(f"Date Status: {date_check['status']} — {date_check['reason']}")
+  evidence_analyzer.py:1488:                print(
+  evidence_analyzer.py:1489:                    f"Event Match: {event_match} | Location: "
+  evidence_analyzer.py:1490:                    f"{record['location_match']} | Coverage: {record['detail_coverage']}"
+  evidence_analyzer.py:1491:                )
+> evidence_analyzer.py:1492:                print(f"Evidence Class: {evidence_class}")
+  evidence_analyzer.py:1493:                print(f"Evidence Score: {evidence_score}")
+  evidence_analyzer.py:1494:
+  evidence_analyzer.py:1495:        # Keep the strongest few chunks per source, best class first.
+  evidence_analyzer.py:1496:        priority_order = {
+  evidence_analyzer.py:1497:            "SUPPORT": 0, "CONTRADICTION": 1,
+  evidence_analyzer.py:1498:            "RELATED_CONTEXT": 2, "NON_EVIDENCE": 3,
+  evidence_analyzer.py:1499:        }
+  evidence_analyzer.py:1500:        source_results.sort(
+
+

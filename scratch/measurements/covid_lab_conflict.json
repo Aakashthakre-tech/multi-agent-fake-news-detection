@@ -1,0 +1,141 @@
+{
+ "label": "covid_lab_conflict",
+ "claim": "COVID-19 was engineered in a laboratory and is not of natural origin.",
+ "total_sec": 215.3,
+ "retrieval_calls": 1,
+ "retrieval_sec": 40.5,
+ "scrape_calls": 8,
+ "scrape_sec": 31.24,
+ "scrape_failures": 2,
+ "nli_calls": 43,
+ "nli_sec": 125.65,
+ "verdict": "UNVERIFIED",
+ "confidence": 87.5,
+ "confidence_basis": "verification_coverage",
+ "evidence_sufficiency": "context_only",
+ "permitted_verdicts": [
+  "UNVERIFIED"
+ ],
+ "gate_reason": "1 of 8 retrieved source(s) were search snippets rather than retrieved articles, and a snippet can never establish or refute a claim. 0 source(s) support the claim and 0 contradict it, which does not reach the required number of independent publishers. A settled verdict requires at least 2 independent publishers, including at least 1 primary publisher whose article text was actually retrieved.",
+ "independent_supporting": 0,
+ "independent_contradicting": 0,
+ "primary_supporting_groups": 0,
+ "primary_contradicting_groups": 0,
+ "article_supporting_groups": 0,
+ "article_contradicting_groups": 0,
+ "total_sources": 8,
+ "independence_groups": 8,
+ "snippet_only_sources": 1,
+ "article_sources": 7,
+ "verification_coverage": 0.875,
+ "policy_data_valid": true,
+ "policy_data_errors": [],
+ "search_queries": [
+  "COVID-19 was engineered in a laboratory and is not of natural origin.",
+  "covid- engineered laboratory fact check",
+  "covid- official statement",
+  "covid- engineered laboratory natural origin"
+ ],
+ "source_decisions": [
+  {
+   "decision": "non_evidence",
+   "group": "state.gov",
+   "domain": "2021-2025.state.gov",
+   "url": "https://2021-2025.state.gov/joint-statement-on-the-who-convened-covid-19-origins-study",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "non_evidence",
+   "group": "grokipedia.com.au",
+   "domain": "grokipedia.com.au",
+   "url": "https://grokipedia.com.au/article/lab-leak-covid",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "non_evidence",
+   "group": "icmra.info",
+   "domain": "icmra.info",
+   "url": "https://www.icmra.info/drupal/en/strategicinitiatives/vaccines/safety_statement",
+   "retrieval": "search_extract",
+   "primary": false,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "non_evidence",
+   "group": "pasteur.fr",
+   "domain": "pasteur.fr",
+   "url": "https://www.pasteur.fr/en/whats-new/latest-news/depth-features/long-term-reality-infectious-diseases-and-pathogens",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "related_context",
+   "group": "vt.edu",
+   "domain": "research.vt.edu",
+   "url": "https://www.research.vt.edu/events/how-politics-practice-biodefense-come-apart.html",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.2255
+  },
+  {
+   "decision": "related_context",
+   "group": "science.org",
+   "domain": "science.org",
+   "url": "https://www.science.org/content/article/anti-fauci-lab-leak-proponent-listed-nih-directory-denies-being-hired",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.1568
+  },
+  {
+   "decision": "non_evidence",
+   "group": "statnews.com",
+   "domain": "statnews.com",
+   "url": "https://www.statnews.com/2026/10/09/steven-quay-no-longer-in-consideration-for-top-infectious-disease-role",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "non_evidence",
+   "group": "un.org",
+   "domain": "un.org",
+   "url": "https://www.un.org/en/coronavirus",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  }
+ ],
+ "supporting_passages": [],
+ "contradicting_passages": [],
+ "class_counts": {
+  "SUPPORT": 0,
+  "CONTRADICTION": 0,
+  "RELATED_CONTEXT": 3,
+  "NON_EVIDENCE": 29
+ },
+ "passage_kinds": {
+  "paragraph": 23,
+  "window": 9
+ }
+}

@@ -1,0 +1,93 @@
+{
+  "dataset_name": "TruthLensAI Fake Video Corpus (FVC)",
+  "audit_timestamp": "2026-10-17",
+  "total_manifest_records": 288,
+  "total_files_on_disk": 288,
+  "missing_files_count": 0,
+  "label_mismatches_count": 0,
+  "class_counts": {
+    "fake": 165,
+    "real": 123,
+    "fake_ratio": 0.5729,
+    "real_ratio": 0.4271
+  },
+  "exact_content_duplicate_groups": 0,
+  "exact_duplicates_details": [],
+  "suspicious_conflicting_labels_on_identical_video": [],
+  "duration_seconds": {
+    "fake": {
+      "min": 3.77,
+      "max": 573.52,
+      "mean": 82.45,
+      "median": 46.8,
+      "std": 90.29
+    },
+    "real": {
+      "min": 10.7,
+      "max": 846.16,
+      "mean": 137.6,
+      "median": 90.0,
+      "std": 159.04
+    },
+    "all": {
+      "min": 3.77,
+      "max": 846.16,
+      "mean": 106.0,
+      "median": 60.03,
+      "std": 127.35
+    }
+  },
+  "file_size_mb": {
+    "fake": {
+      "min": 0.15,
+      "max": 208.54,
+      "mean": 12.74,
+      "median": 3.89,
+      "std": 26.14
+    },
+    "real": {
+      "min": 0.29,
+      "max": 248.22,
+      "mean": 24.39,
+      "median": 9.0,
+      "std": 40.58
+    },
+    "total_size_gb": 4.98
+  },
+  "resolution_distribution": {
+    "1280x720": 74,
+    "1920x1080": 55,
+    "640x480": 29,
+    "640x360": 20,
+    "854x480": 14,
+    "320x240": 8,
+    "600x480": 7,
+    "480x480": 5,
+    "480x272": 3,
+    "480x360": 3,
+    "626x480": 3,
+    "568x320": 3,
+    "720x1280": 3,
+    "320x400": 2,
+    "400x224": 2
+  },
+  "proposed_split": {
+    "split_strategy": "GroupKFold / Connected Components on (exact hash, event_title, fallback duplicate clusters)",
+    "leakage_safe": true,
+    "train": {
+      "total": 203,
+      "fake": 116,
+      "real": 87
+    },
+    "val": {
+      "total": 43,
+      "fake": 25,
+      "real": 18
+    },
+    "test": {
+      "total": 42,
+      "fake": 24,
+      "real": 18
+    }
+  }
+}

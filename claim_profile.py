@@ -10,8 +10,9 @@ all read the same structure, so a query cannot target a location that the
 evidence layer then refuses to recognise.
 """
 
+import os
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 
 MONTH_NAMES = [
     "January", "February", "March", "April", "May", "June",
@@ -28,7 +29,7 @@ STOPWORDS = {
     "was", "were", "are", "has", "have", "had", "been", "broke", "out", "that",
     "this", "by", "from", "with", "as", "about", "into", "over", "after",
     "before", "reported", "allegedly", "claimed", "says", "said", "according",
-    "news", "today", "yesterday", "recent", "major", "minor", "there", "their",
+    "news", "recent", "major", "minor", "there", "their",
     "which", "who", "whom", "whose", "where", "when", "why", "how", "all", "any",
     "new", "old", "big", "small", "high", "low", "good", "bad", "first", "last",
     "next", "previous", "current", "latest", "early", "late", "main", "top",
@@ -87,6 +88,14 @@ _DATE_PATTERNS = (
         ),
         ("month", "day", "year"),
     ),
+    # Month Day-th-comma Year with whitespace-separated ordinal: "July 20 th , 1969"
+    (
+        re.compile(
+            r"\b([A-Za-z]{3,9})\.?\s+"
+            r"(\d{1,2})\s+(?:st|nd|rd|th)\s*,?\s+(\d{4})\b"
+        ),
+        ("month", "day", "year"),
+    ),
     # 2024-08-12 (also ISO timestamps such as 2024-08-12T08:01:45+05:30)
     (
         re.compile(
@@ -102,6 +111,87 @@ _DATE_PATTERNS = (
         ("a", "b", "year"),
     ),
 )
+
+# A month and a year with no day: "July 1969", "in July of 1969".
+#
+# A claim stated at month precision ("... in July 1969") is a real date claim.
+# Recognising it as a date is what lets the evidence layer compare it with a
+# passage that says "July 20, 1969" - the passage is simply more specific
+# than the claim. Without this, a month+year claim had no date at all, the
+# month name leaked into the claim's location list, and the date and event
+# gates could never be satisfied by any passage.
+_MONTH_YEAR_PATTERN = re.compile(
+    r"\b([A-Za-z]{3,9})\.?,?\s+(?:of\s+)?(\d{4})\b"
+)
+
+# Month names are matched exactly here. `_month_number` also accepts a prefix
+# ("Sept" -> September), which is right for a full date but wrong for a bare
+# month+year: "Mayflower 1620" must not become "May 1620".
+_MONTH_YEAR_EXACT = {
+    m.lower(): i + 1 for i, m in enumerate(MONTH_NAMES)
+}
+_MONTH_YEAR_EXACT.update({a.lower(): i + 1 for i, a in enumerate(MONTH_ABBR)})
+
+
+# ============================================================
+# RELATIVE DATE RESOLUTION
+# ============================================================
+
+# Relative date terms and their day offset from the claim's submission date.
+# These are NOT stopwords: they carry temporal meaning and must be resolved
+# before stopword filtering removes them.
+_RELATIVE_DATE_TERMS = {
+    "yesterday": -1,
+    "today": 0,
+    "tomorrow": 1,
+    "last night": -1,
+}
+
+
+def _resolve_relative_date(term, submission_date=None):
+    """
+    Resolve a relative date term (yesterday, today, tomorrow) against the
+    claim's submission date.
+
+    Returns a date dict, or None if the reference date is unavailable
+    (ambiguous - the caller must not silently substitute the current date).
+    """
+    offset = _RELATIVE_DATE_TERMS.get(term.lower().strip())
+    if offset is None:
+        return None
+    if submission_date is None:
+        return None  # Ambiguous - cannot resolve without a reference date
+    target = submission_date + timedelta(days=offset)
+    return {
+        "day": target.day,
+        "month": target.month,
+        "year": target.year,
+        "month_name": MONTH_NAMES[target.month - 1],
+        "raw": term,
+        "ambiguous": False,
+        "precision": "day",
+        "relative": True,
+    }
+
+
+def _make_month_date(month, year, raw=None):
+    """A date with month precision only (no day)."""
+    if not month or not year:
+        return None
+    if not (1 <= int(month) <= 12):
+        return None
+    if not (1900 <= int(year) <= 2100):
+        return None
+    return {
+        "day": None,
+        "month": int(month),
+        "year": int(year),
+        "month_name": MONTH_NAMES[int(month) - 1],
+        "raw": raw or "",
+        "ambiguous": False,
+        # "day" when the claim names a day, "month" when it names a month only.
+        "precision": "month",
+    }
 
 
 def _make_date(day, month, year, raw=None, ambiguous=False):
@@ -122,6 +212,8 @@ def _make_date(day, month, year, raw=None, ambiguous=False):
         "month_name": MONTH_NAMES[int(month) - 1],
         "raw": raw or "",
         "ambiguous": ambiguous,
+        # "day" when the date names a day, "month" when it names a month only.
+        "precision": "day",
     }
 
 
@@ -132,6 +224,7 @@ def extract_dates(text):
 
     found = []
     seen = set()
+    covered_spans = []
 
     for pattern, fields in _DATE_PATTERNS:
         for match in pattern.finditer(text):
@@ -153,6 +246,7 @@ def extract_dates(text):
                     if key not in seen:
                         seen.add(key)
                         found.append(candidate)
+                covered_spans.append(match.span())
                 continue
 
             month_token = values["month"]
@@ -170,6 +264,25 @@ def extract_dates(text):
             if key not in seen:
                 seen.add(key)
                 found.append(candidate)
+            covered_spans.append(match.span())
+
+    # Month + year with no day ("July 1969"). It is skipped when it overlaps a
+    # full date that was already parsed, so "12 Aug 2024" is not also read as
+    # "Aug 2024".
+    for match in _MONTH_YEAR_PATTERN.finditer(text):
+        span = match.span()
+        if any(span[0] < end and start < span[1] for start, end in covered_spans):
+            continue
+        month = _MONTH_YEAR_EXACT.get(match.group(1).rstrip(".").lower())
+        if not month:
+            continue
+        candidate = _make_month_date(month, int(match.group(2)), match.group(0))
+        if not candidate:
+            continue
+        key = (candidate["day"], candidate["month"], candidate["year"])
+        if key not in seen:
+            seen.add(key)
+            found.append(candidate)
 
     return found
 
@@ -179,10 +292,20 @@ def date_variants(date_info):
     if not date_info:
         return []
 
-    day = date_info["day"]
+    day = date_info.get("day")
     month_full = date_info["month_name"]
     month_short = month_full[:3]
     year = date_info["year"]
+
+    if day is None:
+        # Month precision: "July 1969", "July, 1969", "1969-07".
+        variants = [
+            f"{month_full} {year}",
+            f"{month_full}, {year}",
+            f"{month_short} {year}",
+            f"{year}-{date_info['month']:02d}",
+        ]
+        return list(dict.fromkeys(variants))
 
     variants = [
         f"{day} {month_full} {year}",
@@ -524,17 +647,19 @@ def extract_entities(text):
 
 
 def extract_keywords(text, entity_words=None):
-    """Content words of length >= 3 that are not stopwords or entity words."""
+    """Content words that are not stopwords or entity words (including alphanumeric terms like '11', 'covid-19')."""
     if not text:
         return []
 
     entity_words = entity_words or set()
 
-    words = re.findall(r"\b[A-Za-z][A-Za-z'-]{2,}\b", text)
+    words = re.findall(r"\b[A-Za-z0-9][A-Za-z0-9'-]*\b", text)
 
     keywords = []
     for word in words:
         lower = word.lower()
+        if len(lower) < 2 or (len(lower) < 3 and lower.isalpha()):
+            continue
         if lower in STOPWORDS or lower in entity_words:
             continue
         if lower not in keywords:
@@ -546,19 +671,19 @@ def extract_keywords(text, entity_words=None):
 def entity_word_set(entities):
     words = set()
     for entity in entities:
-        for token in re.findall(r"[A-Za-z]{2,}", entity):
+        for token in re.findall(r"[A-Za-z0-9]{2,}", entity):
             words.add(token.lower())
     return words
 
 
 def extract_phrases(text, keywords, max_phrases=6):
     """
-    Multi-word content phrases ('commercial building', 'heavy rains').
+    Multi-word content phrases ('commercial building', 'heavy rains', 'apollo 11 mission').
 
     Built from adjacent non-stopword tokens so they read as event phrases
     rather than bag-of-words noise.
     """
-    tokens = re.findall(r"\b[A-Za-z][A-Za-z'-]*\b", text)
+    tokens = re.findall(r"\b[A-Za-z0-9][A-Za-z0-9'-]*\b", text)
     phrases = []
 
     for size in (3, 2):
@@ -575,7 +700,7 @@ def extract_phrases(text, keywords, max_phrases=6):
             if phrase not in phrases:
                 phrases.append(phrase)
 
-    phrases.sort(key=lambda p: (-len(p.split()), -len(p)))
+    phrases.sort(key=lambda p: (-any(c.isdigit() for c in p), -len(p.split()), -len(p)))
 
     return phrases[:max_phrases]
 
@@ -647,15 +772,134 @@ def normalize_shouting(text):
 
 
 # ============================================================
+# CLAIM TYPE CLASSIFICATION
+# ============================================================
+
+_SUBJECTIVE_TERMS = [
+    "best", "worst", "greatest", "amazing", "terrible", "incredible",
+    "fantastic", "awful", "superb", "horrible", "top", "number one",
+    "number 1", "leading", "finest", "poorest",
+]
+
+_SUBJECTIVE_PATTERNS = [
+    r"this news is (misleading|fake|true|real|wrong|right)",
+    r"is the best",
+    r"is the worst",
+    r"is the greatest",
+    r"this is the best",
+    r"this is the worst",
+]
+
+_SCIENTIFIC_INDICATORS = [
+    "boil", "boiling", "temperature", "pressure", "speed of light",
+    "gravity", "theory", "law of", "principle", "molecule", "atom",
+    "element", "chemical", "physical", "scientific", "experiment",
+    "hypothesis", "phenomenon", "degree", "celsius", "fahrenheit",
+    "kelvin", "meter per second", "km/h", "m/s", "newton", "joule",
+    "watt", "pascal", "volt", "ampere", "ohm", "energy", "force",
+    "mass", "volume", "density", "velocity", "acceleration",
+]
+
+_GEOGRAPHIC_PATTERNS = [
+    r"\blocated in\b", r"\bis in\b", r"\bis located in\b",
+    r"\bcapital of\b", r"\bsituated in\b", r"\bpositioned in\b",
+    r"\bwhere is\b", r"\bwhere are\b",
+]
+
+_STATISTICAL_INDICATORS = [
+    "population", "percent", "percentage", "rate", "million", "billion",
+    "trillion", "gdp", "inflation", "unemployment", "census", "survey",
+    "statistic", "statistical", "figure", "count", "total", "average",
+]
+
+_EVENT_INCIDENT_MARKERS = [
+    "broke out", "fire", "killed", "injured", "engulfed", "erupted",
+    "occurred", "happened", "destroyed", "damaged", "blaze", "gutted",
+    "accident", "incident", "collapse", "blast", "crash", "dead",
+    "casualties", "flood", "waterlogged", "earthquake", "derailed",
+    "landed", "launched", "defeated", "won", "elected", "resigned",
+    "withdrew", "withdrawal", "announced", "signed", "passed",
+]
+
+
+def classify_claim_type(claim, profile):
+    """
+    Classify a claim into one of several types based on its content and
+    parsed profile.
+
+    Returns one of:
+        "scientific_fact"        general proposition about natural phenomena
+        "historical_event"       dated past event with incident markers
+        "current_event"          dated recent event with incident markers
+        "statistical_claim"      numeric claim about a population/rate/etc.
+        "geographical_fact"      claim about location of a place
+        "ambiguous_or_subjective" vague or subjective statement
+        "other_factual_claim"    anything else
+    """
+    text = (claim or "").lower()
+    stripped = (profile.get("date_stripped") or "").lower()
+
+    # 1. Ambiguous or subjective: no concrete proposition
+    subjective_hits = [
+        t for t in _SUBJECTIVE_TERMS if t in text
+    ]
+    subjective_pattern_hits = [
+        p for p in _SUBJECTIVE_PATTERNS if re.search(p, text)
+    ]
+    if subjective_hits or subjective_pattern_hits:
+        if not profile.get("has_date") and not any(
+            m in text for m in _EVENT_INCIDENT_MARKERS
+        ):
+            return "ambiguous_or_subjective"
+
+    # 2. Geographical fact: "X is located in Y", "capital of X is Y"
+    for pat in _GEOGRAPHIC_PATTERNS:
+        if re.search(pat, text) and profile.get("location_terms"):
+            return "geographical_fact"
+
+    # 3. Statistical claim: numbers + statistical terms
+    stat_hits = sum(1 for t in _STATISTICAL_INDICATORS if t in text)
+    has_number = bool(re.search(r"\b\d+", text))
+    if stat_hits >= 1 and has_number:
+        return "statistical_claim"
+
+    # 4. Scientific fact: no date, scientific indicators, general proposition
+    sci_hits = sum(1 for t in _SCIENTIFIC_INDICATORS if t in text)
+    if sci_hits >= 1 and not profile.get("has_date"):
+        return "scientific_fact"
+
+    # 5. Event claims: has date + incident markers
+    if profile.get("has_date"):
+        incident_hits = sum(1 for m in _EVENT_INCIDENT_MARKERS if m in text)
+        if incident_hits >= 1:
+            primary = profile.get("primary_date") or {}
+            year = primary.get("year")
+            if year:
+                try:
+                    year = int(year)
+                    now = datetime.now().year
+                    if now - year <= 2:
+                        return "current_event"
+                except (TypeError, ValueError):
+                    pass
+            return "historical_event"
+
+    # 6. Default
+    return "other_factual_claim"
+
+
+# ============================================================
 # CLAIM PROFILE
 # ============================================================
 
-def build_claim_profile(claim):
+def build_claim_profile(claim, submission_date=None):
     """
     Parse a claim into the structure shared by retrieval and analysis.
 
     Keys:
         claim             cleaned claim text
+        clean_claim       alias of claim
+        claim_type        classified claim type (scientific_fact, etc.)
         dates             parsed date dicts
         primary_date      first parsed date or None
         date_variants     all spellings of primary_date
@@ -666,6 +910,9 @@ def build_claim_profile(claim):
         phrases           multi-word event phrases
         event_text        date-free, keyword-led description
         has_date          bool
+        relative_date_ambiguous  bool - True when a relative date term
+                             (yesterday, today, tomorrow) was found but no
+                             submission date was available to resolve it.
     """
     clean_claim = str(claim or "").strip().strip('"').strip("'").strip()
     clean_claim = re.sub(r"\s+", " ", clean_claim)
@@ -673,7 +920,40 @@ def build_claim_profile(claim):
     # A shouted headline must still be parsed as ordinary words.
     parsed_text = normalize_shouting(clean_claim)
 
+    # Resolve the claim submission timestamp from the environment, if present.
+    # This is used to resolve relative date terms like "yesterday" / "today".
+    # Never silently substitute the current date: when unavailable, relative
+    # dates are flagged as ambiguous.
+    if submission_date is None:
+        env_date = os.environ.get("CLAIM_SUBMISSION_DATE")
+        if env_date:
+            try:
+                submission_date = datetime.fromisoformat(env_date).date()
+            except (ValueError, TypeError):
+                submission_date = None
+    elif isinstance(submission_date, str):
+        try:
+            submission_date = datetime.fromisoformat(submission_date).date()
+        except (ValueError, TypeError):
+            submission_date = None
+
     dates = extract_dates(parsed_text)
+
+    # Relative date terms (yesterday, today, tomorrow) are not matched by the
+    # explicit date patterns above. Resolve them against the submission date
+    # when available; otherwise flag as ambiguous but do not silently invent
+    # a date.
+    relative_date_ambiguous = False
+    if not dates:
+        for term in _RELATIVE_DATE_TERMS:
+            if re.search(rf"\b{re.escape(term)}\b", parsed_text, re.IGNORECASE):
+                resolved = _resolve_relative_date(term, submission_date)
+                if resolved:
+                    dates = [resolved]
+                    break
+                relative_date_ambiguous = True
+                break
+
     primary_date = dates[0] if dates else None
 
     date_stripped = strip_dates(parsed_text, dates)
@@ -699,9 +979,17 @@ def build_claim_profile(claim):
 
     event_text = " ".join(keywords[:10])
 
+    claim_type = classify_claim_type(clean_claim, {
+        "has_date": bool(dates),
+        "date_stripped": date_stripped,
+        "location_terms": location_terms,
+        "primary_date": primary_date,
+    })
+
     return {
         "claim": clean_claim,
         "clean_claim": clean_claim,
+        "claim_type": claim_type,
         "date_stripped": date_stripped,
         "dates": dates,
         "primary_date": primary_date,
@@ -718,6 +1006,7 @@ def build_claim_profile(claim):
         "keywords": keywords,
         "phrases": phrases,
         "event_text": event_text,
+        "relative_date_ambiguous": relative_date_ambiguous,
     }
 
 

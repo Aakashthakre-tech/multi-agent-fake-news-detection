@@ -1,0 +1,36 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Pytest & test caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Outputs & temporary files (keep .gitkeep)
+outputs/*
+!outputs/.gitkeep
+
+# Media test artifacts
+*.mp4
+*.wav
+*.avi
+*.mov
+*.mkv
+*.webm
+test_videos/
+
+# Environment & Models
+.env
+.venv/
+venv/
+*.pt
+*.pth
+
+# AI-Generated Video Detector — raw data & caches (never commit)
+ai_generated_data/
+ai_generated_checkpoints/
+
+# Keep research report in outputs (override the outputs/* rule)
+!outputs/AI_GENERATED_VIDEO_RESEARCH_AND_MODEL_SELECTION.md

@@ -1,0 +1,13 @@
+{
+  "best_videomae_candidate": "vmae_exp0_linear",
+  "best_videomae_checkpoint": "C:\\Users\\ASUS\\Installation\\AgenticAI\\Multi_Agent_System\\video_module\\baseline_classifier\\checkpoints\\vmae_exp0_linear.pt",
+  "videomae_val_macro_f1": 0.8314,
+  "videomae_val_balanced_accuracy": 0.8289,
+  "videomae_val_accuracy": 0.8372,
+  "videomae_val_roc_auc": 0.8667,
+  "efficientnet_baseline_id": "exp6_compact_proj64",
+  "efficientnet_val_macro_f1": 0.7568,
+  "efficientnet_val_balanced_accuracy": 0.7533,
+  "videomae_outperforms": true,
+  "recommended_for_test": "vmae_exp0_linear"
+}

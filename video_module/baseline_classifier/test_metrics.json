@@ -1,0 +1,31 @@
+{
+  "model_architecture": "EfficientNet-B0 + Temporal Attention Pooling + MLP",
+  "checkpoint_epoch": 4,
+  "test_total_samples": 42,
+  "test_accuracy": 0.5238,
+  "test_macro_precision": 0.4813,
+  "test_macro_recall": 0.4861,
+  "test_macro_f1": 0.4643,
+  "test_weighted_f1": 0.4898,
+  "test_roc_auc": 0.581,
+  "per_class": {
+    "real": {
+      "precision": 0.4,
+      "recall": 0.2222,
+      "f1_score": 0.2857,
+      "support": 18
+    },
+    "fake": {
+      "precision": 0.5625,
+      "recall": 0.75,
+      "f1_score": 0.6429,
+      "support": 24
+    }
+  },
+  "confusion_matrix": {
+    "true_real_pred_real (TN)": 4,
+    "true_real_pred_fake (FP)": 14,
+    "true_fake_pred_real (FN)": 6,
+    "true_fake_pred_fake (TP)": 18
+  }
+}

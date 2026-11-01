@@ -1,0 +1,163 @@
+{
+ "label": "apollo_vague_opinion",
+ "claim": "NASA's Apollo program was the most successful space program in history.",
+ "total_sec": 275.98,
+ "retrieval_calls": 1,
+ "retrieval_sec": 26.65,
+ "scrape_calls": 10,
+ "scrape_sec": 79.73,
+ "scrape_failures": 4,
+ "nli_calls": 38,
+ "nli_sec": 110.81,
+ "verdict": "UNVERIFIED",
+ "confidence": 60.0,
+ "confidence_basis": "verification_coverage",
+ "evidence_sufficiency": "context_only",
+ "permitted_verdicts": [
+  "UNVERIFIED"
+ ],
+ "gate_reason": "4 of 10 retrieved source(s) were search snippets rather than retrieved articles, and a snippet can never establish or refute a claim. 0 source(s) support the claim and 0 contradict it, which does not reach the required number of independent publishers. A settled verdict requires at least 2 independent publishers, including at least 1 primary publisher whose article text was actually retrieved.",
+ "independent_supporting": 0,
+ "independent_contradicting": 0,
+ "primary_supporting_groups": 0,
+ "primary_contradicting_groups": 0,
+ "article_supporting_groups": 0,
+ "article_contradicting_groups": 0,
+ "total_sources": 10,
+ "independence_groups": 10,
+ "snippet_only_sources": 4,
+ "article_sources": 6,
+ "verification_coverage": 0.6,
+ "policy_data_valid": true,
+ "policy_data_errors": [],
+ "search_queries": [
+  "NASA's Apollo program was the most successful space program in history.",
+  "nasa's apollo program fact check",
+  "nasa's official statement",
+  "nasa's apollo program successful space history"
+ ],
+ "source_decisions": [
+  {
+   "decision": "related_context",
+   "group": "alternatehistory.com",
+   "domain": "alternatehistory.com",
+   "url": "https://www.alternatehistory.com/forum/tags/apollo-program",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.25
+  },
+  {
+   "decision": "non_evidence",
+   "group": "epdf.pub",
+   "domain": "epdf.pub",
+   "url": "https://epdf.pub/the-1980s.html",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.02
+  },
+  {
+   "decision": "non_evidence",
+   "group": "interestingengineering.com",
+   "domain": "interestingengineering.com",
+   "url": "https://interestingengineering.com/science/nasa-footage-showing-red-beam-of-light-near-iss-sparks-ufo-theories",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "non_evidence",
+   "group": "kalyan97.wordpress.com",
+   "domain": "kalyan97.wordpress.com",
+   "url": "https://kalyan97.wordpress.com/2007/09/page/13",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.02
+  },
+  {
+   "decision": "related_context",
+   "group": "libertyflags.com",
+   "domain": "libertyflags.com",
+   "url": "https://libertyflags.com/blogs/default-blog/apollo-7-a-pioneering-triumph",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.2485
+  },
+  {
+   "decision": "non_evidence",
+   "group": "livemint.com",
+   "domain": "livemint.com",
+   "url": "https://www.livemint.com/news/india/who-is-anil-menon-the-nasa-astronaut-set-for-his-first-international-space-station-mission-in-2026-11751432439064.html",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "non_evidence",
+   "group": "rssing.com",
+   "domain": "phandroid907.rssing.com",
+   "url": "https://phandroid907.rssing.com/chan-77031229/article2724.html",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.02
+  },
+  {
+   "decision": "non_evidence",
+   "group": "rocketstem.org",
+   "domain": "rocketstem.org",
+   "url": "https://www.rocketstem.org/apollo-50th-celebration",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "non_evidence",
+   "group": "spaceref.com",
+   "domain": "spaceref.com",
+   "url": "https://www.spaceref.com/science-and-exploration/apollo-11-a-small-step-for-a-man-a-giant-leap-for-humankind-a-launchpa-0a93eff54932",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "related_context",
+   "group": "fsu.edu",
+   "domain": "surveys.ecit.fsu.edu",
+   "url": "https://surveys.ecit.fsu.edu/the-unstoppable-dream-the-inspiring-story-of-apollo",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.1512
+  }
+ ],
+ "supporting_passages": [],
+ "contradicting_passages": [],
+ "class_counts": {
+  "SUPPORT": 0,
+  "CONTRADICTION": 0,
+  "RELATED_CONTEXT": 5,
+  "NON_EVIDENCE": 25
+ },
+ "passage_kinds": {
+  "paragraph": 21,
+  "window": 9
+ }
+}

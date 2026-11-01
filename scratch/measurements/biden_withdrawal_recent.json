@@ -1,0 +1,155 @@
+{
+ "label": "biden_withdrawal_recent",
+ "claim": "Joe Biden withdrew from the 2024 United States presidential race in July 2024.",
+ "total_sec": 184.27,
+ "retrieval_calls": 1,
+ "retrieval_sec": 12.33,
+ "scrape_calls": 10,
+ "scrape_sec": 22.26,
+ "scrape_failures": 2,
+ "nli_calls": 45,
+ "nli_sec": 133.79,
+ "verdict": "UNVERIFIED",
+ "confidence": 100.0,
+ "confidence_basis": "verification_coverage",
+ "evidence_sufficiency": "context_only",
+ "permitted_verdicts": [
+  "UNVERIFIED"
+ ],
+ "gate_reason": "Retrieved sources provide related context only (7 context source(s) of 9 retrieved, 2 non-evidence); none establishes the claimed event with the claimed date. A settled verdict requires at least 2 independent publishers, including at least 1 primary publisher whose article text was actually retrieved.",
+ "independent_supporting": 0,
+ "independent_contradicting": 0,
+ "primary_supporting_groups": 0,
+ "primary_contradicting_groups": 0,
+ "article_supporting_groups": 0,
+ "article_contradicting_groups": 0,
+ "total_sources": 9,
+ "independence_groups": 9,
+ "snippet_only_sources": 0,
+ "article_sources": 9,
+ "verification_coverage": 1.0,
+ "policy_data_valid": true,
+ "policy_data_errors": [],
+ "search_queries": [
+  "Joe Biden withdrew from the 2024 United States presidential race in July 2024.",
+  "\"July 2024\" \"United States\" joe biden withdrew",
+  "\"July, 2024\" \"United States\" \"joe biden withdrew\" \"presidential race\"",
+  "\"United States\" \"joe biden withdrew\"",
+  "\"Joe Biden withdrew from the 2024 United States presidential race in July 2024.\" fact check",
+  "2024-07 \"United States\" joe official statement",
+  "2024 \"United States\" \"presidential race\""
+ ],
+ "source_decisions": [
+  {
+   "decision": "related_context",
+   "group": "cbc.ca",
+   "domain": "cbc.ca",
+   "url": "https://www.cbc.ca/news/world/iraq-us-forces-withrdrawal-9.7362428",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.1848
+  },
+  {
+   "decision": "related_context",
+   "group": "detroitnews.com",
+   "domain": "detroitnews.com",
+   "url": "https://www.detroitnews.com/story/news/world/2026/09/30/joy-mixed-fear-as-us-forces-quit-iraq-leaving-potential-security-vacuum/92018909007",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.175
+  },
+  {
+   "decision": "non_evidence",
+   "group": "foxnews.com",
+   "domain": "foxnews.com",
+   "url": "https://www.foxnews.com/elections/2024/general-results",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "related_context",
+   "group": "france24.com",
+   "domain": "france24.com",
+   "url": "https://www.france24.com/en/middle-east/20260930-us-forces-leave-iraq-raising-fears-of-iran-backed-militias-amid-power-vacuum",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.1664
+  },
+  {
+   "decision": "related_context",
+   "group": "independent.co.uk",
+   "domain": "independent.co.uk",
+   "url": "https://www.independent.co.uk/news/world/middle-east/iraq-us-troop-withdrawal-trump-biden-hussein-b3058771.html",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.1946
+  },
+  {
+   "decision": "related_context",
+   "group": "military.com",
+   "domain": "military.com",
+   "url": "https://www.military.com/daily-news/2026/01/08/us-will-exit-66-international-organizations-it-further-retreats-global-cooperation.html",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.0943
+  },
+  {
+   "decision": "related_context",
+   "group": "moderndiplomacy.eu",
+   "domain": "moderndiplomacy.eu",
+   "url": "https://moderndiplomacy.eu/2026/09/29/us-leaves-iraq-after-two-decades-raising-fears-of-an-iranian-power-vacuum",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.2299
+  },
+  {
+   "decision": "related_context",
+   "group": "nbcnews.com",
+   "domain": "nbcnews.com",
+   "url": "https://www.nbcnews.com/world/middle-east/us-pulls-last-troops-iraq-kurdish-concerns-fears-iran-influence-rcna600639",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.1943
+  },
+  {
+   "decision": "non_evidence",
+   "group": "elkford.ca",
+   "domain": "staging.elkford.ca",
+   "url": "https://staging.elkford.ca/president-bidens-todays-schedule-a-comprehensive-government-operating-rhythm",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  }
+ ],
+ "supporting_passages": [],
+ "contradicting_passages": [],
+ "class_counts": {
+  "SUPPORT": 0,
+  "CONTRADICTION": 0,
+  "RELATED_CONTEXT": 17,
+  "NON_EVIDENCE": 17
+ },
+ "passage_kinds": {
+  "paragraph": 22,
+  "window": 12
+ }
+}

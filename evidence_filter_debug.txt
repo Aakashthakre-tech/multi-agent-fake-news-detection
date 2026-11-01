@@ -1,0 +1,1016 @@
+﻿
+  ai_image_signal.py:10:  * No existing file is modified. image_pipeline.run_image_pipeline is
+  ai_image_signal.py:11:    imported and called unchanged, and its result is forwarded verbatim.
+  ai_image_signal.py:12:  * The AI-generation finding is a separate signal. It is NOT passed into the
+> ai_image_signal.py:13:    evidence analyzer, evidence scorer, evidence fusion, verification agent,
+  ai_image_signal.py:14:    critic agent, evidence brief, or the deterministic final verdict, and it
+  ai_image_signal.py:15:    does not change any threshold, prompt, or existing verdict.
+  ai_image_signal.py:16:  * The existing verdict is never overridden. Agreement or conflict between
+  ai_image_signal.py:17:    the two signals is reported descriptively, for a human to read.
+  ai_image_signal.py:18:  * A detector failure (missing weights, unreadable file, torch error) can
+  evidence_analyzer.py:34:from query_planner import WORDING_VARIANTS
+  evidence_analyzer.py:35:from evidence_matcher import calculate_similarity, calculate_similarity_batch
+  evidence_analyzer.py:36:from nli_checker import check_nli, NLI_MAX_TOKENS, NLI_SAFETY_MARGIN
+> evidence_analyzer.py:37:from evidence_scorer import calculate_evidence_score, apply_class_ceiling
+  evidence_analyzer.py:38:from source_reliability import get_source_profile
+  evidence_analyzer.py:39:from tools import is_rolling_page
+  evidence_analyzer.py:40:
+  evidence_analyzer.py:41:
+  evidence_analyzer.py:42:# ============================================================
+  evidence_analyzer.py:972:
+  evidence_analyzer.py:973:
+  evidence_analyzer.py:974:# ============================================================
+> evidence_analyzer.py:975:# EVIDENCE CLASSIFICATION
+  evidence_analyzer.py:976:# ============================================================
+  evidence_analyzer.py:977:
+  evidence_analyzer.py:978:def classify_evidence(signals, evidence_type, source_profile, claim_type=None):
+  evidence_analyzer.py:979:    """
+> evidence_analyzer.py:980:    Classify one chunk into SUPPORT / CONTRADICTION / RELATED_CONTEXT /
+> evidence_analyzer.py:981:    NON_EVIDENCE.
+  evidence_analyzer.py:982:
+  evidence_analyzer.py:983:    Hard rules (none of them can be bypassed by similarity):
+> evidence_analyzer.py:984:      * a search snippet can only ever be RELATED_CONTEXT or NON_EVIDENCE
+  evidence_analyzer.py:985:      * a non-primary source (blog, social, aggregator) can never SUPPORT or
+  evidence_analyzer.py:986:        CONTRADICT on its own
+  evidence_analyzer.py:987:      * SUPPORT requires: NLI entailment + similarity + coverage + primary source
+  evidence_analyzer.py:988:      * CONTRADICTION requires: NLI contradiction (or explicit date conflict)
+  evidence_analyzer.py:989:        + similarity + coverage + primary source
+  evidence_analyzer.py:1007:    has_debunking = signals.get("debunking", False)
+  evidence_analyzer.py:1008:
+  evidence_analyzer.py:1009:    is_snippet = evidence_type == "search_snippet"
+> evidence_analyzer.py:1010:    is_primary = bool(source_profile.get("is_primary"))
+  evidence_analyzer.py:1011:
+  evidence_analyzer.py:1012:    has_claim_location = bool(signals.get("claim_has_location"))
+  evidence_analyzer.py:1013:    location_ok = location_match or not has_claim_location
+  evidence_analyzer.py:1014:
+  evidence_analyzer.py:1015:    # NLI could not be trusted: never classify on it.
+  evidence_analyzer.py:1059:        if (
+  evidence_analyzer.py:1060:            not is_snippet
+  evidence_analyzer.py:1061:            and not is_window
+> evidence_analyzer.py:1062:            and is_primary
+  evidence_analyzer.py:1063:            and not nli_unusable
+  evidence_analyzer.py:1064:            and similarity >= 0.40
+  evidence_analyzer.py:1065:            and event_match == "strong"
+  evidence_analyzer.py:1066:            and location_ok
+  evidence_analyzer.py:1067:            and contradiction_date_ok
+  evidence_analyzer.py:1079:        if (
+  evidence_analyzer.py:1080:            not is_snippet
+  evidence_analyzer.py:1081:            and not is_window
+> evidence_analyzer.py:1082:            and is_primary
+  evidence_analyzer.py:1083:            and not nli_unusable
+  evidence_analyzer.py:1084:            and similarity >= 0.40
+  evidence_analyzer.py:1085:            and coverage >= 0.30
+  evidence_analyzer.py:1086:            and location_ok
+  evidence_analyzer.py:1087:            and not event_date_conflict
+  evidence_analyzer.py:1102:    if claim_type in ("historical_event", "current_event"):
+  evidence_analyzer.py:1103:        if (
+  evidence_analyzer.py:1104:            not is_snippet
+> evidence_analyzer.py:1105:            and is_primary
+  evidence_analyzer.py:1106:            and not nli_unusable
+  evidence_analyzer.py:1107:            and nli_label == "entailment"
+  evidence_analyzer.py:1108:            and nli_score >= 0.70
+  evidence_analyzer.py:1109:            and similarity >= 0.40
+  evidence_analyzer.py:1110:            and event_match == "strong"
+  evidence_analyzer.py:1119:        # Non-event claim: proposition-based gate.
+  evidence_analyzer.py:1120:        if (
+  evidence_analyzer.py:1121:            not is_snippet
+> evidence_analyzer.py:1122:            and is_primary
+  evidence_analyzer.py:1123:            and not nli_unusable
+  evidence_analyzer.py:1124:            and nli_label == "entailment"
+  evidence_analyzer.py:1125:            and nli_score >= 0.70
+  evidence_analyzer.py:1126:            and similarity >= 0.40
+  evidence_analyzer.py:1127:            and coverage >= 0.30
+  evidence_analyzer.py:1140:    has_anchor = location_match or coverage >= 0.30
+  evidence_analyzer.py:1141:
+  evidence_analyzer.py:1142:    if event_match in ("moderate", "strong"):
+> evidence_analyzer.py:1143:        return "RELATED_CONTEXT"
+  evidence_analyzer.py:1144:
+  evidence_analyzer.py:1145:    if date_status in ("same_year", "match") and similarity >= 0.35 and has_anchor:
+> evidence_analyzer.py:1146:        return "RELATED_CONTEXT"
+  evidence_analyzer.py:1147:
+  evidence_analyzer.py:1148:    if date_status == "different" and similarity >= 0.45 and has_anchor:
+> evidence_analyzer.py:1149:        return "RELATED_CONTEXT"
+  evidence_analyzer.py:1150:
+  evidence_analyzer.py:1151:    if is_snippet and has_anchor:
+> evidence_analyzer.py:1152:        return "RELATED_CONTEXT"
+  evidence_analyzer.py:1153:
+> evidence_analyzer.py:1154:    return "NON_EVIDENCE"
+  evidence_analyzer.py:1155:
+  evidence_analyzer.py:1156:
+  evidence_analyzer.py:1157:# ============================================================
+  evidence_analyzer.py:1158:# EVIDENCE ANALYSIS
+  evidence_analyzer.py:1159:# ============================================================
+  evidence_analyzer.py:1160:
+> evidence_analyzer.py:1161:def _score_for_class(evidence_class, signals, reliability, evidence_type):
+  evidence_analyzer.py:1162:    """
+> evidence_analyzer.py:1163:    Evidence score for a classified chunk.
+  evidence_analyzer.py:1164:
+  evidence_analyzer.py:1165:    The composite score is computed from date / event / detail / location /
+  evidence_analyzer.py:1166:    NLI / quality, then bounded by the class ceiling and by the trust of the
+  evidence_analyzer.py:1167:    retrieval mode, so a snippet can never score like a scraped article.
+  evidence_analyzer.py:1168:    """
+> evidence_analyzer.py:1169:    score = calculate_evidence_score(
+  evidence_analyzer.py:1170:        similarity=signals.get("similarity", 0.0),
+> evidence_analyzer.py:1171:        nli_label=signals.get("evidence_class_label", "neutral"),
+  evidence_analyzer.py:1172:        nli_score=signals.get("raw_nli_score", 0.0),
+  evidence_analyzer.py:1173:        source_reliability=reliability,
+  evidence_analyzer.py:1174:        date_status=signals.get("date_status", "unknown"),
+  evidence_analyzer.py:1175:        event_match=signals.get("event_match", "weak"),
+  evidence_analyzer.py:1176:        detail_coverage=signals.get("detail_coverage", 0.0),
+  evidence_analyzer.py:1179:        debunking=signals.get("debunking", False),
+  evidence_analyzer.py:1180:    )
+  evidence_analyzer.py:1181:
+> evidence_analyzer.py:1182:    return apply_class_ceiling(score, evidence_class, evidence_type)
+  evidence_analyzer.py:1183:
+  evidence_analyzer.py:1184:
+  evidence_analyzer.py:1185:def analyze_evidence(claim, sources, verbose=True):
+  evidence_analyzer.py:1186:    """
+  evidence_analyzer.py:1187:    Analyse every retrieved source and return classified evidence chunks.
+  evidence_analyzer.py:1384:                **event_signals,
+  evidence_analyzer.py:1385:            }
+  evidence_analyzer.py:1386:
+> evidence_analyzer.py:1387:            evidence_class = classify_evidence(
+  evidence_analyzer.py:1388:                signals, evidence_type, source_profile
+  evidence_analyzer.py:1389:            )
+  evidence_analyzer.py:1390:
+  evidence_analyzer.py:1391:            # The scorer must see the label the *evidence layer* assigned, so a
+  evidence_analyzer.py:1392:            # neutral NLI result can never be scored as an entailment.
+> evidence_analyzer.py:1393:            signals["evidence_class_label"] = (
+> evidence_analyzer.py:1394:                "entailment" if evidence_class == "SUPPORT"
+> evidence_analyzer.py:1395:                else "contradiction" if evidence_class == "CONTRADICTION"
+  evidence_analyzer.py:1396:                else "neutral"
+  evidence_analyzer.py:1397:            )
+  evidence_analyzer.py:1398:
+> evidence_analyzer.py:1399:            evidence_score = _score_for_class(
+> evidence_analyzer.py:1400:                evidence_class, signals, reliability, evidence_type
+  evidence_analyzer.py:1401:            )
+  evidence_analyzer.py:1402:
+  evidence_analyzer.py:1403:            record = {
+  evidence_analyzer.py:1404:                "source_id": source_id,
+  evidence_analyzer.py:1405:                "url": url,
+  evidence_analyzer.py:1413:                "passage_kind": passage_kind,
+  evidence_analyzer.py:1414:                "similarity": round(similarity, 4),
+  evidence_analyzer.py:1415:                # The model's own NLI label, paired with the model's own NLI
+> evidence_analyzer.py:1416:                # score. Reporting the evidence CLASS here would pair a
+  evidence_analyzer.py:1417:                # "neutral" label with a 0.99 entailment score, which reads as
+  evidence_analyzer.py:1418:                # "the model was neutral with 99% confidence" when the model
+  evidence_analyzer.py:1419:                # in fact entailed the claim.
+  evidence_analyzer.py:1420:                "nli_label": raw_nli_label,
+  evidence_analyzer.py:1421:                "nli_score": raw_nli_score,
+  evidence_analyzer.py:1424:                "raw_nli_label": raw_nli_label,
+  evidence_analyzer.py:1425:                "raw_nli_score": raw_nli_score,
+  evidence_analyzer.py:1426:                # The label the evidence layer assigned to this passage.
+> evidence_analyzer.py:1427:                "evidence_class_label": signals.get("evidence_class_label", "neutral"),
+  evidence_analyzer.py:1428:                "source_reliability": reliability,
+  evidence_analyzer.py:1429:                "source_tier": source_profile["tier"],
+  evidence_analyzer.py:1430:                "source_tier_reason": source_profile["tier_reason"],
+  evidence_analyzer.py:1431:                "independence_group": source_profile["independence_group"],
+  evidence_analyzer.py:1432:                "search_query": source.get("search_query", ""),
+> evidence_analyzer.py:1433:                "is_primary_source": source_profile["is_primary"],
+  evidence_analyzer.py:1434:                "is_rolling_page": rolling,
+> evidence_analyzer.py:1435:                "evidence_score": evidence_score,
+> evidence_analyzer.py:1436:                "evidence_class": evidence_class,
+  evidence_analyzer.py:1437:                "date_status": date_check["status"],
+  evidence_analyzer.py:1438:                "date_reason": date_check["reason"],
+  evidence_analyzer.py:1439:                "publication_date": (
+  evidence_analyzer.py:1440:                    {
+  evidence_analyzer.py:1441:                        "day": publication_date.get("day"),
+  evidence_analyzer.py:1471:                    f"Event Match: {event_match} | Location: "
+  evidence_analyzer.py:1472:                    f"{record['location_match']} | Coverage: {record['detail_coverage']}"
+  evidence_analyzer.py:1473:                )
+> evidence_analyzer.py:1474:                print(f"Evidence Class: {evidence_class}")
+> evidence_analyzer.py:1475:                print(f"Evidence Score: {evidence_score}")
+  evidence_analyzer.py:1476:
+  evidence_analyzer.py:1477:        # Keep the strongest few chunks per source, best class first.
+  evidence_analyzer.py:1478:        priority_order = {
+  evidence_analyzer.py:1479:            "SUPPORT": 0, "CONTRADICTION": 1,
+> evidence_analyzer.py:1480:            "RELATED_CONTEXT": 2, "NON_EVIDENCE": 3,
+  evidence_analyzer.py:1481:        }
+  evidence_analyzer.py:1482:        source_results.sort(
+> evidence_analyzer.py:1483:            key=lambda r: (priority_order[r["evidence_class"]], -r["evidence_score"])
+  evidence_analyzer.py:1484:        )
+  evidence_analyzer.py:1485:        results.extend(source_results[:MAX_CHUNKS_PER_SOURCE])
+  evidence_analyzer.py:1486:
+> evidence_analyzer.py:1487:    results.sort(key=lambda item: item["evidence_score"], reverse=True)
+  evidence_analyzer.py:1488:
+  evidence_analyzer.py:1489:    return results
+  evidence_brief.py:89:    supporting_sources = agreement.get("supporting_sources", 0)
+  evidence_brief.py:90:    contradicting_sources = agreement.get("contradicting_sources", 0)
+  evidence_brief.py:91:    neutral_sources = agreement.get("neutral_sources", 0)
+> evidence_brief.py:92:    context_sources = agreement.get("related_context_sources", 0)
+> evidence_brief.py:93:    non_evidence_sources = agreement.get("non_evidence_sources", 0)
+  evidence_brief.py:94:
+  evidence_brief.py:95:    lines = []
+  evidence_brief.py:96:    lines.append("=== CLAIM ===")
+  evidence_brief.py:97:    lines.append(claim)
+  evidence_brief.py:98:
+  evidence_brief.py:116:    lines.append(f"  contradicting            : {contradicting_sources}")
+  evidence_brief.py:117:    lines.append(f"  neutral (conflicting)    : {neutral_sources}")
+  evidence_brief.py:118:    lines.append(f"  related context          : {context_sources}")
+> evidence_brief.py:119:    lines.append(f"  non-evidence             : {non_evidence_sources}")
+  evidence_brief.py:120:    lines.append(f"Unresolved source identities : {unresolved_identities}")
+  evidence_brief.py:121:    lines.append(f"Independent SUPPORTING       : {independent_supporting}")
+  evidence_brief.py:122:    lines.append(f"Independent CONTRADICTING    : {independent_contradicting}")
+  evidence_brief.py:123:    lines.append(f"Primary supporting groups   : {primary_supporting}")
+  evidence_brief.py:124:    lines.append(f"Primary contradicting groups: {primary_contradicting}")
+  evidence_brief.py:125:    lines.append(f"Groups with a correction    : {correction_groups} "
+> evidence_brief.py:126:                 f"({primary_correction_groups} from primary publishers)")
+  evidence_brief.py:127:    lines.append(f"Evidence sufficiency        : {sufficiency}")
+  evidence_brief.py:128:    lines.append(f"Source agreement score      : {agreement.get('agreement_score', 0)}")
+  evidence_brief.py:129:    lines.append(f"Evidence fusion score       : {fusion_score}")
+  evidence_brief.py:130:
+  evidence_brief.py:131:    if not evidence_results:
+  evidence_brief.py:144:    decisions = _source_decisions(evidence_results)
+  evidence_brief.py:145:
+  evidence_brief.py:146:    for decision, results in decisions:
+> evidence_brief.py:147:        best = max(results, key=lambda r: r.get("evidence_score", 0))
+  evidence_brief.py:148:        lines.append(
+  evidence_brief.py:149:            f"- [{decision['decision'].upper()}] {decision['url']}"
+  evidence_brief.py:150:        )
+  evidence_brief.py:151:        lines.append(
+  evidence_brief.py:152:            f"    publisher={decision['independence_group'] or 'UNRESOLVED'} | "
+  evidence_brief.py:163:                "    NOTE: no article text was retrieved for this source; it "
+  evidence_brief.py:164:                "cannot establish or refute a claim."
+  evidence_brief.py:165:            )
+> evidence_brief.py:166:        if not decision.get("is_primary", False):
+  evidence_brief.py:167:            lines.append(
+  evidence_brief.py:168:                "    NOTE: this publisher is not primary reporting, so it "
+  evidence_brief.py:169:                "cannot establish or refute a claim on its own."
+  evidence_brief.py:170:            )
+  evidence_brief.py:171:        if not decision.get("identity_resolved", True):
+  evidence_brief.py:184:        lines.append(
+  evidence_brief.py:185:            f"    nli={best.get('nli_label')} {best.get('nli_score')} "
+  evidence_brief.py:186:            f"(status={best.get('nli_status')}) | "
+> evidence_brief.py:187:            f"evidence_score={best.get('evidence_score')} | "
+  evidence_brief.py:188:            f"chunks={decision['chunk_count']}"
+  evidence_brief.py:189:        )
+  evidence_brief.py:190:
+  evidence_brief.py:191:    context_groups = [
+  evidence_brief.py:192:        g for g in agreement.get("group_decisions", [])
+  evidence_brief.py:205:    # ------------------------------------------------------------
+  evidence_brief.py:206:    ranked = sorted(
+  evidence_brief.py:207:        evidence_results,
+> evidence_brief.py:208:        key=lambda r: r.get("evidence_score", 0),
+  evidence_brief.py:209:        reverse=True,
+  evidence_brief.py:210:    )
+  evidence_brief.py:211:
+  evidence_brief.py:212:    lines.append("")
+  evidence_brief.py:213:    lines.append("=== EVIDENCE PASSAGES (strongest first) ===")
+  evidence_brief.py:215:    for index, result in enumerate(ranked[:MAX_PASSAGES], 1):
+  evidence_brief.py:216:        lines.append("")
+  evidence_brief.py:217:        lines.append(
+> evidence_brief.py:218:            f"[{index}] {result.get('evidence_class')} "
+> evidence_brief.py:219:            f"score={result.get('evidence_score')} "
+  evidence_brief.py:220:            f"({result.get('evidence_type')}, {result.get('source_tier')}, "
+  evidence_brief.py:221:            f"date={result.get('date_status')}, event={result.get('event_match')})"
+  evidence_brief.py:222:        )
+  evidence_brief.py:223:        lines.append(f"URL: {result.get('url')}")
+  evidence_brief.py:224:        lines.append(f"TEXT: {result.get('chunk', '')[:MAX_PASSAGE_CHARS]}")
+  evidence_brief.py:297:    if "MISLEADING" not in permitted:
+  evidence_brief.py:298:        lines.append(
+  evidence_brief.py:299:            "Requirement not met for MISLEADING: an explicit, evidence-backed "
+> evidence_brief.py:300:            "correction of a material claim detail from a primary publisher is "
+  evidence_brief.py:301:            "required, and none is present."
+  evidence_brief.py:302:        )
+  evidence_brief.py:303:    elif "MISLEADING" in permitted:
+  evidence_brief.py:304:        lines.append(
+> evidence_brief.py:305:            f"{primary_correction_groups} primary publisher(s) contain an explicit "
+  evidence_brief.py:306:            f"correction of a material claim detail, so MISLEADING may be "
+  evidence_brief.py:307:            f"considered alongside REAL."
+  evidence_brief.py:308:        )
+  evidence_brief.py:309:
+  evidence_brief.py:310:    if unresolved_identities:
+  evidence_fusion.py:164:    if not isinstance(record, dict):
+  evidence_fusion.py:165:        return False
+  evidence_fusion.py:166:
+> evidence_fusion.py:167:    if record.get("evidence_class") != "CONTRADICTION":
+  evidence_fusion.py:168:        return False
+  evidence_fusion.py:169:
+  evidence_fusion.py:170:    if not record.get("debunking"):
+  evidence_fusion.py:171:        return False
+  evidence_fusion.py:172:
+  evidence_fusion.py:187:    Collapse every chunk of one source into a single decision.
+  evidence_fusion.py:188:
+  evidence_fusion.py:189:    A source supports only if it has a SUPPORT chunk, and contradicts only if it
+> evidence_fusion.py:190:    has a CONTRADICTION chunk; when both exist the stronger evidence_score wins
+  evidence_fusion.py:191:    and a near-tie is reported as mixed.
+  evidence_fusion.py:192:    """
+  evidence_fusion.py:193:    sample = results[0]
+  evidence_fusion.py:194:
+> evidence_fusion.py:195:    support = [r for r in results if r.get("evidence_class") == "SUPPORT"]
+> evidence_fusion.py:196:    contradiction = [r for r in results if r.get("evidence_class") == "CONTRADICTION"]
+> evidence_fusion.py:197:    context = [r for r in results if r.get("evidence_class") == "RELATED_CONTEXT"]
+  evidence_fusion.py:198:
+> evidence_fusion.py:199:    best_support = max(support, key=lambda r: r.get("evidence_score", 0), default=None)
+  evidence_fusion.py:200:    best_contradiction = max(
+> evidence_fusion.py:201:        contradiction, key=lambda r: r.get("evidence_score", 0), default=None
+  evidence_fusion.py:202:    )
+  evidence_fusion.py:203:
+> evidence_fusion.py:204:    support_score = best_support.get("evidence_score", 0) if best_support else 0.0
+  evidence_fusion.py:205:    contradiction_score = (
+> evidence_fusion.py:206:        best_contradiction.get("evidence_score", 0) if best_contradiction else 0.0
+  evidence_fusion.py:207:    )
+  evidence_fusion.py:208:
+  evidence_fusion.py:209:    if best_support and best_contradiction:
+  evidence_fusion.py:210:        if support_score > contradiction_score + 0.10:
+  evidence_fusion.py:211:            decision, best = "entailment", best_support
+  evidence_fusion.py:219:    elif best_contradiction:
+  evidence_fusion.py:220:        decision, best = "contradiction", best_contradiction
+  evidence_fusion.py:221:    elif context:
+> evidence_fusion.py:222:        decision = "related_context"
+> evidence_fusion.py:223:        best = max(context, key=lambda r: r.get("evidence_score", 0))
+  evidence_fusion.py:224:    else:
+> evidence_fusion.py:225:        decision = "non_evidence"
+> evidence_fusion.py:226:        best = max(results, key=lambda r: r.get("evidence_score", 0))
+  evidence_fusion.py:227:
+  evidence_fusion.py:228:    is_snippet_only = all(
+  evidence_fusion.py:229:        r.get("evidence_type") == "search_snippet" for r in results
+  evidence_fusion.py:230:    )
+  evidence_fusion.py:231:    has_article_text = any(
+  evidence_fusion.py:238:        # evidence analyzer never classifies one as SUPPORT or CONTRADICTION,
+  evidence_fusion.py:239:        # and the fusion layer must not let a snippet become one of the
+  evidence_fusion.py:240:        # publishers that establishes or refutes a claim.
+> evidence_fusion.py:241:        decision = "related_context"
+  evidence_fusion.py:242:
+  evidence_fusion.py:243:    # The real retrieval mode, reported honestly. A provider-extracted body is
+  evidence_fusion.py:244:    # not the same thing as a page we scraped, and neither is a snippet.
+  evidence_fusion.py:245:    retrieval_modes = {
+  evidence_fusion.py:246:        r.get("evidence_type")
+  evidence_fusion.py:260:    # source_reliability.get_source_profile and carried on every chunk. It is
+  evidence_fusion.py:261:    # NOT the same thing as "we managed to scrape the page": a blog post we
+  evidence_fusion.py:262:    # scraped is still not primary reporting.
+> evidence_fusion.py:263:    is_primary_reporting = (
+> evidence_fusion.py:264:        any(bool(r.get("is_primary_source")) for r in results)
+  evidence_fusion.py:265:        and not is_snippet_only
+  evidence_fusion.py:266:    )
+  evidence_fusion.py:267:
+  evidence_fusion.py:268:    # An explicit, material correction of the claim. A passage only counts when
+  evidence_fusion.py:269:    # it directly contradicts this claim and corrects a material detail of it,
+  evidence_fusion.py:279:        "url": sample.get("url", ""),
+  evidence_fusion.py:280:        "title": sample.get("title", ""),
+  evidence_fusion.py:281:        "decision": decision,
+> evidence_fusion.py:282:        "source_score": round(best.get("evidence_score", 0.0), 4),
+  evidence_fusion.py:283:        "evidence_type": "search_snippet" if is_snippet_only else "scraped_article",
+  evidence_fusion.py:284:        "retrieval_mode": retrieval_mode,
+  evidence_fusion.py:285:        "source_tier": sample.get("source_tier", "unknown"),
+  evidence_fusion.py:286:        "source_reliability": sample.get("source_reliability", 0.0),
+  evidence_fusion.py:287:        "date_status": best.get("date_status", "unknown"),
+  evidence_fusion.py:291:        "has_contradiction": bool(best_contradiction),
+  evidence_fusion.py:292:        "best_chunk": best.get("chunk", "")[:700],
+  evidence_fusion.py:293:        # --- new, evidence-policy fields -------------------------------
+> evidence_fusion.py:294:        "is_primary": is_primary_reporting,
+  evidence_fusion.py:295:        "is_snippet_only": is_snippet_only,
+  evidence_fusion.py:296:        "has_article_text": has_article_text,
+  evidence_fusion.py:297:        "has_correction": has_correction,
+  evidence_fusion.py:298:        "identity_resolved": bool(identity_resolved) and bool(independence_group),
+  evidence_fusion.py:299:    }
+  evidence_fusion.py:322:            "supporting_sources": 0,
+  evidence_fusion.py:323:            "contradicting_sources": 0,
+  evidence_fusion.py:324:            "neutral_sources": 0,
+> evidence_fusion.py:325:            "related_context_sources": 0,
+> evidence_fusion.py:326:            "non_evidence_sources": 0,
+  evidence_fusion.py:327:            "snippet_only_sources": 0,
+  evidence_fusion.py:328:            "article_sources": 0,
+  evidence_fusion.py:329:            "unresolved_identity_sources": 0,
+  evidence_fusion.py:330:            "independent_supporting": 0,
+  evidence_fusion.py:331:            "independent_contradicting": 0,
+  evidence_fusion.py:361:
+  evidence_fusion.py:362:    supporting_sources = sum(1 for s in source_decisions if s["decision"] == "entailment")
+  evidence_fusion.py:363:    contradicting_sources = sum(1 for s in source_decisions if s["decision"] == 
+"contradiction")
+> evidence_fusion.py:364:    related_context_sources = sum(1 for s in source_decisions if s["decision"] == 
+"related_context")
+> evidence_fusion.py:365:    non_evidence_sources = sum(1 for s in source_decisions if s["decision"] == "non_evidence")
+  evidence_fusion.py:366:    neutral_sources = sum(1 for s in source_decisions if s["decision"] == "neutral")
+  evidence_fusion.py:367:    snippet_only_sources = sum(1 for s in source_decisions if s["is_snippet_only"])
+  evidence_fusion.py:368:    article_sources = sum(1 for s in source_decisions if s["has_article_text"])
+  evidence_fusion.py:369:    unresolved_identity_sources = sum(
+  evidence_fusion.py:370:        1 for s in source_decisions if not s["identity_resolved"]
+  evidence_fusion.py:410:            group_decision = "entailment"
+  evidence_fusion.py:411:        elif best_contra:
+  evidence_fusion.py:412:            group_decision = "contradiction"
+> evidence_fusion.py:413:        elif any(d["decision"] == "related_context" for d in decisions):
+  evidence_fusion.py:414:            group_decision = "context"
+  evidence_fusion.py:415:        else:
+> evidence_fusion.py:416:            group_decision = "non_evidence"
+  evidence_fusion.py:417:
+  evidence_fusion.py:418:        is_snippet_group = all(d["is_snippet_only"] for d in decisions)
+  evidence_fusion.py:419:        has_article_group = any(d["has_article_text"] for d in decisions)
+> evidence_fusion.py:420:        is_primary_group = any(d["is_primary"] for d in decisions)
+  evidence_fusion.py:421:        # The correction must come from a source that is itself primary
+  evidence_fusion.py:422:        # reporting with retrieved article text. A primary source elsewhere in
+  evidence_fusion.py:423:        # the group does not lend its standing to a correcting source that is
+  evidence_fusion.py:424:        # not primary.
+  evidence_fusion.py:425:        correcting = [d for d in decisions if d["has_correction"]]
+  evidence_fusion.py:426:        has_correction = bool(correcting)
+  evidence_fusion.py:427:        has_primary_correction = any(
+> evidence_fusion.py:428:            d["is_primary"] and d["has_correction"] for d in decisions
+  evidence_fusion.py:429:        )
+  evidence_fusion.py:430:
+  evidence_fusion.py:431:        decisive = best_support or best_contra
+  evidence_fusion.py:432:        group_decisions.append({
+  evidence_fusion.py:433:            "independence_group": group,
+  evidence_fusion.py:444:            )["url"],
+  evidence_fusion.py:445:            "is_snippet_only": is_snippet_group,
+  evidence_fusion.py:446:            "has_article_text": has_article_group,
+> evidence_fusion.py:447:            "is_primary": is_primary_group,
+  evidence_fusion.py:448:            "has_correction": has_correction,
+  evidence_fusion.py:449:            "has_primary_correction": has_primary_correction,
+  evidence_fusion.py:450:        })
+  evidence_fusion.py:451:
+  evidence_fusion.py:452:    independent_supporting = sum(
+  evidence_fusion.py:457:    )
+  evidence_fusion.py:458:    primary_supporting_groups = sum(
+  evidence_fusion.py:459:        1 for g in group_decisions
+> evidence_fusion.py:460:        if g["decision"] == "entailment" and g["is_primary"]
+  evidence_fusion.py:461:    )
+  evidence_fusion.py:462:    primary_contradicting_groups = sum(
+  evidence_fusion.py:463:        1 for g in group_decisions
+> evidence_fusion.py:464:        if g["decision"] == "contradiction" and g["is_primary"]
+  evidence_fusion.py:465:    )
+  evidence_fusion.py:466:    article_supporting_groups = sum(
+  evidence_fusion.py:467:        1 for g in group_decisions
+  evidence_fusion.py:468:        if g["decision"] == "entailment" and g["has_article_text"]
+  evidence_fusion.py:469:    )
+  evidence_fusion.py:537:            if primary_contradicting_groups == 0
+  evidence_fusion.py:538:            else "single_contradiction"
+  evidence_fusion.py:539:        )
+> evidence_fusion.py:540:    elif related_context_sources or neutral_sources:
+  evidence_fusion.py:541:        sufficiency = "context_only"
+  evidence_fusion.py:542:    else:
+  evidence_fusion.py:543:        sufficiency = "none"
+  evidence_fusion.py:544:
+  evidence_fusion.py:545:    return {
+  evidence_fusion.py:551:        "supporting_sources": supporting_sources,
+  evidence_fusion.py:552:        "contradicting_sources": contradicting_sources,
+  evidence_fusion.py:553:        "neutral_sources": neutral_sources,
+> evidence_fusion.py:554:        "related_context_sources": related_context_sources,
+> evidence_fusion.py:555:        "non_evidence_sources": non_evidence_sources,
+  evidence_fusion.py:556:        "snippet_only_sources": snippet_only_sources,
+  evidence_fusion.py:557:        "article_sources": article_sources,
+  evidence_fusion.py:558:        "unresolved_identity_sources": unresolved_identity_sources,
+  evidence_fusion.py:559:        "independent_supporting": independent_supporting,
+  evidence_fusion.py:560:        "independent_contradicting": independent_contradicting,
+  evidence_scorer.py:1:"""
+> evidence_scorer.py:2:evidence_scorer.py
+  evidence_scorer.py:3:==================
+  evidence_scorer.py:4:Strength of a single evidence chunk.
+  evidence_scorer.py:5:
+  evidence_scorer.py:6:The old score was 30% embedding similarity + 50% NLI + 20% reliability, which
+  evidence_scorer.py:7:meant two articles about the same city in the wrong year could outrank a single
+  evidence_scorer.py:54:    return max(low, min(high, value))
+  evidence_scorer.py:55:
+  evidence_scorer.py:56:
+> evidence_scorer.py:57:def calculate_evidence_score(
+  evidence_scorer.py:58:    similarity=0.0,
+  evidence_scorer.py:59:    nli_label="neutral",
+  evidence_scorer.py:60:    nli_score=0.0,
+  evidence_scorer.py:61:    source_reliability=0.0,
+  evidence_scorer.py:62:    date_status="unknown",
+  evidence_scorer.py:105:    if date_status == "different" and not debunking:
+  evidence_scorer.py:106:        score *= 0.5
+  evidence_scorer.py:107:
+> evidence_scorer.py:108:    # A snippet, or a non-primary publisher, is bounded well below primary
+  evidence_scorer.py:109:    # article evidence no matter how well the other parts line up.
+  evidence_scorer.py:110:    if label == "neutral":
+  evidence_scorer.py:111:        score *= 0.45
+  evidence_scorer.py:112:
+  evidence_scorer.py:113:    return round(_clamp(score), 4)
+  evidence_scorer.py:117:CLASS_CEILINGS = {
+  evidence_scorer.py:118:    "SUPPORT": 0.95,
+  evidence_scorer.py:119:    "CONTRADICTION": 0.95,
+> evidence_scorer.py:120:    "RELATED_CONTEXT": 0.25,
+> evidence_scorer.py:121:    "NON_EVIDENCE": 0.02,
+  evidence_scorer.py:122:}
+  evidence_scorer.py:123:
+  evidence_scorer.py:124:
+> evidence_scorer.py:125:def apply_class_ceiling(score, evidence_class, evidence_type="scraped_article"):
+  evidence_scorer.py:126:    """
+> evidence_scorer.py:127:    Bound an evidence score by its class and by the trust of the retrieval mode.
+  evidence_scorer.py:128:
+  evidence_scorer.py:129:    A snippet is fallback evidence and cannot reach the strength of extracted
+  evidence_scorer.py:130:    article text, which in turn cannot reach the strength of a page we scraped
+  evidence_scorer.py:131:    and verified ourselves.
+  evidence_scorer.py:132:    """
+  evidence_scorer.py:133:    score = _clamp(score)
+> evidence_scorer.py:134:    ceiling = CLASS_CEILINGS.get(evidence_class, 0.5)
+  evidence_scorer.py:135:
+  evidence_scorer.py:136:    if evidence_type == "search_extract":
+  evidence_scorer.py:137:        ceiling = min(ceiling, 0.80)
+  evidence_scorer.py:138:    elif evidence_type == "search_snippet":
+  evidence_scorer.py:139:        ceiling = min(ceiling, 0.45)
+  final_verdict.py:32:MIN_INDEPENDENT_SOURCES = 2
+  final_verdict.py:33:
+  final_verdict.py:34:# At least this many of the supporting/contradicting publishers must be
+> final_verdict.py:35:# retrieved articles from primary publishers, not search snippets.
+  final_verdict.py:36:MIN_PRIMARY_GROUPS = 1
+  final_verdict.py:37:
+  final_verdict.py:38:# A MISLEADING verdict additionally needs an explicit, evidence-backed
+> final_verdict.py:39:# correction of a material claim detail coming from a primary publisher.
+  final_verdict.py:40:MIN_CORRECTION_GROUPS = 1
+  final_verdict.py:41:
+  final_verdict.py:42:
+  final_verdict.py:43:# The policy counters the deterministic gate needs in order to reason about
+  final_verdict.py:44:# the evidence at all. If any of them is missing or malformed, the gate cannot
+  final_verdict.py:190:    return None
+  final_verdict.py:191:
+  final_verdict.py:192:
+> final_verdict.py:193:def _count_class(results, evidence_class):
+  final_verdict.py:194:    return sum(
+  final_verdict.py:195:        1 for r in results
+> final_verdict.py:196:        if r.get("evidence_class") == evidence_class
+  final_verdict.py:197:    )
+  final_verdict.py:198:
+  final_verdict.py:199:
+  final_verdict.py:200:def _signals(results):
+  final_verdict.py:201:    """The structural signals the old layer used directly."""
+  final_verdict.py:209:
+  final_verdict.py:210:    strong_contradictions = sum(
+  final_verdict.py:211:        1 for r in results
+> final_verdict.py:212:        if r.get("evidence_class") == "CONTRADICTION"
+> final_verdict.py:213:        and r.get("evidence_score", 0) >= 0.6
+  final_verdict.py:214:    )
+  final_verdict.py:215:
+  final_verdict.py:216:    strong_entailments = sum(
+  final_verdict.py:217:        1 for r in results
+> final_verdict.py:218:        if r.get("evidence_class") == "SUPPORT"
+> final_verdict.py:219:        and r.get("evidence_score", 0) >= 0.6
+  final_verdict.py:220:    )
+  final_verdict.py:221:
+  final_verdict.py:222:    context = sum(
+  final_verdict.py:223:        1 for r in results
+> final_verdict.py:224:        if r.get("evidence_class") == "RELATED_CONTEXT"
+  final_verdict.py:225:    )
+  final_verdict.py:226:
+  final_verdict.py:227:    article_chunks = [
+  final_verdict.py:228:        r for r in results
+  final_verdict.py:229:        if r.get("evidence_type") == "scraped_article"
+  final_verdict.py:246:    The policy is symmetric in both directions:
+  final_verdict.py:247:
+  final_verdict.py:248:      * a verdict needs INDEPENDENT publishers, and at least one of them must
+> final_verdict.py:249:        be a primary publisher whose article text was actually retrieved.
+  final_verdict.py:250:        Search snippets alone can never establish or refute a claim.
+  final_verdict.py:251:      * support and contradiction are treated the same way: two independent
+  final_verdict.py:252:        contradicting publishers are not enough unless one of them is primary
+  final_verdict.py:253:        reporting we actually read.
+  final_verdict.py:254:      * MISLEADING additionally requires an explicit, evidence-backed
+> final_verdict.py:255:        correction of a material claim detail from a primary publisher.
+  final_verdict.py:256:        Generic disagreement is not enough.
+  final_verdict.py:257:
+  final_verdict.py:258:    Returns a dict describing the permitted set and the reason for the limit.
+  final_verdict.py:259:    """
+  final_verdict.py:260:    agreement = source_agreement if isinstance(source_agreement, dict) else {}
+  final_verdict.py:350:            gate["permitted_verdicts"].add("MISLEADING")
+  final_verdict.py:351:            gate["permitted_reason"] = (
+  final_verdict.py:352:                f"{independent_supporting} independent publishers, "
+> final_verdict.py:353:                f"{primary_supporting} of them primary publishers with retrieved "
+  final_verdict.py:354:                f"article text, directly support the claim. "
+> final_verdict.py:355:                f"{primary_correction_groups} primary publisher(s) contain an explicit "
+  final_verdict.py:356:                f"correction of a material claim detail, so MISLEADING may also be "
+  final_verdict.py:357:                f"considered."
+  final_verdict.py:358:            )
+  final_verdict.py:359:        else:
+  final_verdict.py:360:            gate["permitted_reason"] = (
+  final_verdict.py:361:                f"{independent_supporting} independent publishers, "
+> final_verdict.py:362:                f"{primary_supporting} of them primary publishers with retrieved "
+  final_verdict.py:363:                f"article text, directly support the claim. No retrieved primary "
+  final_verdict.py:364:                f"evidence contains an explicit correction of a material claim "
+  final_verdict.py:365:                f"detail, so MISLEADING is not permitted."
+  final_verdict.py:366:            )
+  final_verdict.py:367:        return gate
+  final_verdict.py:385:        gate["permitted_verdicts"] = {"FAKE", "UNVERIFIED"}
+  final_verdict.py:386:        gate["permitted_reason"] = (
+  final_verdict.py:387:            f"{independent_contradicting} independent publishers, "
+> final_verdict.py:388:            f"{primary_contradicting} of them primary publishers with retrieved "
+  final_verdict.py:389:            f"article text, directly contradict the claim."
+  final_verdict.py:390:        )
+  final_verdict.py:391:        return gate
+  final_verdict.py:392:
+  final_verdict.py:393:    # --------------------------------------------------------
+  final_verdict.py:418:    # what a settled verdict would have required.
+  final_verdict.py:419:    supporting_sources = _count(agreement, "supporting_sources")
+  final_verdict.py:420:    contradicting_sources = _count(agreement, "contradicting_sources")
+> final_verdict.py:421:    context_sources = _count(agreement, "related_context_sources")
+> final_verdict.py:422:    non_evidence_sources = _count(agreement, "non_evidence_sources")
+  final_verdict.py:423:    snippet_only_sources = _count(agreement, "snippet_only_sources")
+  final_verdict.py:424:    article_sources = _count(agreement, "article_sources")
+  final_verdict.py:425:    total_sources = _count(agreement, "total_sources")
+  final_verdict.py:426:
+  final_verdict.py:427:    requirement = (
+  final_verdict.py:428:        f"A settled verdict requires at least {MIN_INDEPENDENT_SOURCES} "
+  final_verdict.py:429:        f"independent publishers, including at least {MIN_PRIMARY_GROUPS} "
+> final_verdict.py:430:        f"primary publisher whose article text was actually retrieved."
+  final_verdict.py:431:    )
+  final_verdict.py:432:
+  final_verdict.py:433:    if snippet_only_sources and not article_sources:
+  final_verdict.py:434:        gate["permitted_reason"] = (
+  final_verdict.py:435:            f"All {snippet_only_sources} retrieved source(s) were search snippets, "
+  final_verdict.py:452:    gate["permitted_reason"] = (
+  final_verdict.py:453:        f"Retrieved sources provide related context only "
+  final_verdict.py:454:        f"({context_sources} context source(s) of {total_sources} retrieved, "
+> final_verdict.py:455:        f"{non_evidence_sources} non-evidence); none establishes the claimed "
+  final_verdict.py:456:        f"event with the claimed date. {requirement}"
+  final_verdict.py:457:    )
+  final_verdict.py:458:
+  final_verdict.py:459:    return gate
+  final_verdict.py:460:
+  final_verdict.py:534:    return 0.0
+  final_verdict.py:535:
+  final_verdict.py:536:
+> final_verdict.py:537:def _primary_evidence(evidence_class, results):
+  final_verdict.py:538:    """
+> final_verdict.py:539:    The strongest passages of one evidence class.
+  final_verdict.py:540:
+  final_verdict.py:541:    The class is passed explicitly, never derived from the verdict: a
+  final_verdict.py:542:    contradicting passage must never be reported as supporting evidence just
+  final_verdict.py:543:    because the verdict happened to be UNVERIFIED.
+  final_verdict.py:544:    """
+  final_verdict.py:545:    matches = [
+  final_verdict.py:546:        r for r in results
+> final_verdict.py:547:        if r.get("evidence_class") == evidence_class
+  final_verdict.py:548:    ]
+> final_verdict.py:549:    matches.sort(key=lambda r: r.get("evidence_score", 0), reverse=True)
+  final_verdict.py:550:
+  final_verdict.py:551:    return [
+  final_verdict.py:552:        {
+  final_verdict.py:553:            "url": r.get("url"),
+  final_verdict.py:554:            "domain": r.get("domain"),
+  final_verdict.py:556:            "source_tier": r.get("source_tier"),
+  final_verdict.py:557:            "date_status": r.get("date_status"),
+  final_verdict.py:558:            "event_match": r.get("event_match"),
+> final_verdict.py:559:            "evidence_score": r.get("evidence_score"),
+> final_verdict.py:560:            "is_primary_source": r.get("is_primary_source"),
+  final_verdict.py:561:            "chunk": r.get("chunk", "")[:400],
+  final_verdict.py:562:        }
+  final_verdict.py:563:        for r in matches[:3]
+  final_verdict.py:564:    ]
+  final_verdict.py:565:
+  multimodal_router.py:215:    evidence_analysis = raw.get("evidence_analysis", []) or []
+  multimodal_router.py:216:    source_data = raw.get("source_data", []) or []
+  multimodal_router.py:217:
+> multimodal_router.py:218:    supporting_count = len([e for e in evidence_analysis if e.get("evidence_class") == 
+"SUPPORT"])
+> multimodal_router.py:219:    contradicting_count = len([e for e in evidence_analysis if e.get("evidence_class") == 
+"CONTRADICTION"])
+> multimodal_router.py:220:    context_count = len([e for e in evidence_analysis if e.get("evidence_class") == 
+"RELATED_CONTEXT"])
+  multimodal_router.py:221:    scraped_success_count = len([s for s in source_data if s.get("scrape_status") == 
+"SUCCESS"])
+  multimodal_router.py:222:
+  multimodal_router.py:223:    src_agreement_val = fact_data.get("source_agreement")
+  multimodal_router.py:224:    src_agreement_str = f"{src_agreement_val:.2f}" if src_agreement_val is not None else 
+"N/A"
+  multimodal_router.py:225:    src_agreement_pct = f"{(src_agreement_val * 100):.1f}%" if src_agreement_val is not 
+None else "N/A"
+  multimodal_router.py:291:                "label": "Independent Voices",
+  multimodal_router.py:292:                "value": fact_data.get("independent_supporting", 0) + 
+fact_data.get("independent_contradicting", 0),
+  multimodal_router.py:293:                "meaning": "Distinct editorial publisher groups examined.",
+> multimodal_router.py:294:                "scale": "Count (>= 2 independent primary publishers required for REAL)"
+  multimodal_router.py:295:            },
+  multimodal_router.py:296:        },
+  multimodal_router.py:297:        {
+  multimodal_router.py:298:            "id": "fusion",
+  multimodal_router.py:299:            "number": 6,
+  multimodal_router.py:461:            "metric": {
+  multimodal_router.py:462:                "label": "Factual Corroboration",
+  multimodal_router.py:463:                "value": f"{fact_data.get('independent_supporting', 0)} Support / 
+{fact_data.get('independent_contradicting', 0)} Contra",
+> multimodal_router.py:464:                "meaning": "Independent primary publisher groups corroborating or refuting 
+claim.",
+  multimodal_router.py:465:                "scale": "Counts"
+  multimodal_router.py:466:            },
+  multimodal_router.py:467:        },
+  multimodal_router.py:468:        {
+  multimodal_router.py:469:            "id": "multimodal_consistency",
+  pipeline.py:540:            print(f"Date Status: {best_r.get('date_status', 'unknown')}")
+  pipeline.py:541:            print(f"Event Match: {best_r.get('event_match', 'weak')}")
+  pipeline.py:542:            print(f"NLI: {best_r['nli_label']} ({best_r.get('nli_status')})")
+> pipeline.py:543:            print(f"Evidence Class: {best_r['evidence_class']}")
+> pipeline.py:544:            print(f"Evidence Score: {best_r['evidence_score']}")
+  pipeline.py:545:        else:
+  pipeline.py:546:            print("No evidence chunk passed the pre-filters for this source.")
+  pipeline.py:547:
+  pipeline.py:548:
+  pipeline.py:549:    print(
+  pipeline.py:593:            result["source_reliability"]
+  pipeline.py:594:        )
+  pipeline.py:595:        print(
+> pipeline.py:596:            "Evidence Class:",
+> pipeline.py:597:            result.get("evidence_class", "NON_EVIDENCE")
+  pipeline.py:598:        )
+  pipeline.py:599:        print(
+> pipeline.py:600:            "Evidence Score:",
+> pipeline.py:601:            result["evidence_score"]
+  pipeline.py:602:        )
+  pipeline.py:603:
+  pipeline.py:604:
+  pipeline.py:605:    # ============================================================
+  pipeline.py:606:    # STEP 4 - SOURCE AGREEMENT + EVIDENCE FUSION
+  pipeline.py:946:
+  pipeline.py:947:    support_chunks = [
+  pipeline.py:948:        result for result in state["evidence_analysis"]
+> pipeline.py:949:        if result.get("evidence_class") == "SUPPORT"
+  pipeline.py:950:    ]
+  pipeline.py:951:
+  pipeline.py:952:    contradiction_chunks = [
+  pipeline.py:953:        result for result in state["evidence_analysis"]
+> pipeline.py:954:        if result.get("evidence_class") == "CONTRADICTION"
+  pipeline.py:955:    ]
+  pipeline.py:956:
+  pipeline.py:957:    print(
+  pipeline.py:958:        "\nSupporting Chunks:",
+  pipeline.py:959:        len(support_chunks)
+  research_report.py:132:
+  research_report.py:133:
+  research_report.py:134:def _strength_label(score: Optional[float]) -> str:
+> research_report.py:135:    """Interpret a real evidence_score. No percentage is invented."""
+  research_report.py:136:    if score is None:
+  research_report.py:137:        return "Not scored"
+  research_report.py:138:    if score >= 0.75:
+  research_report.py:139:        return "Strong"
+  research_report.py:140:    if score >= 0.5:
+  research_report.py:231:
+  research_report.py:232:def _finding_from_chunk(
+  research_report.py:233:    chunk: Dict[str, Any],
+> research_report.py:234:    evidence_class: str,
+  research_report.py:235:    claim_text: Optional[str],
+  research_report.py:236:) -> Dict[str, Any]:
+  research_report.py:237:    """Turn one real classified evidence passage into a point-wise finding."""
+  research_report.py:238:    domain = _clean_text(chunk.get("domain")) or "unknown source"
+  research_report.py:239:    title = _clean_text(chunk.get("title"))
+  research_report.py:240:    url = chunk.get("url")
+> research_report.py:241:    score = _as_float(chunk.get("evidence_score"))
+  research_report.py:242:    reliability = _as_float(chunk.get("source_reliability"))
+  research_report.py:243:    nli_score = _as_float(chunk.get("nli_score"))
+  research_report.py:244:    tier = chunk.get("source_tier")
+  research_report.py:245:    tier_reason = _clean_text(chunk.get("source_tier_reason"))
+  research_report.py:246:    date_status = chunk.get("date_status")
+  research_report.py:247:    event_match = chunk.get("event_match")
+  research_report.py:248:    nli_label = chunk.get("nli_label")
+  research_report.py:249:
+> research_report.py:250:    if evidence_class == "SUPPORT":
+  research_report.py:251:        status = "SUPPORTED"
+  research_report.py:252:        lead = "Supporting finding"
+> research_report.py:253:    elif evidence_class == "CONTRADICTION":
+  research_report.py:254:        status = "CONTRADICTED"
+  research_report.py:255:        lead = "Contradicting finding"
+> research_report.py:256:    elif evidence_class == "RELATED_CONTEXT":
+  research_report.py:257:        status = "CONTEXT"
+  research_report.py:258:        lead = "Contextual finding"
+  research_report.py:259:    else:
+> research_report.py:260:        status = "NON_EVIDENCE"
+  research_report.py:261:        lead = "Non-evidence passage"
+  research_report.py:262:
+  research_report.py:263:    # Explanation is assembled only from recorded backend values.
+  research_report.py:264:    parts: List[str] = []
+  research_report.py:265:    parts.append(f"{lead} from {domain}")
+  research_report.py:304:        "nli_label": nli_label,
+  research_report.py:305:        "nli_score": nli_score,
+  research_report.py:306:        "independence_group": chunk.get("independence_group"),
+> research_report.py:307:        "evidence_class": evidence_class,
+  research_report.py:308:        "evidence_type": chunk.get("evidence_type"),
+  research_report.py:309:        "search_query": chunk.get("search_query") or None,
+  research_report.py:310:    }
+  research_report.py:311:
+  research_report.py:312:
+  research_report.py:331:        if not isinstance(chunk, dict):
+  research_report.py:332:            continue
+  research_report.py:333:        counted += 1
+> research_report.py:334:        klass = chunk.get("evidence_class")
+  research_report.py:335:        finding = _finding_from_chunk(chunk, klass, claim_text)
+  research_report.py:336:        if klass == "SUPPORT":
+  research_report.py:337:            buckets["supporting"].append(finding)
+  research_report.py:338:        elif klass == "CONTRADICTION":
+  research_report.py:339:            buckets["contradicting"].append(finding)
+> research_report.py:340:        elif klass == "RELATED_CONTEXT":
+  research_report.py:341:            buckets["contextual"].append(finding)
+  research_report.py:342:        else:
+  research_report.py:343:            buckets["unresolved"].append(finding)
+  research_report.py:344:
+  research_report.py:345:    return buckets, counted
+  research_report.py:878:    if supporting == 1:
+  research_report.py:879:        limits.append(
+  research_report.py:880:            "Only one independent publisher corroborated the claim; the evidence gate 
+requires "
+> research_report.py:881:            "two independent primary publisher groups before it can permit a corroborated 
+verdict."
+  research_report.py:882:        )
+  research_report.py:883:    if contradicting == 1:
+  research_report.py:884:        limits.append(
+  research_report.py:885:            "Only one independent publisher contradicted the claim; a single contradicting "
+  research_report.py:886:            "publisher is not enough for the evidence gate to permit a refuted verdict."
+  research_report.py:1228:                "classified as direct support or direct contradiction."
+  research_report.py:1229:            ),
+  research_report.py:1230:            "what_would_help": (
+> research_report.py:1231:                "At least two independent primary publisher groups reporting directly on the 
+"
+  research_report.py:1232:                "claimed event, date and location."
+  research_report.py:1233:            ),
+  research_report.py:1234:        })
+  research_report.py:1235:
+  research_report.py:1236:    if supporting and contradicting:
+  source_reliability.py:293:        tier_reason        str   why this tier was assigned
+  source_reliability.py:294:        domain             str   host
+  source_reliability.py:295:        independence_group str   registrable domain (one voice)
+> source_reliability.py:296:        is_primary         bool  may this source alone establish/refute?
+  source_reliability.py:297:        is_search_snippet  bool
+  source_reliability.py:298:        is_extracted_text  bool
+  source_reliability.py:299:    """
+  source_reliability.py:300:    tier, reason = classify_tier(url)
+  source_reliability.py:301:    reliability = get_source_reliability(url, evidence_type)
+  source_reliability.py:303:    is_extract = evidence_type == "search_extract"
+  source_reliability.py:304:
+  source_reliability.py:305:    # Extracted article text may corroborate; a snippet never may.
+> source_reliability.py:306:    is_primary = tier in PRIMARY_TIERS and not is_snippet
+  source_reliability.py:307:
+  source_reliability.py:308:    return {
+  source_reliability.py:309:        "reliability": reliability,
+  source_reliability.py:310:        "tier": tier,
+  source_reliability.py:311:        "tier_reason": reason,
+  source_reliability.py:312:        "domain": extract_host(url),
+  source_reliability.py:313:        "independence_group": registrable_domain(url) or extract_host(url) or "unknown",
+> source_reliability.py:314:        "is_primary": is_primary,
+  source_reliability.py:315:        "is_search_snippet": is_snippet,
+  source_reliability.py:316:        "is_extracted_text": is_extract,
+  source_reliability.py:317:    }
+  source_reliability.py:318:
+  source_reliability.py:319:
+  source_reliability.py:476:            f"{sample}\n  tier={profile['tier']} "
+  source_reliability.py:477:            f"reliability={profile['reliability']} "
+  source_reliability.py:478:            f"group={profile['independence_group']} "
+> source_reliability.py:479:            f"primary={profile['is_primary']}"
+  source_reliability.py:480:        )
+  source_reliability.py:481:
+  source_reliability.py:482:    a = "Fire officials said the blaze broke out on the top floor of a commercial building 
+in New Delhi on 12 August 2024. Fire engines were stationed."
+  source_reliability.py:483:    b = "Fire officials said the blaze broke out on the top floor of a commercial building 
+in New Delhi on 12 August 2024. Fire engines were stationed outside."
+  source_reliability.py:484:    c = "Heavy monsoon rains flooded several parts of the city, disrupting traffic and 
+forcing schools shut."
+  test_evidence_engine.py:50:    _dedupe_chunks,
+  test_evidence_engine.py:51:    _resolve_chunk_budget,
+  test_evidence_engine.py:52:)
+> test_evidence_engine.py:53:from evidence_scorer import calculate_evidence_score, apply_class_ceiling
+  test_evidence_engine.py:54:from evidence_fusion import calculate_source_agreement, calculate_fusion_score
+  test_evidence_engine.py:55:from final_verdict import (
+  test_evidence_engine.py:56:    generate_final_verdict,
+  test_evidence_engine.py:57:    extract_verdict,
+  test_evidence_engine.py:58:    extract_confidence,
+  test_evidence_engine.py:64:    "India on 12 Aug 2024."
+  test_evidence_engine.py:65:)
+  test_evidence_engine.py:66:
+> test_evidence_engine.py:67:PRIMARY = {"is_primary": True, "tier": "established_wire", "reliability": 0.92}
+> test_evidence_engine.py:68:WEAK = {"is_primary": False, "tier": "weak/blog", "reliability": 0.32}
+  test_evidence_engine.py:69:
+  test_evidence_engine.py:70:
+  test_evidence_engine.py:71:def candidate(title, content, url, score=0.7, published=None):
+  test_evidence_engine.py:72:    return {
+  test_evidence_engine.py:73:        "title": title,
+  test_evidence_engine.py:79:    }
+  test_evidence_engine.py:80:
+  test_evidence_engine.py:81:
+> test_evidence_engine.py:82:def chunk(source_id, url, evidence_class, score, evidence_type="scraped_article",
+  test_evidence_engine.py:83:          group=None):
+  test_evidence_engine.py:84:    return {
+  test_evidence_engine.py:85:        "source_id": source_id,
+  test_evidence_engine.py:86:        "url": url,
+  test_evidence_engine.py:87:        "domain": url.split("/")[2],
+  test_evidence_engine.py:90:        "chunk": "evidence passage",
+  test_evidence_engine.py:91:        "similarity": 0.80,
+  test_evidence_engine.py:92:        "nli_label": (
+> test_evidence_engine.py:93:            "entailment" if evidence_class == "SUPPORT"
+> test_evidence_engine.py:94:            else "contradiction" if evidence_class == "CONTRADICTION"
+  test_evidence_engine.py:95:            else "neutral"
+  test_evidence_engine.py:96:        ),
+  test_evidence_engine.py:97:        "nli_score": 0.9,
+  test_evidence_engine.py:98:        "raw_nli_label": "entailment",
+  test_evidence_engine.py:99:        "raw_nli_score": 0.9,
+  test_evidence_engine.py:100:        "source_reliability": 0.9,
+  test_evidence_engine.py:101:        "source_tier": "established_wire",
+  test_evidence_engine.py:102:        "independence_group": group or url.split("/")[2].replace("www.", ""),
+> test_evidence_engine.py:103:        "is_primary_source": True,
+> test_evidence_engine.py:104:        "evidence_score": score,
+> test_evidence_engine.py:105:        "evidence_class": evidence_class,
+  test_evidence_engine.py:106:        "date_status": "match",
+  test_evidence_engine.py:107:        "event_match": "strong",
+  test_evidence_engine.py:108:        "location_match": True,
+  test_evidence_engine.py:109:        "detail_coverage": 0.9,
+  test_evidence_engine.py:110:        "claim_has_location": True,
+  test_evidence_engine.py:164:        self.assertLess(snippet, article)
+  test_evidence_engine.py:165:        self.assertLessEqual(snippet, 0.40)
+  test_evidence_engine.py:166:        self.assertFalse(
+> test_evidence_engine.py:167:            get_source_profile("https://www.reuters.com/a", 
+"search_snippet")["is_primary"]
+  test_evidence_engine.py:168:        )
+  test_evidence_engine.py:169:
+  test_evidence_engine.py:170:    def test_weak_sources_are_not_primary(self):
+  test_evidence_engine.py:171:        for url in (
+  test_evidence_engine.py:172:            "https://blog.example.com/fire",
+  test_evidence_engine.py:173:            "https://en.wikipedia.org/wiki/Delhi",
+  test_evidence_engine.py:174:            "https://www.reddit.com/r/news/",
+  test_evidence_engine.py:175:        ):
+> test_evidence_engine.py:176:            self.assertFalse(get_source_profile(url)["is_primary"], url)
+  test_evidence_engine.py:177:
+  test_evidence_engine.py:178:    def test_independence_groups(self):
+  test_evidence_engine.py:179:        self.assertEqual(
+  test_evidence_engine.py:180:            registrable_domain("https://www.ndtv.com/x"), "ndtv.com"
+  test_evidence_engine.py:181:        )
+  test_evidence_engine.py:209:        self.assertLessEqual(snippet, 0.40)
+  test_evidence_engine.py:210:
+  test_evidence_engine.py:211:        self.assertTrue(
+> test_evidence_engine.py:212:            get_source_profile("https://www.reuters.com/a", 
+"search_extract")["is_primary"]
+  test_evidence_engine.py:213:        )
+  test_evidence_engine.py:214:        self.assertFalse(
+> test_evidence_engine.py:215:            get_source_profile("https://www.reuters.com/a", 
+"search_snippet")["is_primary"]
+  test_evidence_engine.py:216:        )
+  test_evidence_engine.py:217:
+  test_evidence_engine.py:218:    def test_extract_ceiling_is_below_article(self):
+  test_evidence_engine.py:219:        self.assertLessEqual(
+  test_evidence_engine.py:220:            apply_class_ceiling(0.99, "SUPPORT", "search_extract"), 0.80
+  test_evidence_engine.py:560:class TestClassification(unittest.TestCase):
+  test_evidence_engine.py:561:
+  test_evidence_engine.py:562:    def test_extract_mode_can_support_but_snippet_cannot(self):
+> test_evidence_engine.py:563:        extract_profile = {"is_primary": True, "tier": "established_wire",
+  test_evidence_engine.py:564:                           "reliability": 0.62}
+  test_evidence_engine.py:565:        self.assertEqual(
+  test_evidence_engine.py:566:            classify_evidence(signals(), "search_extract", extract_profile), "SUPPORT"
+  test_evidence_engine.py:567:        )
+  test_evidence_engine.py:568:        self.assertNotEqual(
+  test_evidence_engine.py:596:                ),
+  test_evidence_engine.py:597:                "scraped_article", PRIMARY,
+  test_evidence_engine.py:598:            ),
+> test_evidence_engine.py:599:            "NON_EVIDENCE",
+  test_evidence_engine.py:600:        )
+  test_evidence_engine.py:601:
+  test_evidence_engine.py:602:    def test_nli_failure_never_classifies(self):
+  test_evidence_engine.py:603:        self.assertNotEqual(
+  test_evidence_engine.py:604:            classify_evidence(
+  test_evidence_engine.py:654:    )
+  test_evidence_engine.py:655:
+  test_evidence_engine.py:656:    def test_structure_beats_similarity(self):
+> test_evidence_engine.py:657:        structured = calculate_evidence_score(**self.perfect)
+> test_evidence_engine.py:658:        surface_only = calculate_evidence_score(
+  test_evidence_engine.py:659:            **dict(self.perfect, date_status="different", event_match="none",
+  test_evidence_engine.py:660:                   detail_coverage=0.0, location_match=False)
+  test_evidence_engine.py:661:        )
+  test_evidence_engine.py:662:        self.assertGreater(structured, surface_only * 2)
+  test_evidence_engine.py:663:
+  test_evidence_engine.py:664:    def test_neutral_nli_contributes_nothing(self):
+> test_evidence_engine.py:665:        with_neutral = calculate_evidence_score(
+  test_evidence_engine.py:666:            **dict(self.perfect, nli_label="neutral", nli_score=0.95)
+  test_evidence_engine.py:667:        )
+> test_evidence_engine.py:668:        with_entailment = calculate_evidence_score(**self.perfect)
+  test_evidence_engine.py:669:        self.assertLess(with_neutral, with_entailment)
+  test_evidence_engine.py:670:
+  test_evidence_engine.py:671:    def test_class_ceilings(self):
+  test_evidence_engine.py:672:        self.assertLessEqual(
+  test_evidence_engine.py:673:            apply_class_ceiling(0.99, "SUPPORT", "scraped_article"), 0.95
+  test_evidence_engine.py:674:        )
+  test_evidence_engine.py:675:        self.assertLessEqual(
+> test_evidence_engine.py:676:            apply_class_ceiling(0.99, "RELATED_CONTEXT", "scraped_article"), 0.25
+  test_evidence_engine.py:677:        )
+  test_evidence_engine.py:678:        self.assertLessEqual(
+  test_evidence_engine.py:679:            apply_class_ceiling(0.99, "SUPPORT", "search_snippet"), 0.45
+  test_evidence_engine.py:680:        )
+  test_evidence_engine.py:681:        self.assertLessEqual(
+> test_evidence_engine.py:682:            apply_class_ceiling(0.99, "NON_EVIDENCE", "scraped_article"), 0.02
+  test_evidence_engine.py:683:        )
+  test_evidence_engine.py:684:
+  test_evidence_engine.py:685:
+  test_evidence_engine.py:686:# ============================================================
+  test_evidence_engine.py:687:# CORROBORATION
+  test_evidence_engine.py:781:
+  test_evidence_engine.py:782:    def test_context_only_cannot_be_fake(self):
+  test_evidence_engine.py:783:        results = [
+> test_evidence_engine.py:784:            chunk(1, "https://www.bbc.com/a", "RELATED_CONTEXT", 0.2),
+> test_evidence_engine.py:785:            chunk(2, "https://www.ndtv.com/b", "RELATED_CONTEXT", 0.2),
+  test_evidence_engine.py:786:        ]
+  test_evidence_engine.py:787:        verdict = self.decide(results, FAKE_AGENT, FAKE_AGENT)
+  test_evidence_engine.py:788:        self.assertEqual(verdict["verdict"], "UNVERIFIED")
+  test_evidence_engine.py:789:
+  test_evidence_engine.py:790:    def test_contested_evidence_is_unverified(self):
+  test_evidence_engine.py:799:
+  test_evidence_engine.py:800:    def test_snippet_only_support_is_unverified(self):
+  test_evidence_engine.py:801:        results = [
+> test_evidence_engine.py:802:            chunk(1, "https://www.reuters.com/a", "RELATED_CONTEXT", 0.3,
+  test_evidence_engine.py:803:                  evidence_type="search_snippet"),
+> test_evidence_engine.py:804:            chunk(2, "https://www.bbc.com/b", "RELATED_CONTEXT", 0.3,
+  test_evidence_engine.py:805:                  evidence_type="search_snippet"),
+  test_evidence_engine.py:806:        ]
+  test_evidence_engine.py:807:        verdict = self.decide(results)
+  test_evidence_engine.py:808:        self.assertEqual(verdict["verdict"], "UNVERIFIED")
+  test_evidence_engine.py:809:
+  test_evidence_engine.py:854:    def test_gate_permits_misleading_only_with_a_recorded_correction(self):
+  test_evidence_engine.py:855:        """
+  test_evidence_engine.py:856:        MISLEADING requires an explicit correction of a material claim detail
+> test_evidence_engine.py:857:        from a primary publisher.
+  test_evidence_engine.py:858:        """
+  test_evidence_engine.py:859:        without_correction = deterministic_gate(
+  test_evidence_engine.py:860:            {
+  test_evidence_engine.py:861:                "independent_supporting": 3,
+  test_evidence_engine.py:862:                "independent_contradicting": 0,
+
+

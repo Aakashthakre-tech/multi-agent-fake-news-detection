@@ -89,6 +89,47 @@ def _quote(text):
     return text
 
 
+def build_event_anchor(profile, max_parts=5):
+    """
+    The claim's event phrases plus the distinguishing terms they do not contain.
+
+    The claim's MEANING lives in its phrases, not in a location plus the first
+    few single words. A query built only from a location and a couple of
+    keywords can match a completely different event that happens to share
+    those words - "United States joe biden withdrew" matches reporting about
+    US troops withdrawing from Iraq.
+
+    Returns a space-separated, quoted string suitable for a search query.
+    """
+    phrases = profile.get("phrases") or []
+    keywords = profile.get("keywords") or []
+
+    covered = set()
+    parts = []
+    for phrase in phrases[:2]:
+        if not phrase:
+            continue
+        phrase_tokens = set(phrase.lower().split())
+        if covered and len(phrase_tokens & covered) >= len(phrase_tokens) * 0.5:
+            continue
+        if all(token in covered for token in phrase.lower().split()):
+            continue
+        parts.append(_quote(phrase))
+        covered.update(phrase.lower().split())
+
+    for keyword in keywords:
+        if len(parts) >= 2 and len(covered) >= 6:
+            break
+        if keyword.lower() in covered:
+            continue
+        parts.append(_quote(keyword))
+        covered.add(keyword.lower())
+        if len(parts) >= max_parts:
+            break
+
+    return " ".join(parts)
+
+
 def _join(*parts):
     return " ".join(str(p).strip() for p in parts if p and str(p).strip())
 
@@ -170,9 +211,23 @@ def plan_queries(claim, max_queries=MAX_QUERIES):
     phrase_quoted = _quote(phrases[0]) if phrases else ""
     second_phrase = _quote(phrases[1]) if len(phrases) > 1 else ""
 
+    # ------------------------------------------------------------
+    # The event anchor: the claim's phrases plus the distinguishing terms
+    # those phrases do not already contain. See build_event_anchor.
+    # ------------------------------------------------------------
+    event_anchor = build_event_anchor(profile)
+    if not event_anchor:
+        event_anchor = keyword_terms
+
+    is_historical = bool(primary_date and primary_date.get("year", 9999) < 2015)
+    is_scientific = profile.get("claim_type") == "scientific_fact"
+    default_topic = "general" if (is_historical or is_scientific) else "news"
+
     plans = []
 
-    def add(label, intent, query, topic="news"):
+    def add(label, intent, query, topic=None):
+        if topic is None:
+            topic = default_topic
         query = re.sub(r"\s+", " ", str(query or "")).strip()
         if not query:
             return
@@ -192,11 +247,17 @@ def plan_queries(claim, max_queries=MAX_QUERIES):
     # 2-3. Exact date, two textual formats (event date, not publication date)
     # --------------------------------------------------------
     if primary_date and variants:
-        if location_quoted and keyword_terms:
+        if location_quoted and event_anchor:
             add(
                 "date_loc_keywords",
                 "date",
-                _join(_quote(variants[0]), location_quoted, keyword_terms),
+                _join(_quote(variants[0]), location_quoted, event_anchor),
+            )
+        elif event_anchor:
+            add(
+                "date_loc_keywords",
+                "date",
+                _join(_quote(variants[0]), event_anchor),
             )
         if location_quoted and phrase_quoted:
             add(
@@ -204,33 +265,27 @@ def plan_queries(claim, max_queries=MAX_QUERIES):
                 "date",
                 _join(_quote(variants[1]), location_quoted, phrase_quoted, second_phrase),
             )
-        elif location_quoted and keyword_terms:
+        elif location_quoted and event_anchor:
             add(
                 "date_alt_format",
                 "date",
-                _join(_quote(variants[1]), location_quoted, keyword_terms),
+                _join(_quote(variants[1]), location_quoted, event_anchor),
             )
-        elif keyword_terms:
+        elif event_anchor:
             add(
                 "date_alt_format",
                 "date",
-                _join(_quote(variants[1]), keyword_terms),
+                _join(_quote(variants[1]), event_anchor),
             )
 
     # --------------------------------------------------------
     # 4. Location + event phrasing (recovers articles without a written date)
     # --------------------------------------------------------
-    if location_quoted and phrase_quoted:
+    if location_quoted and event_anchor:
         add(
             "location_phrase",
             "location",
-            _join(location_quoted, phrase_quoted),
-        )
-    elif location_quoted and keyword_terms:
-        add(
-            "location_keywords",
-            "location",
-            _join(location_quoted, keyword_terms),
+            _join(location_quoted, event_anchor),
         )
 
     # --------------------------------------------------------
@@ -271,14 +326,29 @@ def plan_queries(claim, max_queries=MAX_QUERIES):
     # --------------------------------------------------------
     # 7. Official / primary record (general web, not news)
     # --------------------------------------------------------
-    official_parts = [
-        _quote(location_plain) if location_plain else "",
-        _quote(keywords[0]) if keywords else "",
-        OFFICIAL_HINTS[0],
-    ]
-    if primary_date:
-        official_parts.insert(0, _quote(variants[-1]))
-    add("official", "official", _join(*official_parts), topic="general")
+    if is_historical:
+        hist_hint = (
+            "mission history"
+            if any(w in clean_claim.lower() for w in ("mission", "apollo", "nasa", "flight", "launch"))
+            else "official history"
+        )
+        date_str = _quote(variants[0]) if variants else (str(primary_date["year"]) if primary_date else "")
+        official_parts = [
+            date_str,
+            _quote(location_plain) if location_plain else "",
+            event_anchor,
+            hist_hint,
+        ]
+        add("official", "official", _join(*official_parts), topic="general")
+    else:
+        official_parts = [
+            _quote(location_plain) if location_plain else "",
+            event_anchor,
+            OFFICIAL_HINTS[0],
+        ]
+        if primary_date:
+            official_parts.insert(0, _quote(variants[-1]))
+        add("official", "official", _join(*official_parts), topic="general")
 
     # --------------------------------------------------------
     # 8. Year-level recall (only when the claim is dated)
@@ -300,6 +370,54 @@ def plan_queries(claim, max_queries=MAX_QUERIES):
     # uses the claim wording itself rather than a single stray verb.
     if len(keywords) < 3:
         add("broad_recall", "broad", profile["date_stripped"] or clean_claim)
+
+    # --------------------------------------------------------
+    # 9. Proposition-focused queries for non-event claims
+    #
+    # Scientific, geographical and statistical claims are general
+    # propositions, not dated events. They do not benefit from date-windowed
+    # news searches. Instead we search the claim wording itself and add
+    # authoritative-source hints so that textbooks, standards bodies and
+    # reputable educational resources outrank Q&A sites and aggregators.
+    # --------------------------------------------------------
+    claim_type = profile.get("claim_type", "other_factual_claim")
+    non_event = claim_type not in ("historical_event", "current_event")
+
+    if non_event and keyword_terms:
+        # Proposition query: the claim's own keywords without date/location
+        # filtering. This is the highest-precision search for a general fact.
+        add("proposition", "proposition", " ".join(keywords[:6]), topic="general")
+
+    if non_event:
+        # Authoritative-source query: prefer .edu / .gov / scientific
+        # organisations over Q&A sites and content farms.
+        auth_parts = []
+        if keyword_terms:
+            auth_parts.append(keyword_terms)
+        auth_parts.extend(["site:edu OR site:gov OR site:org", "textbook OR handbook OR standard OR reference"])
+        add("authoritative", "authoritative", _join(*auth_parts), topic="general")
+
+        # Scientific facts need scientific references, not news articles or Q&A.
+    if profile.get("claim_type") == "scientific_fact":
+        # Generic scientific-reference query: the claim itself plus
+        # authoritative reference hints (standards bodies, textbooks,
+        # university sources). Not hardcoded to any particular claim.
+        scientific_query = (
+            f'"{clean_claim}" '
+            '"standard reference" OR NIST OR IAPWS OR textbook '
+            'OR university OR peer-reviewed OR reference'
+        )
+        add(
+            "scientific_reference",
+            "authoritative",
+            scientific_query,
+            topic="general",
+        )
+
+    if non_event and len(keywords) >= 2:
+        # Definition query: encyclopedia / reference treatment of the concept.
+        def_parts = [_join(*keywords[:3]), "definition OR explanation OR overview"]
+        add("definition", "definition", _join(*def_parts), topic="general")
 
     # --------------------------------------------------------
     # De-duplicate, cap, and restore deterministic ordering

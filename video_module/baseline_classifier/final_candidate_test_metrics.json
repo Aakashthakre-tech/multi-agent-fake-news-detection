@@ -1,0 +1,33 @@
+{
+  "candidate_id": "exp6_compact_proj64",
+  "checkpoint_path": "C:\\Users\\ASUS\\Installation\\AgenticAI\\Multi_Agent_System\\video_module\\baseline_classifier\\checkpoints\\exp6_compact_proj64.pt",
+  "best_validation_epoch": 2,
+  "test_total_samples": 42,
+  "test_accuracy": 0.5476,
+  "test_balanced_accuracy": 0.5417,
+  "test_macro_precision": 0.5412,
+  "test_macro_recall": 0.5417,
+  "test_macro_f1": 0.5411,
+  "test_weighted_f1": 0.5489,
+  "test_roc_auc": 0.6042,
+  "per_class": {
+    "real": {
+      "precision": 0.4737,
+      "recall": 0.5,
+      "f1_score": 0.4865,
+      "support": 18
+    },
+    "fake": {
+      "precision": 0.6087,
+      "recall": 0.5833,
+      "f1_score": 0.5957,
+      "support": 24
+    }
+  },
+  "confusion_matrix": {
+    "true_real_pred_real (TN)": 9,
+    "true_real_pred_fake (FP)": 9,
+    "true_fake_pred_real (FN)": 10,
+    "true_fake_pred_fake (TP)": 14
+  }
+}

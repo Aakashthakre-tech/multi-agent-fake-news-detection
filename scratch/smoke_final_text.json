@@ -1,0 +1,181 @@
+[
+ {
+  "key": "apollo_1969",
+  "claim": "NASA's Apollo 11 mission landed humans on the Moon in July 1969.",
+  "latency_sec": 3.5,
+  "status": "success",
+  "verdict": "UNVERIFIED",
+  "confidence": 0.0,
+  "confidence_basis": "verification_coverage",
+  "evidence_sufficiency": "none",
+  "permitted_verdicts": [
+   "UNVERIFIED"
+  ],
+  "independent_supporting": 0,
+  "independent_contradicting": 0,
+  "primary_supporting_groups": 0,
+  "primary_contradicting_groups": 0,
+  "article_sources": 0,
+  "total_sources": 0,
+  "entailment_score": 0.0,
+  "contradiction_score": 0.0,
+  "source_agreement": 0.0,
+  "fusion_score": 0.0,
+  "gate_reason": "No passage passed the evidence layer's filters. There is no evidence to support or refute the claim.",
+  "supporting_sources": [],
+  "contradicting_sources": [],
+  "search_queries": [
+   "NASA's Apollo 11 mission landed humans on the Moon in July 1969.",
+   "\"July, 1969\" \"nasa's apollo mission\" \"apollo mission landed\" humans moon",
+   "nasa's apollo mission fact check",
+   "1969-07 \"nasa's apollo mission\" \"apollo mission landed\" humans moon official statement"
+  ],
+  "scrape_failures": 0,
+  "agent_status": {
+   "verification_agent": "completed",
+   "critic_agent": "completed",
+   "partial": false,
+   "errors": []
+  },
+  "limitations": [
+   "No retrieved source directly addressed the claim, so the verdict reflects an evidence gap and not a finding of falsity.",
+   "7 search request(s) failed during retrieval, so the candidate source pool was smaller than intended."
+  ],
+  "verdict_overridden_by_evidence": false
+ },
+ {
+  "key": "apollo_1970",
+  "claim": "The Apollo 11 mission landed humans on the Moon on July 20, 1970.",
+  "latency_sec": 3.4,
+  "status": "success",
+  "verdict": "UNVERIFIED",
+  "confidence": 0.0,
+  "confidence_basis": "verification_coverage",
+  "evidence_sufficiency": "none",
+  "permitted_verdicts": [
+   "UNVERIFIED"
+  ],
+  "independent_supporting": 0,
+  "independent_contradicting": 0,
+  "primary_supporting_groups": 0,
+  "primary_contradicting_groups": 0,
+  "article_sources": 0,
+  "total_sources": 0,
+  "entailment_score": 0.0,
+  "contradiction_score": 0.0,
+  "source_agreement": 0.0,
+  "fusion_score": 0.0,
+  "gate_reason": "No passage passed the evidence layer's filters. There is no evidence to support or refute the claim.",
+  "supporting_sources": [],
+  "contradicting_sources": [],
+  "search_queries": [
+   "The Apollo 11 mission landed humans on the Moon on July 20, 1970.",
+   "\"July 20, 1970\" \"apollo mission landed\" \"mission landed humans\" moon",
+   "apollo mission landed fact check",
+   "20/07/1970 \"apollo mission landed\" \"mission landed humans\" moon official statement"
+  ],
+  "scrape_failures": 0,
+  "agent_status": {
+   "verification_agent": "completed",
+   "critic_agent": "completed",
+   "partial": false,
+   "errors": []
+  },
+  "limitations": [
+   "No retrieved source directly addressed the claim, so the verdict reflects an evidence gap and not a finding of falsity.",
+   "7 search request(s) failed during retrieval, so the candidate source pool was smaller than intended."
+  ],
+  "verdict_overridden_by_evidence": false
+ },
+ {
+  "key": "biden_2024",
+  "claim": "Joe Biden withdrew from the 2024 United States presidential race in July 2024.",
+  "latency_sec": 21.3,
+  "status": "success",
+  "verdict": "UNVERIFIED",
+  "confidence": 0.0,
+  "confidence_basis": "verification_coverage",
+  "evidence_sufficiency": "none",
+  "permitted_verdicts": [
+   "UNVERIFIED"
+  ],
+  "independent_supporting": 0,
+  "independent_contradicting": 0,
+  "primary_supporting_groups": 0,
+  "primary_contradicting_groups": 0,
+  "article_sources": 0,
+  "total_sources": 0,
+  "entailment_score": 0.0,
+  "contradiction_score": 0.0,
+  "source_agreement": 0.0,
+  "fusion_score": 0.0,
+  "gate_reason": "No passage passed the evidence layer's filters. There is no evidence to support or refute the claim.",
+  "supporting_sources": [],
+  "contradicting_sources": [],
+  "search_queries": [
+   "Joe Biden withdrew from the 2024 United States presidential race in July 2024.",
+   "\"July 2024\" \"United States\" \"joe biden withdrew\" \"presidential race\"",
+   "\"July, 2024\" \"United States\" \"joe biden withdrew\" \"presidential race\"",
+   "\"United States\" \"joe biden withdrew\" \"presidential race\"",
+   "\"Joe Biden withdrew from the 2024 United States presidential race in July 2024.\" fact check",
+   "2024-07 \"United States\" \"joe biden withdrew\" \"presidential race\" official statement",
+   "2024 \"United States\" \"presidential race\""
+  ],
+  "scrape_failures": 0,
+  "agent_status": {
+   "verification_agent": "completed",
+   "critic_agent": "completed",
+   "partial": false,
+   "errors": []
+  },
+  "limitations": [
+   "No retrieved source directly addressed the claim, so the verdict reflects an evidence gap and not a finding of falsity.",
+   "10 search request(s) failed during retrieval, so the candidate source pool was smaller than intended."
+  ],
+  "verdict_overridden_by_evidence": false
+ },
+ {
+  "key": "vague",
+  "claim": "NASA's Apollo program was the most successful space program in history.",
+  "latency_sec": 27.3,
+  "status": "success",
+  "verdict": "UNVERIFIED",
+  "confidence": 0.0,
+  "confidence_basis": "verification_coverage",
+  "evidence_sufficiency": "none",
+  "permitted_verdicts": [
+   "UNVERIFIED"
+  ],
+  "independent_supporting": 0,
+  "independent_contradicting": 0,
+  "primary_supporting_groups": 0,
+  "primary_contradicting_groups": 0,
+  "article_sources": 0,
+  "total_sources": 0,
+  "entailment_score": 0.0,
+  "contradiction_score": 0.0,
+  "source_agreement": 0.0,
+  "fusion_score": 0.0,
+  "gate_reason": "No passage passed the evidence layer's filters. There is no evidence to support or refute the claim.",
+  "supporting_sources": [],
+  "contradicting_sources": [],
+  "search_queries": [
+   "NASA's Apollo program was the most successful space program in history.",
+   "nasa's apollo program fact check",
+   "\"successful space program\" \"nasa's apollo program\" history official statement",
+   "nasa's apollo program successful space history"
+  ],
+  "scrape_failures": 0,
+  "agent_status": {
+   "verification_agent": "completed",
+   "critic_agent": "completed",
+   "partial": false,
+   "errors": []
+  },
+  "limitations": [
+   "No retrieved source directly addressed the claim, so the verdict reflects an evidence gap and not a finding of falsity.",
+   "4 search request(s) failed during retrieval, so the candidate source pool was smaller than intended."
+  ],
+  "verdict_overridden_by_evidence": false
+ }
+]

@@ -49,3 +49,8 @@ easyocr>=1.7.0
 ultralytics>=8.0.0
 torch>=2.0.0
 transformers>=4.30.0
+
+# API / Web server
+fastapi>=0.110.0
+uvicorn>=0.28.0
+python-multipart>=0.0.9

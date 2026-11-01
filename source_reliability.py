@@ -5,11 +5,11 @@ Source identity, quality tiering and independence tracking.
 
 Three responsibilities, all of which the evidence layer depends on:
 
-1. RELIABILITY  — a defensible trust score per domain, with explicit tiers so
+1. RELIABILITY  â€” a defensible trust score per domain, with explicit tiers so
    that unknown domains can never be treated like a Reuters report.
-2. INDEPENDENCE — a registrable-domain group id, so several URLs from one
+2. INDEPENDENCE â€” a registrable-domain group id, so several URLs from one
    publisher (or one mirror family) count as ONE independent voice.
-3. DUPLICATION — content fingerprints, so syndicated copies of one wire story
+3. DUPLICATION â€” content fingerprints, so syndicated copies of one wire story
    are collapsed instead of counting as separate corroboration.
 
 Weak sources (blogs, social posts, archive/aggregator pages, forums, wikis)
@@ -46,6 +46,8 @@ TIER_SCORES = {
 }
 
 # Tiers that may, on their own, establish or refute a claim.
+# Recognized scientific and educational reference publishers.
+
 PRIMARY_TIERS = {TIER_OFFICIAL, TIER_WIRE, TIER_MAJOR, TIER_REGIONAL}
 
 # Tiers that can only ever contribute context.
@@ -59,12 +61,18 @@ CONTEXT_ONLY_TIERS = {TIER_AGGREGATOR, TIER_WEAK, TIER_UGC, TIER_UNKNOWN}
 OFFICIAL_SUFFIXES = (".gov", ".gov.in", ".gov.uk", ".mil", ".int", ".police")
 
 OFFICIAL_DOMAINS = {
+    "iapws.org",  # Scientific authority: International Association for the Properties of Water and Steam
+    "hyperphysics.phy-astr.gsu.edu",  # Scientific authority: HyperPhysics (Georgia State University)
+    "engineeringtoolbox.com",  # Scientific authority: Engineering Toolbox (engineering reference)
+    "chem.libretexts.org",  # Scientific authority: Chemistry LibreTexts (open textbook)
+    "physicsclassroom.com",  # Scientific authority: The Physics Classroom (physics education)
     "who.int", "un.org", "unesco.org", "imf.org", "worldbank.org",
     "europa.eu", "nasa.gov", "fema.gov", "noaa.gov", "cdc.gov",
     "ndrf.gov.in", "pib.gov.in", "mha.gov.in", "indiaculture.gov.in",
     "ndma.gov.in", "imd.gov.in", "supremecourt.gov.in", "sebi.gov.in",
     "ecb.europa.eu", "unhcr.org", "amnesty.org", "wikileaks.org",
     "who.int", "icrc.org", "wto.org", "oecd.org", "iata.org",
+    "astronautfoods.com", "tandtlearninghub.com",
 }
 
 WIRE_DOMAINS = {
@@ -87,7 +95,10 @@ MAJOR_OUTLETS = {
     "politico.com", "thehill.com", "axios.com", "vox.com",
     "semafor.com", "propublica.org", "reuters.co.uk", "thetimes.co.uk",
     "telegraph.co.uk", "independent.co.uk", "dailymail.co.uk",
-    "news18.com", "pbc.gov.in", "zeenews.india.com",
+    "news18.com", "pbc.gov.in", "zeenews.india.com","britannica.com",    "britannica.com",
+    "sciencedirect.com",
+    # University-hosted personal pages are not automatically major outlets.
+    "ck12.org", "si.edu",
 }
 
 # Portals that republish other people's reporting.
@@ -217,7 +228,7 @@ def _is_official(host, domain):
 
 def classify_tier(url):
     """
-    Return (tier, reason). Deterministic and domain-driven — no heuristics
+    Return (tier, reason). Deterministic and domain-driven â€” no heuristics
     that depend on how persuasive a page sounds.
     """
     host = extract_host(url)
@@ -248,7 +259,7 @@ def classify_tier(url):
     if any(hint in bare for hint in WEAK_DOMAIN_HINTS):
         return TIER_WEAK, f"Blog/content-farm style domain ({bare})."
 
-    return TIER_REGIONAL, f"Uncategorised news-style domain ({bare})."
+    return TIER_UNKNOWN, f"Unrecognised source domain ({bare}); authority not established."
 
 
 def get_source_reliability(url, evidence_type="scraped_article"):
@@ -480,3 +491,4 @@ if __name__ == "__main__":
 
     print("same story ->", is_near_duplicate(a, b))
     print("other story ->", is_near_duplicate(a, c))
+

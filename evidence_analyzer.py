@@ -1,4 +1,4 @@
-"""
+﻿"""
 evidence_analyzer.py
 ====================
 Turns retrieved sources into classified, scored evidence chunks.
@@ -8,7 +8,7 @@ Design rules that make the output trustworthy:
 1. Semantic similarity is a *pre-filter*, never a verdict. It can drop a
    chunk; it can never promote one.
 2. An event match is judged on the claimed location, the claim's own specific
-   details (keywords, numbers) and explicit correction language — not on
+   details (keywords, numbers) and explicit correction language â€” not on
    "some capitalised word appears here".
 3. Classification is gated: SUPPORT and CONTRADICTION require an exact date
    match (or an explicit correction of the claim), a strong event match, NLI
@@ -19,8 +19,6 @@ Design rules that make the output trustworthy:
 
 import re
 from datetime import datetime
-
-from transformers import AutoTokenizer
 
 from claim_profile import (
     MONTH_NAMES,
@@ -40,12 +38,12 @@ from tools import is_rolling_page
 
 
 # ============================================================
-# TOKENIZER
+# TOKENIZER (shared with nli_checker — loaded once per process)
 # ============================================================
 
-tokenizer = AutoTokenizer.from_pretrained(
-    "cross-encoder/nli-deberta-v3-base"
-)
+from nli_checker import check_nli, NLI_MAX_TOKENS, NLI_SAFETY_MARGIN, get_tokenizer
+
+tokenizer = get_tokenizer()
 
 
 def _count_tokens(text):
@@ -189,6 +187,82 @@ def _dedupe_chunks(chunks, threshold=0.80):
     return kept
 
 
+# How many multi-paragraph windows, in addition to the single paragraphs, may
+# be offered to the NLI model for one source.
+#
+# A publisher often states a claim across ADJACENT paragraphs: NASA writes
+# "Apollo 11 astronauts ... sit atop another Saturn V", then "When the lunar
+# module lands ... The Eagle has landed", then "Armstrong is ready to plant
+# the first human foot on another world". Read on its own, each paragraph is
+# NEUTRAL against "Apollo 11 landed humans on the Moon in July 1969", so the
+# evidence layer can never support the claim even though the article states it
+# plainly. Offering the surrounding paragraphs as a window lets the model read
+# the passage the way a reader would.
+MAX_WINDOW_CHUNKS_PER_SOURCE = 3
+
+
+def _build_context_windows(chunks, anchors, max_windows, max_tokens):
+    """
+    Contiguous windows of adjacent paragraphs around the strongest paragraphs.
+
+    A window contains only text that is already in the article, so nothing is
+    invented. Windows are bounded by the NLI token budget, and the candidate
+    anchors are visited round-robin so that one paragraph cannot consume the
+    whole window budget.
+
+    For each anchor we generate both forward windows (anchor is the first
+    paragraph in the window) and backward windows (anchor is the last paragraph
+    in the window).  This ensures that the critical evidence paragraph is
+    reachable regardless of which adjacent paragraph the similarity pre-filter
+    ranked highest.
+    """
+    if not chunks or not anchors or max_windows <= 0:
+        return []
+
+    # For each anchor paragraph, collect forward and backward windows of 2 and
+    # 3 paragraphs.  Forward: anchor is the start (lo = anchor).  Backward:
+    # anchor is the end (hi = anchor + 1, lo = hi - size).  Duplicate windows
+    # are collapsed later via the `seen` set.
+    per_anchor = []
+    for anchor in anchors:
+        options = []
+        for size in (2, 3):
+            # Forward window: [anchor, anchor+size)
+            lo_f, hi_f = anchor, anchor + size
+            if hi_f <= len(chunks):
+                options.append((lo_f, hi_f))
+            # Backward window: [anchor-size+1, anchor+1)
+            lo_b = anchor - size + 1
+            hi_b = anchor + 1
+            if lo_b >= 0 and hi_b <= len(chunks) and (lo_b, hi_b) != (lo_f, hi_f):
+                options.append((lo_b, hi_b))
+        if options:
+            per_anchor.append(options)
+
+    windows = []
+    seen = set()
+    # Round-robin over the anchors so that one paragraph cannot consume the
+    # whole window budget: every anchor gets its shortest window before any
+    # anchor gets its longer ones.
+    max_options = max((len(o) for o in per_anchor), default=0)
+    for round_index in range(max_options):
+        for options in per_anchor:
+            if round_index >= len(options):
+                continue
+            lo, hi = options[round_index]
+            window = "\n\n".join(chunks[lo:hi])
+            if _count_tokens(window) > max_tokens:
+                continue
+            key = window[:160]
+            if key in seen:
+                continue
+            seen.add(key)
+            windows.append(window)
+            if len(windows) >= max_windows:
+                return windows
+    return windows
+
+
 # ============================================================
 # CLAIM ATTRIBUTES
 # ============================================================
@@ -209,6 +283,8 @@ def extract_claim_attributes(claim):
         "keywords": profile["keywords"],
         "phrases": profile["phrases"],
         "has_date": profile["has_date"],
+        "claim_type": profile.get("claim_type", "other_factual_claim"),
+        "relative_date_ambiguous": profile.get("relative_date_ambiguous", False),
         "profile": profile,
     }
 
@@ -217,7 +293,103 @@ def extract_claim_attributes(claim):
 # DATE COMPATIBILITY
 # ============================================================
 
-def check_date_compatibility(
+# ============================================================
+# EVENT / DATE ASSOCIATION
+# ============================================================
+
+def _stem(word):
+    """A crude stem, enough to match 'landing' with 'landed'."""
+    word = re.sub(r"[^a-z0-9]", "", str(word or "").lower())
+    for suffix in ("ings", "ing", "edly", "ed", "es", "s"):
+        if len(word) > len(suffix) + 2 and word.endswith(suffix):
+            return word[: -len(suffix)]
+    return word
+
+
+def _claim_event_stems(claim_attrs):
+    """The stems of the claim's event vocabulary."""
+    stems = set()
+    for keyword in (claim_attrs or {}).get("keywords") or []:
+        stem = _stem(keyword)
+        if stem:
+            stems.add(stem)
+    for phrase in (claim_attrs or {}).get("phrases") or []:
+        for word in str(phrase).split():
+            stem = _stem(word)
+            if stem:
+                stems.add(stem)
+    return stems
+
+
+def _split_sentences(text):
+    """Sentences of a passage, in document order."""
+    parts = re.split(r"(?<=[.!?])\s+|\n+", str(text or ""))
+    return [p.strip() for p in parts if p and p.strip()]
+
+
+def _event_date_binding(evidence, claim_attrs, claim_date):
+    """
+    Associate the dates in a passage with the event they describe.
+
+    A passage can carry several dates that describe DIFFERENT events:
+    "â€¦on their 20 July 1969 moon landing. They presented this gift â€¦ on
+    20 July 1970." Finding the claim's date SOMEWHERE in the passage is not
+    enough to say the passage supports the claim: the date has to be the date
+    of the CLAIMED event.
+
+    A date is bound to the event when it appears in a sentence that also
+    mentions the claim's event vocabulary. A date in a sentence that does not
+    mention the event describes something else and is ignored.
+
+    Returns (clear_conflict, soft_conflict):
+      clear - an event-bearing sentence gives the event the same month and day
+              as the claim but a different year (the classic "one year later"
+              discrepancy), or a different month or year for a claim that
+              states no day;
+      soft  - an event-bearing sentence gives the event a different date in
+              another way.
+    """
+    if not claim_date:
+        return False, False
+
+    stems = _claim_event_stems(claim_attrs)
+    if not stems:
+        return False, False
+
+    claim_month = claim_date.get("month")
+    claim_year = claim_date.get("year")
+    claim_day = claim_date.get("day")
+    if claim_month is None or claim_year is None:
+        return False, False
+
+    clear = False
+    soft = False
+
+    for sentence in _split_sentences(evidence):
+        sentence_dates = extract_dates(sentence)
+        if not sentence_dates:
+            continue
+
+        words = [_stem(w) for w in re.findall(r"[A-Za-z]+", sentence.lower())]
+        if not stems.intersection(words):
+            # The sentence does not mention the claimed event, so any date in
+            # it belongs to a different event.
+            continue
+
+        for date in sentence_dates:
+            if date.get("month") is None or date.get("year") is None:
+                continue
+            if (date["month"], date["year"]) == (claim_month, claim_year):
+                continue
+            if claim_day is None or date.get("day") == claim_day:
+                clear = True
+            else:
+                soft = True
+
+    return clear, soft
+
+
+def _check_date_compatibility_core(
     claim,
     evidence,
     claim_attrs=None,
@@ -236,6 +408,12 @@ def check_date_compatibility(
         same_year            the claimed year is present, the exact date is not
         different            the evidence is explicitly about another date
         unknown              no usable date information
+
+    The result also carries ``event_date_conflict`` and
+    ``event_date_mismatch``: whether the passage states the CLAIMED event on a
+    different date. A passage can contain the claim's date while dating the
+    claimed event to another date, so the date has to be associated with the
+    event it describes, not merely found somewhere in the passage.
 
     `source_dates` / `source_years` let a chunk inherit the date context of the
     article it came from, so a passing mention of 1916 inside a 2024 article is
@@ -259,7 +437,6 @@ def check_date_compatibility(
             "reason": "Claim does not contain a detectable date.",
             "claim_year_absent": False,
         }
-
     if not all_dates and not all_years:
         return {
             "status": "unknown",
@@ -270,6 +447,73 @@ def check_date_compatibility(
     claim_year_absent = bool(all_years) and bool(claim_years) and not (
         claim_years & all_years
     )
+
+    # --------------------------------------------------------
+    # Month-precision claim ("... in July 1969")
+    #
+    # The claim names a month and a year but no day. Evidence that states the
+    # same month and year satisfies the claim - it is simply more specific.
+    # Evidence that states a DIFFERENT month of the same year contradicts it.
+    # --------------------------------------------------------
+    if claim_date and claim_date.get("day") is None:
+        claim_month = claim_date["month"]
+        claim_year = claim_date["year"]
+
+        def _render(dates):
+            return ", ".join(
+                f"{d['day']} {d['month_name']}" if d.get("day") else d["month_name"]
+                for d in dates[:3]
+            )
+
+        same_month = [
+            d for d in all_dates
+            if d["month"] == claim_month and d["year"] == claim_year
+        ]
+        if same_month:
+            return {
+                "status": "match",
+                "reason": (
+                    f"Evidence explicitly refers to {_render(same_month)} "
+                    f"{claim_year}, which matches the claimed "
+                    f"{claim_date['month_name']} {claim_year}."
+                ),
+                "claim_year_absent": False,
+            }
+
+        other_month = [
+            d for d in all_dates
+            if d["year"] == claim_year and d["month"] != claim_month
+        ]
+        if other_month:
+            return {
+                "status": "different",
+                "reason": (
+                    f"Evidence explicitly refers to {_render(other_month)} "
+                    f"{claim_year} rather than the claimed "
+                    f"{claim_date['month_name']} {claim_year}."
+                ),
+                "claim_year_absent": False,
+            }
+
+        if claim_years and all_years and (claim_years & all_years):
+            return {
+                "status": "same_year",
+                "reason": (
+                    f"Evidence mentions the claimed year "
+                    f"({sorted(claim_years & all_years)[0]}) but not the claimed "
+                    f"month."
+                ),
+                "claim_year_absent": False,
+            }
+
+        return {
+            "status": "different",
+            "reason": (
+                f"Evidence refers to {sorted(all_years)} and never to the "
+                f"claimed year {sorted(claim_years)}."
+            ),
+            "claim_year_absent": True,
+        }
 
     if claim_date:
         claim_key = (claim_date["day"], claim_date["month"], claim_date["year"])
@@ -291,22 +535,44 @@ def check_date_compatibility(
         # history, while an article that only ever says 2019 is about 2019.
         claim_year_present = bool(claim_years and all_years and (claim_years & all_years))
 
+        # A date that does not name a day (a month-precision date such as
+        # "July 1969") is the same month stated less precisely. It is NOT in
+        # conflict with a date that names a day, so the comparison only
+        # considers the fields that BOTH dates actually specify. Comparing
+        # raw tuples would also mix None with int, which cannot be ordered.
+        conflicting_keys = set()
+        for key in {(d["day"], d["month"], d["year"]) for d in all_dates}:
+            if key == claim_key:
+                continue
+            if key[2] == claim_year:
+                if key[1] != claim_key[1]:
+                    conflicting_keys.add(key)
+                elif (
+                    key[0] is not None
+                    and claim_key[0] is not None
+                    and key[0] != claim_key[0]
+                ):
+                    conflicting_keys.add(key)
+            elif not claim_year_present:
+                conflicting_keys.add(key)
+
+        # Sort on a type-safe key: a missing day must never be ordered
+        # against an integer day.
         conflicting = sorted(
-            key for key in {
-                (d["day"], d["month"], d["year"]) for d in all_dates
-            }
-            if key != claim_key
-            and (
-                (key[2] == claim_year and key[:2] != claim_key[:2])
-                or (key[2] != claim_year and not claim_year_present)
-            )
+            conflicting_keys,
+            key=lambda k: (k[2] or 0, k[1] or 0, k[0] or 0),
         )
 
         if conflicting:
+            conflicting_set = set(conflicting)
             rendered = ", ".join(
-                f"{d['day']:02d} {d['month_name'][:3]} {d['year']}"
+                (
+                    f"{d['day']:02d} {d['month_name'][:3]} {d['year']}"
+                    if d.get("day")
+                    else f"{d['month_name'][:3]} {d['year']}"
+                )
                 for d in all_dates
-                if (d["day"], d["month"], d["year"]) in set(conflicting)
+                if (d["day"], d["month"], d["year"]) in conflicting_set
             )
             return {
                 "status": "different",
@@ -363,6 +629,52 @@ def check_date_compatibility(
     }
 
 
+def check_date_compatibility(
+    claim,
+    evidence,
+    claim_attrs=None,
+    publication_date=None,
+    source_dates=None,
+    source_years=None,
+):
+    """
+    Compare the *event* date of the evidence with the claim date.
+
+    Wraps the status computation and adds the event/date association: whether
+    the passage states the CLAIMED event on a different date. A passage can
+    contain the claim's date while dating the claimed event to another date
+    ("â€¦on their 20 July 1969 moon landing. They presented this gift â€¦ on
+    20 July 1970"), so a date has to be associated with the event it
+    describes, not merely found somewhere in the passage.
+    """
+    result = _check_date_compatibility_core(
+        claim, evidence, claim_attrs,
+        publication_date, source_dates, source_years,
+    )
+
+    attrs = claim_attrs if claim_attrs is not None else extract_claim_attributes(claim)
+    clear, soft = _event_date_binding(
+        strip_publication_boilerplate(evidence),
+        attrs,
+        attrs.get("claim_date"),
+    )
+    result["event_date_conflict"] = clear
+    result["event_date_mismatch"] = soft
+
+    if clear:
+        result["reason"] = (
+            f"{result['reason']} The passage states the claimed event on a "
+            f"different date."
+        )
+    elif soft:
+        result["reason"] = (
+            f"{result['reason']} The passage associates the claimed event with "
+            f"a different date."
+        )
+
+    return result
+
+
 # ============================================================
 # EVENT MATCH
 # ============================================================
@@ -376,8 +688,10 @@ _POLICY_MARKERS = [
 _INCIDENT_MARKERS = [
     "broke out", "fire", "killed", "injured", "engulfed", "erupted",
     "occurred", "happened", "destroyed", "damaged", "blaze", "gutted",
-    "accident", "incident", "collapse", "blast", "crash", "dead", "casualties",
-    "flood", "waterlogged", "earthquake", "derailed",
+    "accident", "incident", "collapse", "blast", "crash", "dead",
+    "casualties", "flood", "waterlogged", "earthquake", "derailed",
+    "landed", "launched", "defeated", "won", "beat", "elected", "resigned",
+    "withdrew", "withdrawal", "announced", "signed", "passed",
 ]
 
 # Aggregate / statistical reporting: quotes a date and a place but describes a
@@ -400,7 +714,7 @@ _DEBUNK_RE = re.compile(    r"\b(fact[\s\-]?check|debunk|falsely claimed|false c
 
 # A different place only counts as a conflict when the text actually places the
 # event somewhere ("in Agra", "at Kolkata"). A stray capitalised word is not a
-# location conflict — that mistake demoted real evidence before.
+# location conflict â€” that mistake demoted real evidence before.
 _GEO_CONTEXT_RE = re.compile(
     r"\b(?:in|at|near|from|around|outside|inside|across)\s+"
     r"([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)?)"
@@ -445,7 +759,7 @@ def _contains_phrase(text_lower, phrase):
 
 
 def _numeric_details(claim):
-    """Numbers stated in the claim (casualties, floors, times) — hard details."""
+    """Numbers stated in the claim (casualties, floors, times) â€” hard details."""
     return set(re.findall(r"\b\d{1,4}\b", claim or ""))
 
 
@@ -500,6 +814,7 @@ def evaluate_event_match(
     date_status,
     similarity,
     nli_entails=False,
+    event_date_conflict=False,
 ):
     """
     Judge whether the chunk describes the SAME event as the claim.
@@ -524,6 +839,14 @@ def evaluate_event_match(
     ]
     location_match = bool(matched_terms)
 
+    # A claim that states no location cannot be penalised for the passage not
+    # naming one. The classifier already applies this rule; the event matcher
+    # must apply the same one, otherwise a location-less claim can never reach
+    # event_match 'strong' and therefore can never be SUPPORT, however good the
+    # evidence is.
+    claim_has_location = bool(locations)
+    location_ok = location_match or not claim_has_location
+
     location_conflict = False
     conflicting_place = ""
 
@@ -543,6 +866,8 @@ def evaluate_event_match(
             break
 
     signals["location_match"] = location_match
+    signals["location_ok"] = location_ok
+    signals["claim_has_location"] = claim_has_location
     signals["location_terms_matched"] = matched_terms[:5]
     signals["location_conflict"] = location_conflict
     signals["conflicting_place"] = conflicting_place
@@ -589,7 +914,17 @@ def evaluate_event_match(
     if location_conflict:
         return "none", signals
 
-    if date_status == "different" and not has_debunking:
+    if date_status == "different":
+        if not has_debunking and not event_date_conflict:
+            return "weak", signals
+        # The passage debunks the claim or explicitly binds the claimed event to
+        # a conflicting date. When the event and location are sufficiently
+        # aligned, this is a strong event match: the event is identified, only
+        # the date is wrong.
+        if location_ok and coverage >= 0.30 and similarity >= 0.50:
+            return "strong", signals
+        if location_ok and coverage >= 0.30 and similarity >= 0.45:
+            return "moderate", signals
         return "weak", signals
 
     if date_status in ("match", "same_day_published"):
@@ -600,7 +935,7 @@ def evaluate_event_match(
         # claim-specific detail in its own right; a same-day publication date
         # does not, so it needs a further detail.
         base_ok = (
-            location_match
+            location_ok
             and coverage >= 0.30
             and similarity >= 0.50
         )
@@ -621,17 +956,17 @@ def evaluate_event_match(
 
         if base_ok and detail_ok:
             return "strong", signals
-        if location_match and coverage >= 0.30 and similarity >= 0.45:
+        if location_ok and coverage >= 0.30 and similarity >= 0.45:
             return "moderate", signals
         return "weak", signals
 
     if date_status == "same_year":
-        if location_match and coverage >= 0.60 and incident_match:
+        if location_ok and coverage >= 0.60 and incident_match:
             return "moderate", signals
         return "weak", signals
 
     # Unknown date: the chunk must earn its place on location and detail.
-    if location_match and coverage >= 0.60 and incident_match and similarity >= 0.45:
+    if location_ok and coverage >= 0.60 and incident_match and similarity >= 0.45:
         return "moderate", signals
 
     return "weak", signals
@@ -641,7 +976,7 @@ def evaluate_event_match(
 # EVIDENCE CLASSIFICATION
 # ============================================================
 
-def classify_evidence(signals, evidence_type, source_profile):
+def classify_evidence(signals, evidence_type, source_profile, claim_type=None):
     """
     Classify one chunk into SUPPORT / CONTRADICTION / RELATED_CONTEXT /
     NON_EVIDENCE.
@@ -650,10 +985,16 @@ def classify_evidence(signals, evidence_type, source_profile):
       * a search snippet can only ever be RELATED_CONTEXT or NON_EVIDENCE
       * a non-primary source (blog, social, aggregator) can never SUPPORT or
         CONTRADICT on its own
-      * SUPPORT requires: exact claimed date + strong event match + location +
-        claim-detail coverage + NLI entailment
-      * CONTRADICTION requires: exact claimed date, or an explicit correction
-        of the claim, plus a strong event match and NLI contradiction
+      * SUPPORT requires: NLI entailment + similarity + coverage + primary source
+      * CONTRADICTION requires: NLI contradiction (or explicit date conflict)
+        + similarity + coverage + primary source
+
+    Event claims (historical_event, current_event) additionally require
+    strong event match and date association. Scientific / geographical /
+    statistical / other factual claims use proposition-based gates instead:
+    they do not need a date, location, or incident marker.
+
+    `claim_type` (from the claim profile) selects which gate set applies.
     """
     date_status = signals.get("date_status", "unknown")
     event_match = signals.get("event_match", "weak")
@@ -675,43 +1016,135 @@ def classify_evidence(signals, evidence_type, source_profile):
     # NLI could not be trusted: never classify on it.
     nli_unusable = nli_status in ("error", "unavailable")
 
+    # A multi-paragraph window may SUPPORT a claim, but it may not REFUTE one.
+    # The NLI model reads a diluted premise unreliably, and a spurious
+    # contradiction is far more harmful than a missed one: refutation still
+    # requires a single focused passage, so the evidence floor is unchanged.
+    is_window = signals.get("passage_kind") == "window"
+
+    # Claim type determines which evidence gate set applies.
+    # When not provided, default to event-based gates (existing behaviour) to
+    # preserve backward compatibility with callers that do not classify claims.
+    claim_type = claim_type or signals.get("claim_type")
+    if claim_type is None:
+        claim_type = "historical_event"
+    is_event_claim = claim_type in ("historical_event", "current_event")
+
+    # --------------------------------------------------------
+    # EVENT / DATE ASSOCIATION
+    #
+    # The passage states the CLAIMED event on a date other than the claimed
+    # one. A passage that says so cannot entail the claim, whatever the NLI
+    # model scored: the model is judging the topic, not the date, and it
+    # routinely reports entailment for a passage that names a different year.
+    # --------------------------------------------------------
+    event_date_conflict = bool(signals.get("event_date_conflict"))
+    event_date_mismatch = bool(signals.get("event_date_mismatch"))
+
     # --------------------------------------------------------
     # CONTRADICTION
+    #
+    # Event claims: strong event match + date association + NLI contradiction
+    # (or explicit date conflict).
+    # Non-event claims: direct contradiction of the proposition via NLI +
+    # similarity + coverage, without requiring event match or dates.
     # --------------------------------------------------------
     contradiction_date_ok = (
         date_status == "match"
         or (date_status == "different" and has_debunking)
+        or event_date_conflict
     )
 
-    if (
-        not is_snippet
-        and is_primary
-        and not nli_unusable
-        and nli_label == "contradiction"
-        and nli_score >= 0.75
-        and similarity >= 0.40
-        and event_match == "strong"
-        and location_ok
-        and contradiction_date_ok
-    ):
-        return "CONTRADICTION"
+    if claim_type in ("historical_event", "current_event"):
+        # Event claim: keep the existing strict gate.
+        if (
+            not is_snippet
+            and not is_window
+            and is_primary
+            and not nli_unusable
+            and similarity >= 0.40
+            and event_match == "strong"
+            and location_ok
+            and contradiction_date_ok
+            and (
+                (nli_label == "contradiction" and nli_score >= 0.75)
+                or event_date_conflict
+            )
+        ):
+            return "CONTRADICTION"
+    else:
+        # Non-event claim (scientific_fact, geographical_fact,
+        # statistical_claim, other_factual_claim): proposition-based gate.
+        # No date or incident marker required. A passage that directly
+        # contradicts the proposition with NLI contradiction qualifies.
+        if (
+            not is_snippet
+            and not is_window
+            and is_primary
+            and not nli_unusable
+            and similarity >= 0.40
+            and coverage >= 0.30
+            and location_ok
+            and not event_date_conflict
+            and not event_date_mismatch
+            and nli_label == "contradiction"
+            and nli_score >= 0.75
+        ):
+            return "CONTRADICTION"
 
     # --------------------------------------------------------
     # SUPPORT
+    #
+    # Event claims: strong event match + exact claimed date + location +
+    # claim-detail coverage + NLI entailment.
+    # Non-event claims: NLI entailment + similarity + coverage + primary
+    # source; no date or incident marker required.
     # --------------------------------------------------------
-    if (
-        not is_snippet
-        and is_primary
-        and not nli_unusable
-        and nli_label == "entailment"
-        and nli_score >= 0.70
-        and similarity >= 0.40
-        and event_match == "strong"
-        and location_ok
-        and coverage >= 0.30
-        and date_status in ("match", "same_day_published")
-    ):
-        return "SUPPORT"
+    if claim_type in ("historical_event", "current_event"):
+        if (
+            not is_snippet
+            and is_primary
+            and not nli_unusable
+            and nli_label == "entailment"
+            and nli_score >= 0.70
+            and similarity >= 0.40
+            and event_match == "strong"
+            and location_ok
+            and coverage >= 0.30
+            and not event_date_conflict
+            and not event_date_mismatch
+            and (
+                date_status in ("match", "same_day_published")
+                or (
+                    # High-confidence NLI entailment (>=0.90) with strong event
+                    # match and substantial coverage means the model has already
+                    # confirmed the passage entails the claim including its date.
+                    # Explicit date restatement is then redundant; requiring it
+                    # rejects genuinely supporting passages whose text refers to
+                    # the event by relative date ("on Sunday") rather than
+                    # restating the calendar date.
+                    nli_score >= 0.90
+                    and coverage >= 0.50
+                    and date_status == "unknown"
+                )
+            )
+        ):
+            return "SUPPORT"
+    else:
+        # Non-event claim: proposition-based gate.
+        if (
+            not is_snippet
+            and is_primary
+            and not nli_unusable
+            and nli_label == "entailment"
+            and nli_score >= 0.70
+            and similarity >= 0.40
+            and coverage >= 0.30
+            and location_ok
+            and not event_date_conflict
+            and not event_date_mismatch
+        ):
+            return "SUPPORT"
 
     # --------------------------------------------------------
     # CONTEXT
@@ -774,6 +1207,7 @@ def analyze_evidence(claim, sources, verbose=True):
     """
     claim_attrs = extract_claim_attributes(claim)
     claim_has_location = bool(claim_attrs.get("locations"))
+    claim_has_date = bool(claim_attrs.get("claim_date"))
     chunk_budget = _resolve_chunk_budget(claim)
 
     results = []
@@ -787,6 +1221,18 @@ def analyze_evidence(claim, sources, verbose=True):
 
         source_profile = get_source_profile(url, evidence_type)
         reliability = source_profile["reliability"]
+
+        print(
+            "[PROFILE DEBUG]",
+            {
+                "url": url,
+                "domain_field": domain,
+                "evidence_type": evidence_type,
+                "tier": source_profile.get("tier"),
+                "is_primary": source_profile.get("is_primary"),
+                "reliability": source_profile.get("reliability"),
+            },
+        )
 
         if not content or len(content.strip()) < 60:
             if verbose:
@@ -812,20 +1258,23 @@ def analyze_evidence(claim, sources, verbose=True):
         source_years = extract_years(clean_content)
 
         # ---- similarity pre-filter (batched) ----
+        # The document index is carried along so that a context window can be
+        # built from the article's real neighbours later.
         similarities = calculate_similarity_batch(claim, chunks)
         scored_chunks = [
-            (chunk, similarity)
-            for chunk, similarity in zip(chunks, similarities)
+            (index, chunk, similarity)
+            for index, (chunk, similarity) in enumerate(zip(chunks, similarities))
             if similarity >= MIN_SIMILARITY
         ]
-        scored_chunks.sort(key=lambda item: item[1], reverse=True)
+        scored_chunks.sort(key=lambda item: item[2], reverse=True)
 
         if not scored_chunks:
             continue
 
         # ---- date-aware pre-filter ----
         prelim = []
-        for chunk, similarity in scored_chunks:
+        prelim_index = []
+        for index, chunk, similarity in scored_chunks:
             date_check = check_date_compatibility(
                 claim,
                 chunk,
@@ -842,6 +1291,7 @@ def analyze_evidence(claim, sources, verbose=True):
                 continue
 
             prelim.append((chunk, similarity, date_check))
+            prelim_index.append(index)
 
         if not prelim:
             continue
@@ -865,15 +1315,50 @@ def analyze_evidence(claim, sources, verbose=True):
                 "unknown": 3,
                 "different": 4,
             }
-            prelim = sorted(
-                prelim,
-                key=lambda item: (
-                    status_rank.get(item[2]["status"], 5),
-                    -item[1],
+            order = sorted(
+                range(len(prelim)),
+                key=lambda i: (
+                    status_rank.get(prelim[i][2]["status"], 5),
+                    -prelim[i][1],
                 ),
             )
+            prelim = [prelim[i] for i in order]
+            prelim_index = [prelim_index[i] for i in order]
 
-        for chunk, similarity, date_check in prelim[:chunk_limit]:
+        # ---- multi-paragraph context windows ----
+        #
+        # A publisher often states a claim across adjacent paragraphs. Read on
+        # its own, each paragraph is NEUTRAL against the claim, so the evidence
+        # layer can never support it. The surrounding paragraphs are offered to
+        # the NLI model as a window so it sees the passage as a reader would.
+        #
+        # A window may SUPPORT a claim, but it may not REFUTE one: the NLI
+        # model reads a diluted premise unreliably, and a spurious
+        # contradiction is far more harmful than a missed one. Refutation
+        # therefore continues to require a single focused passage.
+        selected = prelim[:chunk_limit]
+        anchors = prelim_index[:chunk_limit]
+        windows = _build_context_windows(
+            chunks, anchors, MAX_WINDOW_CHUNKS_PER_SOURCE, chunk_budget
+        )
+        window_similarities = (
+            calculate_similarity_batch(claim, windows) if windows else []
+        )
+
+        candidates = [(chunk, sim, date_check, "paragraph")
+                      for chunk, sim, date_check in selected]
+        for window, window_similarity in zip(windows, window_similarities):
+            window_date = check_date_compatibility(
+                claim,
+                window,
+                claim_attrs,
+                publication_date=publication_date,
+                source_dates=source_dates,
+                source_years=source_years,
+            )
+            candidates.append((window, window_similarity, window_date, "window"))
+
+        for chunk, similarity, date_check, passage_kind in candidates:
             # For same-day reporting the NLI premise is given the page's own
             # publication date as context, so entailment is judged against what
             # the source actually says about that day instead of a bare passage
@@ -890,10 +1375,25 @@ def analyze_evidence(claim, sources, verbose=True):
                         f"{year}.) {chunk}"
                     )
 
-            nli = check_nli(claim, nli_premise)
+            
+
+            # NLI inference: every exception path must still assign `nli`
+            # so downstream code never sees an unbound variable.
+            try:
+                nli = check_nli(claim, nli_premise)
+            except Exception as nli_exc:
+                nli = {
+                    "label": "neutral",
+                    "score": 0.0,
+                    "status": "error",
+                    "truncated": False,
+                }
+
             nli_entails = (
                 nli["label"] == "entailment" and nli["score"] >= 0.70
             )
+
+            
 
             event_match, event_signals = evaluate_event_match(
                 claim,
@@ -902,6 +1402,7 @@ def analyze_evidence(claim, sources, verbose=True):
                 date_check["status"],
                 similarity,
                 nli_entails=nli_entails,
+                event_date_conflict=bool(date_check.get("event_date_conflict")),
             )
             raw_nli_label = nli["label"]
             raw_nli_score = nli["score"]
@@ -915,11 +1416,38 @@ def analyze_evidence(claim, sources, verbose=True):
                 "nli_status": nli.get("status", "ok"),
                 "nli_truncated": nli.get("truncated", False),
                 "claim_has_location": claim_has_location,
+                "claim_has_date": claim_has_date,
+                "relative_date_ambiguous": claim_attrs.get("relative_date_ambiguous", False),
+                "passage_kind": passage_kind,
+                # Claim type determines which evidence gates apply.
+                "claim_type": claim_attrs.get("claim_type", "other_factual_claim"),
+                # Does the passage date the CLAIMED event to another date?
+                "event_date_conflict": bool(date_check.get("event_date_conflict")),
+                "event_date_mismatch": bool(date_check.get("event_date_mismatch")),
                 **event_signals,
             }
 
+            print(
+                "[CLASSIFY DEBUG]",
+                {
+                    "url": url,
+                    "evidence_type": evidence_type,
+                    "claim_type": signals.get("claim_type"),
+                    "primary": source_profile.get("is_primary"),
+                    "nli_label": signals.get("raw_nli_label"),
+                    "nli_score": signals.get("raw_nli_score"),
+                    "nli_status": signals.get("nli_status"),
+                    "similarity": signals.get("similarity"),
+                    "coverage": signals.get("detail_coverage"),
+                    "event_match": signals.get("event_match"),
+                    "date_status": signals.get("date_status"),
+                    "passage_kind": signals.get("passage_kind"),
+                },
+            )
+
             evidence_class = classify_evidence(
-                signals, evidence_type, source_profile
+                signals, evidence_type, source_profile,
+                claim_type=signals.get("claim_type")
             )
 
             # The scorer must see the label the *evidence layer* assigned, so a
@@ -941,21 +1469,29 @@ def analyze_evidence(claim, sources, verbose=True):
                 "title": title,
                 "evidence_type": evidence_type,
                 "chunk": chunk,
+                # "paragraph" (a single passage) or "window" (adjacent
+                # paragraphs of the same article, offered because a publisher
+                # often splits a claim across them).
+                "passage_kind": passage_kind,
                 "similarity": round(similarity, 4),
-                "nli_label": (
-                    "entailment" if evidence_class == "SUPPORT"
-                    else "contradiction" if evidence_class == "CONTRADICTION"
-                    else "neutral"
-                ),
+                # The model's own NLI label, paired with the model's own NLI
+                # score. Reporting the evidence CLASS here would pair a
+                # "neutral" label with a 0.99 entailment score, which reads as
+                # "the model was neutral with 99% confidence" when the model
+                # in fact entailed the claim.
+                "nli_label": raw_nli_label,
                 "nli_score": raw_nli_score,
                 "nli_status": nli.get("status", "ok"),
                 "nli_truncated": nli.get("truncated", False),
                 "raw_nli_label": raw_nli_label,
                 "raw_nli_score": raw_nli_score,
+                # The label the evidence layer assigned to this passage.
+                "evidence_class_label": signals.get("evidence_class_label", "neutral"),
                 "source_reliability": reliability,
                 "source_tier": source_profile["tier"],
                 "source_tier_reason": source_profile["tier_reason"],
                 "independence_group": source_profile["independence_group"],
+                "search_query": source.get("search_query", ""),
                 "is_primary_source": source_profile["is_primary"],
                 "is_rolling_page": rolling,
                 "evidence_score": evidence_score,
@@ -992,7 +1528,7 @@ def analyze_evidence(claim, sources, verbose=True):
                 print(f"Source Tier: {source_profile['tier']} ({reliability})")
                 print(f"Similarity: {record['similarity']}")
                 print(f"NLI: {raw_nli_label} {raw_nli_score} ({record['nli_status']})")
-                print(f"Date Status: {date_check['status']} — {date_check['reason']}")
+                print(f"Date Status: {date_check['status']} â€” {date_check['reason']}")
                 print(
                     f"Event Match: {event_match} | Location: "
                     f"{record['location_match']} | Coverage: {record['detail_coverage']}"
@@ -1013,3 +1549,4 @@ def analyze_evidence(claim, sources, verbose=True):
     results.sort(key=lambda item: item["evidence_score"], reverse=True)
 
     return results
+

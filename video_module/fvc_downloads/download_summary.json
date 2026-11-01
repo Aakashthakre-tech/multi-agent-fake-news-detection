@@ -1,0 +1,20 @@
+{
+  "total_target_records": 380,
+  "successful_downloads": 288,
+  "total_accessible_videos": 288,
+  "failed_downloads": 92,
+  "fake_downloaded": 165,
+  "real_downloaded": 123,
+  "unique_cascades_available": 288,
+  "fallbacks_used_count": 81,
+  "failure_reasons_breakdown": {
+    "video_unavailable": 64,
+    "tos_removed": 5,
+    "private_video": 6,
+    "age_restricted_sign_in_required": 14,
+    "download_error": 3
+  },
+  "output_directory": "C:\\Users\\ASUS\\Installation\\AgenticAI\\Multi_Agent_System\\video_module\\fvc_downloads",
+  "dataset_ready_for_cautious_experimentation": true,
+  "timestamp_completed": "2026-10-17 01:27:39"
+}

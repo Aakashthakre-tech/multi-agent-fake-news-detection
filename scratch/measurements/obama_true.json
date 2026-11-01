@@ -1,0 +1,185 @@
+{
+ "label": "obama_true",
+ "claim": "Barack Obama was inaugurated as President of the United States on 20 January 2009.",
+ "total_sec": 319.48,
+ "retrieval_calls": 1,
+ "retrieval_sec": 46.3,
+ "scrape_calls": 10,
+ "scrape_sec": 133.03,
+ "scrape_failures": 5,
+ "nli_calls": 42,
+ "nli_sec": 120.39,
+ "verdict": "REAL",
+ "confidence": 74.1,
+ "confidence_basis": "evidence_strength",
+ "evidence_sufficiency": "strong_support",
+ "permitted_verdicts": [
+  "REAL",
+  "UNVERIFIED"
+ ],
+ "gate_reason": "3 independent publishers, 3 of them primary publishers with retrieved article text, directly support the claim. No retrieved primary evidence contains an explicit correction of a material claim detail, so MISLEADING is not permitted.",
+ "independent_supporting": 3,
+ "independent_contradicting": 0,
+ "primary_supporting_groups": 3,
+ "primary_contradicting_groups": 0,
+ "article_supporting_groups": 3,
+ "article_contradicting_groups": 0,
+ "total_sources": 10,
+ "independence_groups": 10,
+ "snippet_only_sources": 4,
+ "article_sources": 6,
+ "verification_coverage": 0.6,
+ "policy_data_valid": true,
+ "policy_data_errors": [],
+ "search_queries": [
+  "Barack Obama was inaugurated as President of the United States on 20 January 2009.",
+  "\"20 January 2009\" \"United States\" barack obama inaugurated",
+  "\"January 20, 2009\" \"United States\" \"barack obama\"",
+  "\"United States\" \"barack obama\"",
+  "\"Barack Obama was inaugurated as President of the United States on 20 January 2009.\" fact check",
+  "20/01/2009 \"United States\" barack official statement"
+ ],
+ "source_decisions": [
+  {
+   "decision": "entailment",
+   "group": "abcnews.com",
+   "domain": "abcnews.com",
+   "url": "https://abcnews.com/Politics/Inauguration/president-obama-inauguration-speech-transcript/story?id=6689022",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.9444
+  },
+  {
+   "decision": "entailment",
+   "group": "africanbookscollective.com",
+   "domain": "africanbookscollective.com",
+   "url": "https://africanbookscollective.com/books/obama-senior-a-dream-fulfilled",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.9059
+  },
+  {
+   "decision": "related_context",
+   "group": "emerald.com",
+   "domain": "emerald.com",
+   "url": "https://www.emerald.com/books/edited-volume/20308/chapter/105683503/The-Inauguration-Of-Barack-Obama-January-20-2009",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.25
+  },
+  {
+   "decision": "related_context",
+   "group": "gilderlehrman.org",
+   "domain": "gilderlehrman.org",
+   "url": "https://www.gilderlehrman.org/history-resources/spotlight-primary-source/barack-obamas-first-inaugural-address-2009",
+   "retrieval": "search_extract",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.2227
+  },
+  {
+   "decision": "non_evidence",
+   "group": "mprnews.org",
+   "domain": "mprnews.org",
+   "url": "https://www.mprnews.org/story/2009/01/20/midday1",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.02
+  },
+  {
+   "decision": "related_context",
+   "group": "nhc.org",
+   "domain": "nhc.org",
+   "url": "https://nhc.org/yesterday-marks-historic-moment-first-african-american-sworn-in-as-44th-u-s-president",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.25
+  },
+  {
+   "decision": "entailment",
+   "group": "npr.org",
+   "domain": "npr.org",
+   "url": "https://www.npr.org/2010/12/02/99561987/obama-sworn-in-as-nation-s-44th-president",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.933
+  },
+  {
+   "decision": "related_context",
+   "group": "obamalibrary.gov",
+   "domain": "obamalibrary.gov",
+   "url": "https://www.obamalibrary.gov/timeline",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.25
+  },
+  {
+   "decision": "related_context",
+   "group": "archives.gov",
+   "domain": "obamawhitehouse.archives.gov",
+   "url": "https://obamawhitehouse.archives.gov/the-press-office/national-day-renewal-and-reconciliation-2009",
+   "retrieval": "scraped_article",
+   "primary": true,
+   "article": true,
+   "snippet_only": false,
+   "score": 0.25
+  },
+  {
+   "decision": "related_context",
+   "group": "alexanderstreet.com",
+   "domain": "video.alexanderstreet.com",
+   "url": "https://video.alexanderstreet.com/watch/president-barack-obama-s-inaugural-address-january-20-2009",
+   "retrieval": "search_snippet",
+   "primary": false,
+   "article": false,
+   "snippet_only": true,
+   "score": 0.25
+  }
+ ],
+ "supporting_passages": [
+  {
+   "url": "https://abcnews.com/Politics/Inauguration/president-obama-inauguration-speech-transcript/story?id=6689022",
+   "domain": "abcnews.com",
+   "score": 0.9444,
+   "nli": "Jan. 20, 2009 -- Full transcript as prepared for delivery of President Barack Obama's inaugural remarks on Jan. 20, 2009, at the United States Capitol in Washington, D.C."
+  },
+  {
+   "url": "https://abcnews.com/Politics/Inauguration/president-obama-inauguration-speech-transcript/story?id=6689022",
+   "domain": "abcnews.com",
+   "score": 0.9424,
+   "nli": "President Barack Obama delivers inaugural address from Washington, D.C.\n\nJan. 20, 2009 -- Full transcript as prepared for delivery of President Barack Obama's inaugural remarks on Jan. 20, 2009, at the United States Capitol in Washington, D.C."
+  },
+  {
+   "url": "https://abcnews.com/Politics/Inauguration/president-obama-inauguration-speech-transcript/story?id=6689022",
+   "domain": "abcnews.com",
+   "score": 0.9415,
+   "nli": "Jan. 20, 2009 -- Full transcript as prepared for delivery of President Barack Obama's inaugural remarks on Jan. 20, 2009, at the United States Capitol in Washington, D.C.\n\nI stand here today humbled by the task before us, grateful for the trust you have bestow"
+  }
+ ],
+ "contradicting_passages": [],
+ "class_counts": {
+  "SUPPORT": 9,
+  "CONTRADICTION": 0,
+  "RELATED_CONTEXT": 19,
+  "NON_EVIDENCE": 7
+ },
+ "passage_kinds": {
+  "paragraph": 22,
+  "window": 13
+ }
+}

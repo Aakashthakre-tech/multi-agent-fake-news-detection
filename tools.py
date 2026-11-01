@@ -6,6 +6,7 @@ import os
 import re
 import json
 import time
+import random
 from datetime import datetime, timedelta
 from urllib.parse import urlparse, parse_qs, parse_qsl, urlencode, urlunparse
 from dotenv import load_dotenv
@@ -16,7 +17,7 @@ from claim_profile import (
     extract_years,
     strip_publication_boilerplate,
 )
-from query_planner import plan_queries, _quote
+from query_planner import plan_queries, _quote, build_event_anchor
 from source_reliability import (
     classify_tier,
     get_source_profile,
@@ -31,12 +32,88 @@ load_dotenv()
 
 
 # ============================================================
+# SCRAPER CONFIGURATION
+# ============================================================
+
+SCRAPE_MAX_ATTEMPTS = 3
+SCRAPE_CONNECT_TIMEOUT = 10
+SCRAPE_READ_TIMEOUT = 30
+SCRAPE_BACKOFF_BASE = 2
+SCRAPE_BACKOFF_MAX = 30
+
+# Retryable HTTP status codes for transient failures
+RETRYABLE_CODES = {429, 500, 502, 503, 504}
+
+# Non-retryable client errors
+NON_RETRYABLE_CODES = {400, 401, 403, 404, 410, 451}
+
+
+# ============================================================
 # TAVILY
 # ============================================================
 
-tavily = TavilyClient(
-    api_key=os.getenv("TAVILY_API_KEY")
-)
+def get_tavily_client():
+    api_key = os.getenv("TAVILY_API_KEY")
+    if not api_key or not api_key.strip():
+        return None
+    try:
+        return TavilyClient(api_key=api_key.strip())
+    except Exception:
+        return None
+
+try:
+    tavily = get_tavily_client()
+except Exception:
+    tavily = None
+
+
+def execute_tavily_search(search_kwargs: dict):
+    """
+    Execute a Tavily search with bounded retries and sanitized error diagnostics.
+    
+    Distinguishes:
+    - MISSING_CONFIGURATION (when TAVILY_API_KEY is not set)
+    - AUTH_ERROR (401 Unauthorized / invalid API key)
+    - USAGE_LIMIT_EXCEEDED (quota / plan limits)
+    - RATE_LIMITED (429 throttling)
+    - TIMEOUT (request timeout)
+    - NETWORK_ERROR (connection failure)
+    - SEARCH_FAILED (other provider errors)
+    """
+    client = get_tavily_client()
+    if client is None:
+        return {"results": []}, "MISSING_CONFIGURATION: TAVILY_API_KEY is not configured in environment."
+
+    MAX_ATTEMPTS = 2
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            res = client.search(**search_kwargs)
+            return (res or {"results": []}), None
+        except Exception as exc:
+            err_msg = str(exc)
+            err_lower = err_msg.lower()
+
+            # Non-retryable errors: never retry quota exhaustion or bad auth
+            if any(term in err_lower for term in ("unauthorized", "invalid api key", "401", "forbidden")):
+                return {"results": []}, f"AUTH_ERROR: {exc}"
+            if any(term in err_lower for term in ("usage limit", "quota", "plan limit", "limit exceeded", "credits")):
+                return {"results": []}, f"USAGE_LIMIT_EXCEEDED: {exc}"
+
+            # Retryable transient errors: 429 throttling or 5xx/connection timeout
+            is_transient = any(term in err_lower for term in ("429", "rate limit", "too many requests", "timeout", "timed out", "connection", "502", "503", "504"))
+            if is_transient and attempt < MAX_ATTEMPTS:
+                time.sleep(2 * attempt)
+                continue
+
+            if "timeout" in err_lower:
+                return {"results": []}, f"TIMEOUT: {exc}"
+            if "429" in err_lower or "rate limit" in err_lower:
+                return {"results": []}, f"RATE_LIMITED: {exc}"
+            if "connection" in err_lower or "network" in err_lower:
+                return {"results": []}, f"NETWORK_ERROR: {exc}"
+            return {"results": []}, f"SEARCH_FAILED: {exc}"
+
+    return {"results": []}, "SEARCH_FAILED: Search attempts failed."
 
 
 
@@ -127,6 +204,15 @@ EXCLUDED_DOMAINS = [
     "reddit.com",
     "threads.net",
     "quora.com",
+    "merriam-webster.com",
+    "dictionary.com",
+    "wiktionary.org",
+    "dictionary.cambridge.org",
+    "collinsdictionary.com",
+    "urbandictionary.com",
+    "thefreedictionary.com",
+    "vocabulary.com",
+    "definitions.net",
 ]
 
 _FACTCHECK_RE = re.compile(
@@ -317,10 +403,10 @@ def _match_signals(candidate, profile):
     """Keyword / phrase / location hits of a candidate against the claim."""
     text = _text_of(candidate).lower()
 
-    keywords = [k.lower() for k in profile["keywords"]]
-    locations = [loc.lower() for loc in profile["locations"]]
-    location_terms = [t.lower() for t in profile["location_terms"]]
-    phrases = [p.lower() for p in profile["phrases"]]
+    keywords = [k.lower() for k in profile.get("keywords", [])]
+    locations = [loc.lower() for loc in profile.get("locations", [])]
+    location_terms = [t.lower() for t in profile.get("location_terms", [])]
+    phrases = [p.lower() for p in profile.get("phrases", [])]
 
     keyword_hits = [k for k in keywords if re.search(rf"\b{re.escape(k)}\b", text)]
     phrase_hits = [p for p in phrases if p in text]
@@ -376,6 +462,21 @@ def is_result_relevant(result, profile, date_signals=None, claim_date=None):
     # ----------------------------------------------------------
     if is_listing_or_index_page(_text_of(result), result.get("url", "")):
         return False, {"reason": "Index or listing page, not event reporting."}
+
+    # ----------------------------------------------------------
+    # Layer 1c: reject dictionary and lexical definition pages
+    # ----------------------------------------------------------
+    url_lower = (result.get("url") or "").lower()
+    title_lower = (result.get("title") or "").lower()
+    _dict_domains = (
+        "merriam-webster.com", "dictionary.com", "wiktionary.org",
+        "cambridge.org", "collinsdictionary.com", "urbandictionary.com",
+        "thefreedictionary.com", "vocabulary.com", "definitions.net",
+    )
+    if any(d in url_lower for d in _dict_domains) or "/dictionary/" in url_lower or "/define/" in url_lower:
+        return False, {"reason": "Dictionary or lexical definition page, not factual reporting."}
+    if title_lower.endswith("definition & meaning") or "meaning in english" in title_lower:
+        return False, {"reason": "Dictionary or lexical definition page, not factual reporting."}
 
     # ----------------------------------------------------------
     # Layer 2: pure policy/regulation pages are not incident reports
@@ -773,17 +874,16 @@ def retrieve(claim, max_candidates=MAX_CANDIDATES):
             "include_raw_content": True,
         }
 
-        if claim_date and plan["topic"] == "news":
-            # Constrain the news index to the claimed event window. Without this
-            # a query about a July 2024 event returns September 2026 articles
-            # about the same city.
+        if claim_date and claim_date.get("year", 9999) >= 2015 and plan["topic"] == "news":
+            # Constrain the news index to the claimed event window for modern events.
             search_kwargs["start_date"] = window_start
             search_kwargs["end_date"] = window_end
 
-        try:
-            response = tavily.search(**search_kwargs)
-        except Exception as exc:
-            search_errors.append(f"{plan['label']}: {exc}")
+        response, err = execute_tavily_search(search_kwargs)
+        if err:
+            search_errors.append(f"{plan['label']}: {err}")
+            if "USAGE_LIMIT_EXCEEDED" in err or "AUTH_ERROR" in err:
+                break
             continue
 
         for result in response.get("results", []) or []:
@@ -855,7 +955,7 @@ def retrieve(claim, max_candidates=MAX_CANDIDATES):
     # Reporting a few weeks later ("what we know so far") is a second, cheap
     # source of same-event articles that the tight window can miss.
     # ----------------------------------------------------
-    if claim_date:
+    if claim_date and claim_date.get("year", 9999) >= 2015:
         locations = profile.get("locations") or []
         keywords = profile.get("keywords") or []
 
@@ -868,20 +968,18 @@ def retrieve(claim, max_candidates=MAX_CANDIDATES):
         ).strip()
 
         if followup_query:
-            try:
-                response = tavily.search(
-                    query=followup_query,
-                    max_results=RESULTS_PER_QUERY,
-                    search_depth="advanced",
-                    topic="news",
-                    start_date=follow_start,
-                    end_date=follow_end,
-                    exclude_domains=EXCLUDED_DOMAINS,
-                    include_raw_content=True,
-                )
-            except Exception as exc:
-                search_errors.append(f"followup: {exc}")
-                response = {"results": []}
+            response, err = execute_tavily_search({
+                "query": followup_query,
+                "max_results": RESULTS_PER_QUERY,
+                "search_depth": "advanced",
+                "topic": "news",
+                "start_date": follow_start,
+                "end_date": follow_end,
+                "exclude_domains": EXCLUDED_DOMAINS,
+                "include_raw_content": True,
+            })
+            if err:
+                search_errors.append(f"followup: {err}")
 
             for result in response.get("results", []) or []:
                 raw_url = result.get("url", "")
@@ -978,18 +1076,16 @@ def retrieve(claim, max_candidates=MAX_CANDIDATES):
         ).strip()
 
         if recall_query:
-            try:
-                response = tavily.search(
-                    query=recall_query,
-                    max_results=RESULTS_PER_QUERY,
-                    search_depth="advanced",
-                    topic="news",
-                    exclude_domains=EXCLUDED_DOMAINS,
-                    include_raw_content=True,
-                )
-            except Exception as exc:
-                search_errors.append(f"year_recall: {exc}")
-                response = {"results": []}
+            response, err = execute_tavily_search({
+                "query": recall_query,
+                "max_results": RESULTS_PER_QUERY,
+                "search_depth": "advanced",
+                "topic": "general" if claim_date and claim_date.get("year", 9999) < 2015 else "news",
+                "exclude_domains": EXCLUDED_DOMAINS,
+                "include_raw_content": True,
+            })
+            if err:
+                search_errors.append(f"year_recall: {err}")
 
             for result in response.get("results", []) or []:
                 raw_url = result.get("url", "")
@@ -1114,29 +1210,31 @@ def retrieve(claim, max_candidates=MAX_CANDIDATES):
     if profile.get("primary_date") and len(primary_class_candidates) < 3:
         variants = profile.get("date_variants") or []
         locations = profile.get("locations") or []
-        phrases = profile.get("phrases") or []
+        # The retry must carry the claim's event phrases, not just its first
+        # phrase: "United States joe biden withdrew" matches reporting about
+        # US troops leaving Iraq, while "... joe biden withdrew presidential
+        # race" does not.
+        event_anchor = build_event_anchor(profile)
 
         retry_query = " ".join(
             part for part in (
                 f'"{variants[0]}"' if variants else "",
                 f'"{locations[0]}"' if locations else "",
-                f'"{phrases[0]}"' if phrases else "",
+                event_anchor,
             ) if part
         ).strip()
 
         if retry_query:
-            try:
-                response = tavily.search(
-                    query=retry_query,
-                    max_results=RESULTS_PER_QUERY,
-                    search_depth="advanced",
-                    topic="news",
-                    exclude_domains=EXCLUDED_DOMAINS,
-                    include_raw_content=True,
-                )
-            except Exception as exc:
-                search_errors.append(f"precision_retry: {exc}")
-                response = {"results": []}
+            response, err = execute_tavily_search({
+                "query": retry_query,
+                "max_results": RESULTS_PER_QUERY,
+                "search_depth": "advanced",
+                "topic": "general" if profile.get("primary_date", {}).get("year", 9999) < 2015 else "news",
+                "exclude_domains": EXCLUDED_DOMAINS,
+                "include_raw_content": True,
+            })
+            if err:
+                search_errors.append(f"precision_retry: {err}")
 
             for result in response.get("results", []) or []:
                 raw_url = result.get("url", "")
@@ -1232,27 +1330,24 @@ def retrieve(claim, max_candidates=MAX_CANDIDATES):
     }
 
 
-@tool
-def web_search(query: str) -> str:
+def search_with_diagnostics(claim: str) -> dict:
     """
-    Retrieve candidate sources for a claim using multiple targeted searches.
+    Run the retrieval plan for a claim and return the formatted candidate list
+    together with structured diagnostics.
 
-    One claim produces several searches (exact wording, exact date in different
-    formats, location + event, alternative wording, fact-check angle, official
-    records), so the system never depends on a single query.
-
-    Search output is candidate discovery only. Actual evidence comes from
-    successfully scraped pages; snippets are weaker fallback evidence.
-
-    For dated claims:
-    - Retrieval is date-first: exact-date sources rank highest.
-    - A high search score alone CANNOT override a date mismatch.
-    - Fact-check/debunking articles are retained regardless of their own date.
-    - Aggregator, blog and user-generated sources are ranked down, not trusted.
+    The plain-text ``output`` is what the research pipeline consumes. The
+    additional keys (``plans``, ``search_errors``, ``candidates``) preserve the
+    actual search queries that were issued and any provider failures, so the
+    API can report real research activity instead of reconstructing it.
     """
-    claim = str(query or "").strip().strip('"').strip("'")
+    claim = str(claim or "").strip().strip('"').strip("'")
     if not claim:
-        return "NO CLAIM PROVIDED."
+        return {
+            "output": "NO CLAIM PROVIDED.",
+            "plans": [],
+            "search_errors": [],
+            "candidates": [],
+        }
 
     outcome = retrieve(claim)
 
@@ -1262,11 +1357,18 @@ def web_search(query: str) -> str:
 
     if not results:
         if search_errors:
-            return (
+            message = (
                 "No sufficiently relevant candidate web sources were found "
                 f"(search errors: {'; '.join(search_errors[:3])})."
             )
-        return "No sufficiently relevant candidate web sources were found."
+        else:
+            message = "No sufficiently relevant candidate web sources were found."
+        return {
+            "output": message,
+            "plans": plans,
+            "search_errors": search_errors,
+            "candidates": [],
+        }
 
 
     # --------------------------------------------------------
@@ -1288,6 +1390,8 @@ def web_search(query: str) -> str:
             f"URL:\n{result.get('url', '')}\n\n"
             f"Domain:\n{result.get('domain', '')}\n\n"
             f"Published Date:\n{published or 'Not stated'}\n\n"
+            f"Search Query:\n{result.get('query', 'n/a')}\n\n"
+            f"Query Intent:\n{result.get('query_intent', 'n/a')}\n\n"
             f"Found Via:\n{', '.join(result.get('found_via', [])) or 'n/a'}\n\n"
             f"Source Tier:\n{result.get('source_tier', 'unknown')} "
             f"({result.get('source_tier_reason', '')})\n\n"
@@ -1305,7 +1409,33 @@ def web_search(query: str) -> str:
             f"Search Snippet:\n{snippet}\n"
         )
 
-    return "\n--------------------\n".join(output)
+    return {
+        "output": "\n--------------------\n".join(output),
+        "plans": plans,
+        "search_errors": search_errors,
+        "candidates": results,
+    }
+
+
+@tool
+def web_search(query: str) -> str:
+    """
+    Retrieve candidate sources for a claim using multiple targeted searches.
+
+    One claim produces several searches (exact wording, exact date in different
+    formats, location + event, alternative wording, fact-check angle, official
+    records), so the system never depends on a single query.
+
+    Search output is candidate discovery only. Actual evidence comes from
+    successfully scraped pages; snippets are weaker fallback evidence.
+
+    For dated claims:
+    - Retrieval is date-first: exact-date sources rank highest.
+    - A high search score alone CANNOT override a date mismatch.
+    - Fact-check/debunking articles are retained regardless of their own date.
+    - Aggregator, blog and user-generated sources are ranked down, not trusted.
+    """
+    return search_with_diagnostics(query)["output"]
 
 
 
@@ -1398,12 +1528,8 @@ def scrape_url(url: str) -> str:
     Failed scraping returns a clearly marked error string:
     SCRAPE_FAILED: <reason>
 
-    Hardening over the original version:
-    - retries on transient HTTP errors and on 401/403 (with alternate forms of
-      the same URL, which many publishers serve more readably)
-    - JSON-LD `articleBody` recovery for publishers that render the story
-      inside a script payload
-    - denser paragraph harvesting (25 characters instead of 40)
+    Retries transient failures with bounded exponential backoff + jitter.
+    Tries alternate URL forms (mobile/amp/www) when the primary URL fails.
     """
     if not url or not url.startswith("http"):
         return "SCRAPE_FAILED: Invalid URL provided."
@@ -1411,21 +1537,125 @@ def scrape_url(url: str) -> str:
     first_error = None
     attempts = [url] + _alternate_urls(url)
 
-    for target in attempts[:3]:
+    for attempt in range(1, SCRAPE_MAX_ATTEMPTS + 1):
+        target = attempts[(attempt - 1) % len(attempts)] if len(attempts) > 1 else url
         result = _scrape_once(target)
-        if not result.startswith("SCRAPE_FAILED:"):
-            return result
-        if first_error is None:
-            first_error = result
-        print(f"  [SCRAPE] {target} -> {result[:90]}")
 
-    return first_error or "SCRAPE_FAILED: No response received."
+        if not result["error_category"]:
+            return result["content"]
+
+        if first_error is None:
+            first_error = dict(result)
+        else:
+            first_error["retry_count"] = attempt
+
+        if attempt < SCRAPE_MAX_ATTEMPTS:
+            jitter = random.uniform(0, 1)
+            wait = min(SCRAPE_BACKOFF_BASE ** attempt + jitter, SCRAPE_BACKOFF_MAX)
+            print(f"  [SCRAPE] {target} -> {result['error_category']} — retrying in {wait:.1f}s (attempt {attempt}/{SCRAPE_MAX_ATTEMPTS})")
+            time.sleep(wait)
+
+    return first_error["content"] if first_error else "SCRAPE_FAILED: No response received."
+
+
+def scrape_url_detailed(url: str) -> dict:
+    """
+    Scrape URL and return a structured dict with diagnostics.
+
+    Returns:
+        {
+            "url": str,
+            "scrape_status": "success" | "failed",
+            "extraction_method": "full_article" | "partial_article" | "none",
+            "char_count": int,
+            "http_status": int | None,
+            "retry_count": int,
+            "error_category": str | None,
+            "content": str,
+        }
+    """
+    if not url or not url.startswith("http"):
+        return {
+            "url": url,
+            "scrape_status": "failed",
+            "extraction_method": "none",
+            "char_count": 0,
+            "http_status": None,
+            "retry_count": 0,
+            "error_category": "invalid_url",
+            "content": "",
+        }
+
+    first_error = None
+    attempts = [url] + _alternate_urls(url)
+
+    for attempt in range(1, SCRAPE_MAX_ATTEMPTS + 1):
+        target = attempts[(attempt - 1) % len(attempts)] if len(attempts) > 1 else url
+        result = _scrape_once(target)
+        result["retry_count"] = attempt
+
+        if not result["error_category"]:
+            content = result["content"]
+            extraction_method = "full_article" if len(content) >= MIN_FULL_TEXT_CHARS else "partial_article"
+            return {
+                "url": url,
+                "scrape_status": "success",
+                "extraction_method": extraction_method,
+                "char_count": len(content),
+                "http_status": result["http_status"],
+                "retry_count": attempt,
+                "error_category": None,
+                "content": content,
+            }
+
+        if first_error is None:
+            first_error = dict(result)
+        else:
+            first_error["retry_count"] = attempt
+
+        if attempt < SCRAPE_MAX_ATTEMPTS:
+            jitter = random.uniform(0, 1)
+            wait = min(SCRAPE_BACKOFF_BASE ** attempt + jitter, SCRAPE_BACKOFF_MAX)
+            print(f"  [SCRAPE] {target} -> {result['error_category']} — retrying in {wait:.1f}s (attempt {attempt}/{SCRAPE_MAX_ATTEMPTS})")
+            time.sleep(wait)
+
+    if first_error:
+        first_error["scrape_status"] = "failed"
+        first_error["extraction_method"] = "none"
+        first_error["char_count"] = 0
+        return first_error
+
+    return {
+        "url": url,
+        "scrape_status": "failed",
+        "extraction_method": "none",
+        "char_count": 0,
+        "http_status": None,
+        "retry_count": SCRAPE_MAX_ATTEMPTS,
+        "error_category": "no_response",
+        "content": "",
+    }
 
 
 def _scrape_once(url):
-    """Single fetch + extraction attempt."""
+    """Single fetch + extraction attempt.
 
-    # Richer browser-like headers
+    Returns a dict with keys:
+        content        - extracted article text (empty string on failure)
+        http_status    - HTTP status code or None
+        error_category - one of: None, "http_4xx", "http_5xx", "timeout",
+                         "connection_error", "request_error", "parse_error",
+                         "empty_content", "invalid_url"
+        retry_count    - always 1 for a single attempt
+    """
+    if not url or not url.startswith("http"):
+        return {
+            "content": "",
+            "http_status": None,
+            "error_category": "invalid_url",
+            "retry_count": 1,
+        }
+
     headers = {
         "User-Agent": (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
@@ -1438,7 +1668,7 @@ def _scrape_once(url):
             "application/signed-exchange;v=b3;q=0.7"
         ),
         "Accept-Language": "en-US,en;q=0.9",
-        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Encoding": "gzip, deflate",
         "DNT": "1",
         "Connection": "keep-alive",
         "Upgrade-Insecure-Requests": "1",
@@ -1449,57 +1679,59 @@ def _scrape_once(url):
         "Cache-Control": "max-age=0",
     }
 
-    # Retry on transient server-side failures and on bot-blocking codes
-    RETRYABLE_CODES = {401, 403, 429, 500, 502, 503, 504}
-    MAX_ATTEMPTS = 2
     response = None
-
-    for attempt in range(1, MAX_ATTEMPTS + 1):
-        try:
-            response = requests.get(
-                url,
-                timeout=18,
-                headers=headers,
-                allow_redirects=True
-            )
-
-            if response.status_code in RETRYABLE_CODES:
-                if attempt < MAX_ATTEMPTS:
-                    wait = 2 * attempt
-                    print(f"  [SCRAPE] HTTP {response.status_code} — retrying in {wait}s (attempt {attempt}/{MAX_ATTEMPTS})")
-                    time.sleep(wait)
-                    continue
-                return f"SCRAPE_FAILED: HTTP {response.status_code} after {MAX_ATTEMPTS} attempts."
-
-            if response.status_code == 404:
-                return "SCRAPE_FAILED: HTTP 404 Not Found"
-            if response.status_code >= 400:
-                return f"SCRAPE_FAILED: HTTP {response.status_code} Error"
-
-            break  # success
-
-        except requests.exceptions.Timeout:
-            if attempt < MAX_ATTEMPTS:
-                print(f"  [SCRAPE] Timeout — retrying (attempt {attempt}/{MAX_ATTEMPTS})")
-                time.sleep(2)
-                continue
-            return "SCRAPE_FAILED: Request timed out."
-        except requests.exceptions.RequestException as e:
-            if attempt < MAX_ATTEMPTS:
-                time.sleep(2)
-                continue
-            return f"SCRAPE_FAILED: {str(e)}"
-        except Exception as e:
-            return f"SCRAPE_FAILED: {str(e)}"
-
-    if response is None:
-        return "SCRAPE_FAILED: No response received."
-
     try:
-        soup = BeautifulSoup(
-            response.text,
-            "html.parser"
+        response = requests.get(
+            url,
+            timeout=(SCRAPE_CONNECT_TIMEOUT, SCRAPE_READ_TIMEOUT),
+            headers=headers,
+            allow_redirects=True
         )
+
+        if response.status_code in RETRYABLE_CODES:
+            return {
+                "content": "",
+                "http_status": response.status_code,
+                "error_category": f"http_{response.status_code}",
+                "retry_count": 1,
+            }
+
+        if response.status_code == 404:
+            return {
+                "content": "",
+                "http_status": 404,
+                "error_category": "http_404",
+                "retry_count": 1,
+            }
+
+        if response.status_code >= 400:
+            return {
+                "content": "",
+                "http_status": response.status_code,
+                "error_category": f"http_{response.status_code}",
+                "retry_count": 1,
+            }
+
+        # Success — extract content
+        if response.encoding is None or response.encoding.lower() == "iso-8859-1":
+            response.encoding = response.apparent_encoding or "utf-8"
+        soup = BeautifulSoup(response.text, "html.parser")
+
+        # Harvest json-ld article bodies and publication dates before cleaning script tags
+        jsonld_bodies = _jsonld_article_bodies(soup)
+        jsonld_date = ""
+        for script in soup.find_all("script", type="application/ld+json"):
+            try:
+                data = json.loads(script.string or script.get_text() or "{}")
+                objects = data if isinstance(data, list) else [data]
+                for obj in objects:
+                    if isinstance(obj, dict) and obj.get("datePublished"):
+                        jsonld_date = str(obj["datePublished"]).strip()
+                        break
+                if jsonld_date:
+                    break
+            except Exception:
+                continue
 
         # Remove unwanted script, style, navigation, footer, ad tags
         unwanted_tags = [
@@ -1510,9 +1742,7 @@ def _scrape_once(url):
         for tag in soup(unwanted_tags):
             tag.decompose()
 
-        # ====================================================
         # TITLE EXTRACTION
-        # ====================================================
         title = ""
         if soup.title and soup.title.string:
             title = soup.title.get_text(" ", strip=True)
@@ -1521,9 +1751,7 @@ def _scrape_once(url):
         if og_title and og_title.get("content"):
             title = og_title["content"].strip()
 
-        # ====================================================
         # PUBLICATION DATE EXTRACTION
-        # ====================================================
         publication_date = ""
         date_selectors = [
             ("meta", {"property": "article:published_time"}),
@@ -1546,24 +1774,10 @@ def _scrape_once(url):
                     break
 
         # JSON-LD Date Fallback
-        if not publication_date:
-            json_scripts = soup.find_all("script", type="application/ld+json")
-            for script in json_scripts:
-                try:
-                    data = json.loads(script.string or script.get_text())
-                    objects = data if isinstance(data, list) else [data]
-                    for obj in objects:
-                        if isinstance(obj, dict) and obj.get("datePublished"):
-                            publication_date = str(obj["datePublished"]).strip()
-                            break
-                    if publication_date:
-                        break
-                except Exception:
-                    continue
+        if not publication_date and jsonld_date:
+            publication_date = jsonld_date
 
-        # ====================================================
         # MAIN ARTICLE CONTENT EXTRACTION (expanded selectors)
-        # ====================================================
         article = None
         selectors = [
             "article",
@@ -1618,7 +1832,7 @@ def _scrape_once(url):
 
         # Last structural fallback: the article body embedded in JSON-LD.
         if not paragraphs:
-            for body in _jsonld_article_bodies(soup):
+            for body in jsonld_bodies:
                 sentences = re.split(r"(?<=[.!?])\s+", body)
                 current = []
                 for sentence in sentences:
@@ -1668,12 +1882,234 @@ def _scrape_once(url):
 
         # Quality check
         if len(final_text) < 180:
-            return (
-                "SCRAPE_FAILED: Could not extract enough meaningful article "
-                "content from this webpage."
+            return {
+                "content": "",
+                "http_status": response.status_code,
+                "error_category": "empty_content",
+                "retry_count": 1,
+            }
+
+        return {
+            "content": final_text[:12000],
+            "http_status": response.status_code,
+            "error_category": None,
+            "retry_count": 1,
+        }
+
+    except requests.exceptions.Timeout:
+        return {
+            "content": "",
+            "http_status": None,
+            "error_category": "timeout",
+            "retry_count": 1,
+        }
+    except requests.exceptions.ConnectionError:
+        return {
+            "content": "",
+            "http_status": None,
+            "error_category": "connection_error",
+            "retry_count": 1,
+        }
+    except requests.exceptions.RequestException as e:
+        return {
+            "content": "",
+            "http_status": None,
+            "error_category": "request_error",
+            "retry_count": 1,
+        }
+    except Exception as e:
+        return {
+            "content": "",
+            "http_status": None,
+            "error_category": "parse_error",
+            "retry_count": 1,
+        }
+
+
+# ============================================================
+# GOOGLE FACT CHECK TOOLS API CLIENT
+# ============================================================
+
+GOOGLE_FACT_CHECK_API_URL = "https://factchecktools.googleapis.com/v1alpha1/claims:search"
+
+GOOGLE_FACT_CHECK_MAX_RETRIES = 3
+GOOGLE_FACT_CHECK_TIMEOUT = 30
+
+
+def get_google_fact_check_client():
+    """
+    Initialize and return a Google Fact Check Tools API client configuration.
+
+    Returns None if the API key is not configured. The caller is responsible
+    for handling the None case gracefully (e.g., falling back to web search).
+
+    Never logs or returns the API key value.
+    """
+    api_key = os.getenv("GOOGLE_FACT_CHECK_API_KEY")
+    if not api_key or not api_key.strip():
+        return None
+    return {"api_key": api_key.strip()}
+
+
+def query_google_fact_check(claim: str) -> dict:
+    """
+    Query the Google Fact Check Tools API for fact-check reviews of a claim.
+
+    Returns a dict with:
+        status        - "success" or "error"
+        claims        - list of claim review dicts (empty on error)
+        error_category - one of: None, "auth", "rate_limit", "server_error",
+                         "timeout", "parse_error", "network_error", "missing_key"
+        error_message - human-readable description (no secrets)
+
+    On success, each claim dict contains:
+        text            - the claim text
+        claimDate       - ISO date string or None
+        claimant        - who made the claim
+        claimReview     - list of review dicts with publisher, textualRating, url
+
+    On failure, returns a dict with status="error" and error_category set.
+    """
+    client = get_google_fact_check_client()
+    if client is None:
+        return {
+            "status": "error",
+            "error_category": "missing_key",
+            "error_message": "GOOGLE_FACT_CHECK_API_KEY is not configured.",
+            "claims": [],
+        }
+
+    params = {
+        "key": client["api_key"],
+        "query": claim,
+        "languageCode": "en",
+        "maxAgeDays": 365 * 10,  # Up to 10 years of fact-checks
+    }
+
+    MAX_ATTEMPTS = GOOGLE_FACT_CHECK_MAX_RETRIES
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        try:
+            resp = requests.get(
+                GOOGLE_FACT_CHECK_API_URL,
+                params=params,
+                timeout=GOOGLE_FACT_CHECK_TIMEOUT,
             )
 
-        return final_text[:12000]
+            if resp.status_code == 200:
+                try:
+                    data = resp.json()
+                except (ValueError, json.JSONDecodeError):
+                    return {
+                        "status": "error",
+                        "error_category": "parse_error",
+                        "error_message": "Failed to parse Google Fact Check API response.",
+                        "claims": [],
+                    }
 
-    except Exception as e:
-        return f"SCRAPE_FAILED: {str(e)}"
+                claims = data.get("claims", [])
+                # Normalize each claim: ensure claimReview is always a list
+                normalized = []
+                for c in claims:
+                    claim_review = c.get("claimReview")
+                    if claim_review is None:
+                        claim_review = []
+                    normalized.append({
+                        "text": c.get("text", ""),
+                        "claimDate": c.get("claimDate"),
+                        "claimant": c.get("claimant"),
+                        "claimReview": claim_review,
+                    })
+                return {
+                    "status": "success",
+                    "error_category": None,
+                    "error_message": None,
+                    "claims": normalized,
+                }
+
+            # Non-retryable errors
+            if resp.status_code == 403:
+                return {
+                    "status": "error",
+                    "error_category": "auth",
+                    "error_message": "Google Fact Check API authentication failed (403).",
+                    "claims": [],
+                }
+            if resp.status_code == 400:
+                return {
+                    "status": "error",
+                    "error_category": "client_error",
+                    "error_message": "Google Fact Check API bad request (400).",
+                    "claims": [],
+                }
+
+            # Retryable errors
+            if resp.status_code == 429:
+                if attempt < MAX_ATTEMPTS:
+                    time.sleep(min(2 ** attempt, 30))
+                    continue
+                return {
+                    "status": "error",
+                    "error_category": "rate_limit",
+                    "error_message": "Google Fact Check API rate limit exceeded (429).",
+                    "claims": [],
+                }
+            if resp.status_code in (500, 502, 503, 504):
+                if attempt < MAX_ATTEMPTS:
+                    time.sleep(min(2 ** attempt, 30))
+                    continue
+                return {
+                    "status": "error",
+                    "error_category": "server_error",
+                    "error_message": f"Google Fact Check API server error ({resp.status_code}).",
+                    "claims": [],
+                }
+
+            # Other status codes
+            return {
+                "status": "error",
+                "error_category": "server_error",
+                "error_message": f"Google Fact Check API returned HTTP {resp.status_code}.",
+                "claims": [],
+            }
+
+        except requests.exceptions.Timeout:
+            if attempt < MAX_ATTEMPTS:
+                time.sleep(min(2 ** attempt, 30))
+                continue
+            return {
+                "status": "error",
+                "error_category": "timeout",
+                "error_message": "Google Fact Check API request timed out.",
+                "claims": [],
+            }
+        except requests.exceptions.ConnectionError:
+            if attempt < MAX_ATTEMPTS:
+                time.sleep(min(2 ** attempt, 30))
+                continue
+            return {
+                "status": "error",
+                "error_category": "network_error",
+                "error_message": "Google Fact Check API connection error.",
+                "claims": [],
+            }
+        except requests.exceptions.RequestException as e:
+            return {
+                "status": "error",
+                "error_category": "request_error",
+                "error_message": f"Google Fact Check API request failed: {str(e)[:200]}",
+                "claims": [],
+            }
+        except Exception as e:
+            return {
+                "status": "error",
+                "error_category": "parse_error",
+                "error_message": f"Unexpected error: {str(e)[:200]}",
+                "claims": [],
+            }
+
+    return {
+        "status": "error",
+        "error_category": "request_error",
+        "error_message": "Google Fact Check API request failed after retries.",
+        "claims": [],
+    }

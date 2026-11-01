@@ -1,0 +1,69 @@
+{
+  "evaluation_date": "2026-10-19",
+  "hardware": {
+    "cuda_available": true,
+    "gpu": "NVIDIA GeForce RTX 3050 Laptop GPU",
+    "torch_version": "2.6.0+cu124"
+  },
+  "audio_unit_tests": {
+    "command": ".venv/Scripts/python.exe -m pytest audio_module/tests/ -v --tb=short",
+    "total": 22,
+    "passed": 22,
+    "failed": 0,
+    "exit_code": 0,
+    "test_files": [
+      "audio_module/tests/test_audio_module.py",
+      "audio_module/tests/test_real_inference.py"
+    ]
+  },
+  "video_regression_tests": {
+    "command": ".venv/Scripts/python.exe -m pytest video_module/tests/ -v --tb=short",
+    "total": 55,
+    "passed": 55,
+    "failed": 0,
+    "exit_code": 0,
+    "duration_sec": 36.42,
+    "test_files": [
+      "video_module/tests/test_ai_generated_detector.py",
+      "video_module/tests/test_claim_extraction_research.py",
+      "video_module/tests/test_classifier_integration.py",
+      "video_module/tests/test_model_and_multilingual_claims.py",
+      "video_module/tests/test_video_pipeline.py",
+      "video_module/tests/test_videomae_integration.py"
+    ]
+  },
+  "audio_detector_evaluation": {
+    "dataset_size": 16,
+    "classifiable_samples": 15,
+    "excluded_edge_cases": 1,
+    "accuracy": 0.6667,
+    "balanced_accuracy": 0.6696,
+    "precision": 0.625,
+    "recall": 0.7143,
+    "f1_score": 0.6667,
+    "specificity": 0.625,
+    "confusion_matrix": {
+      "TP": 5,
+      "FP": 3,
+      "TN": 5,
+      "FN": 2
+    },
+    "false_positives": [
+      "SAMPLE_01 (Reuters English broadcast, P(synth)=0.9902)",
+      "SAMPLE_03 (Marathi field report, P(synth)=1.000)",
+      "EXT_05 (Reuters 64k re-encode, P(synth)=0.9939)"
+    ],
+    "false_negatives": [
+      "EXT_04 (buzz robotic TTS, P(synth)=0.0000)",
+      "EXT_07 (female formant synthesis 200Hz, P(synth)=0.0001)"
+    ],
+    "failsafe_verified": true,
+    "failsafe_note": "EXT_08 (0.15s) correctly returned UNAVAILABLE, not REAL"
+  },
+  "notes": [
+    "No modules modified. No thresholds changed. No retraining performed.",
+    "Audio unit tests: 22/22 passed. No regressions.",
+    "Video regression tests: 55/55 passed. No regressions.",
+    "Full results in eval_sample_predictions.json, eval_metrics.json, evaluation_report.md"
+  ]
+}

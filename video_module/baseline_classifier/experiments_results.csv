@@ -1,0 +1,9 @@
+experiment_id,description,pooling_mode,proj_dim,norm_type,lr,weight_decay,dropout,label_smoothing,duration_sec,best_epoch,val_accuracy,val_macro_f1,val_balanced_accuracy,val_roc_auc,val_loss,TN,FP,FN,TP
+exp0_original_baseline,"Original EfficientNet-B0 + Attention + Mean + Max (3840-d), no input norm, lr=1e-3, wd=1e-4",hybrid,,none,0.001,0.0001,0.35,0.0,4.5,4,0.7674,0.7352,0.73,0.7822,0.6185,9,9,1,24
+exp1_norm_hybrid_reg,"Hybrid pooling (attn+mean+max) with LayerNorm, strong weight decay (1e-2), and early stopping",hybrid,,layernorm,0.0003,0.01,0.45,0.0,1.78,4,0.7442,0.7139,0.71,0.7489,0.582,9,9,2,23
+exp2_projected_bottleneck,"Linear projection (1280 -> 128) + Mean+Max pooling + LayerNorm, regularized head",mean_max,128,layernorm,0.0004,0.01,0.4,0.0,0.93,1,0.7674,0.744,0.7378,0.7356,0.6059,10,8,2,23
+exp3_projected_dynamics,Linear projection (1280 -> 128) + Mean+Max+Temporal Difference Dynamics + LayerNorm,projected_dynamics,128,layernorm,0.0003,0.01,0.4,0.0,1.15,2,0.7674,0.744,0.7378,0.7733,0.5822,10,8,2,23
+exp4_l2_projected_dynamics,L2 feature normalization + Projection (1280 -> 128) + Temporal Dynamics,projected_dynamics,128,l2,0.0003,0.01,0.4,0.0,1.2,3,0.7442,0.7226,0.7178,0.7289,0.5871,10,8,3,22
+exp5_dynamics_labelsmooth,Projected Dynamics (1280 -> 128) + Label Smoothing (0.08) + LayerNorm,projected_dynamics,128,layernorm,0.0003,0.01,0.4,0.08,1.32,2,0.7674,0.744,0.7378,0.78,0.6009,10,8,2,23
+exp6_compact_proj64,Ultra-compact bottleneck (1280 -> 64) + Temporal Dynamics + LayerNorm (~80k params),projected_dynamics,64,layernorm,0.0004,0.015,0.4,0.0,0.96,2,0.7674,0.7568,0.7533,0.7511,0.6035,12,6,4,21
+exp7_pure_mean_max,Pure Mean+Max pooling without projection (2560-d) + LayerNorm + High Weight Decay,mean_max,,layernorm,0.0002,0.015,0.45,0.0,1.0,4,0.7442,0.7031,0.7022,0.7978,0.5896,8,10,1,24

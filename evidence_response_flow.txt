@@ -1,0 +1,2255 @@
+﻿
+  api\server.py:108:    #                              and classified (used when the verdict is
+  api\server.py:109:    #                              UNVERIFIED; it is NOT a probability that the
+  api\server.py:110:    #                              claim is true or false)
+  api\server.py:111:    confidence_basis: Optional[str] = None
+> api\server.py:112:    evidence_sufficiency: Optional[str] = None
+  api\server.py:113:    independent_supporting: int = 0
+  api\server.py:114:    independent_contradicting: int = 0
+  api\server.py:115:    contradiction_score: Optional[float] = None
+  api\server.py:116:    entailment_score: Optional[float] = None
+  api\server.py:117:    source_agreement: Optional[float] = None
+  api\server.py:118:    fusion_score: Optional[float] = None
+  api\server.py:326:class ResearchClaimResult(BaseModel):
+  api\server.py:327:    claim_text: Optional[str] = None
+  api\server.py:328:    verdict: Optional[str] = None
+  api\server.py:329:    confidence: Optional[float] = None
+> api\server.py:330:    evidence_sufficiency: Optional[str] = None
+  api\server.py:331:    reasoning: Optional[str] = None
+> api\server.py:332:    supporting_evidence: List[Dict[str, Any]] = Field(default_factory=list)
+> api\server.py:333:    contradicting_evidence: List[Dict[str, Any]] = Field(default_factory=list)
+  api\server.py:334:    source_name: Optional[str] = None
+  api\server.py:335:    source_url: Optional[str] = None
+  api\server.py:336:    timestamps: Optional[Any] = None
+  api\server.py:337:    frame_references: Optional[List[int]] = None
+  api\server.py:338:    source_modality: Optional[str] = None
+  api\server.py:339:    selection_reason: Optional[str] = None
+  api\server.py:360:
+  api\server.py:361:class UnifiedVerificationResponse(BaseModel):
+  api\server.py:362:    modality: str
+  api\server.py:363:    status: str
+> api\server.py:364:    factual_verification: FactualVerificationDetails
+  api\server.py:365:    synthetic_media_detection: Optional[SyntheticMediaDetails] = None
+  api\server.py:366:    visual_classification: Optional[VisualClassificationDetails] = None
+  api\server.py:367:    transcription: Optional[str] = None
+  api\server.py:368:    transcription_segments: Optional[List[Dict[str, Any]]] = None
+  api\server.py:369:    primary_claim: Optional[str] = None
+  api\server.py:370:    consistency_analysis: Optional[Dict[str, Any]] = None
+  audio_module\audio_pipeline.py:133:    )
+  audio_module\audio_pipeline.py:134:    primary_claim = claim_extraction.get("primary_claim")
+  audio_module\audio_pipeline.py:135:
+  audio_module\audio_pipeline.py:136:    # 6. Factual Claim Verification (Orthogonal to Speech Provenance)
+> audio_module\audio_pipeline.py:137:    factual_verification = {
+  audio_module\audio_pipeline.py:138:        "enabled": verify_claims,
+  audio_module\audio_pipeline.py:139:        "claim": primary_claim,
+  audio_module\audio_pipeline.py:140:        "verdict": None,
+  audio_module\audio_pipeline.py:141:        "confidence": None,
+> audio_module\audio_pipeline.py:142:        "evidence_sufficiency": None,
+  audio_module\audio_pipeline.py:143:        "details": None,
+  audio_module\audio_pipeline.py:144:        "error": None,
+  audio_module\audio_pipeline.py:145:    }
+  audio_module\audio_pipeline.py:146:
+  audio_module\audio_pipeline.py:147:    if verify_claims and primary_claim:
+  audio_module\audio_pipeline.py:148:        try:
+  audio_module\audio_pipeline.py:151:            from pipeline import run_research_pipeline
+  audio_module\audio_pipeline.py:152:            research_state = run_research_pipeline(primary_claim)
+  audio_module\audio_pipeline.py:153:            
+  audio_module\audio_pipeline.py:154:            final_v = research_state.get("final_verdict", {})
+> audio_module\audio_pipeline.py:155:            factual_verification["verdict"] = final_v.get("verdict", "UNVERIFIED")
+> audio_module\audio_pipeline.py:156:            factual_verification["confidence"] = final_v.get("confidence")
+> audio_module\audio_pipeline.py:157:            factual_verification["evidence_sufficiency"] = 
+final_v.get("evidence_sufficiency")
+> audio_module\audio_pipeline.py:158:            factual_verification["verification"] = research_state
+> audio_module\audio_pipeline.py:159:            factual_verification["details"] = {
+  audio_module\audio_pipeline.py:160:                "independent_supporting": final_v.get("independent_supporting", 
+0),
+  audio_module\audio_pipeline.py:161:                "independent_contradicting": 
+final_v.get("independent_contradicting", 0),
+  audio_module\audio_pipeline.py:162:                "contradiction_score": final_v.get("contradiction_score", 0),
+  audio_module\audio_pipeline.py:163:                "source_agreement": final_v.get("source_agreement", 0),
+  audio_module\audio_pipeline.py:164:                "fusion_score": final_v.get("fusion_score", 0),
+  audio_module\audio_pipeline.py:165:                "total_sources": final_v.get("total_sources", 0),
+  audio_module\audio_pipeline.py:174:                "critic_confidence": final_v.get("critic_confidence"),
+  audio_module\audio_pipeline.py:175:            }
+  audio_module\audio_pipeline.py:176:        except Exception as e:
+  audio_module\audio_pipeline.py:177:            logger.error(f"Factual research pipeline failed: {e}")
+> audio_module\audio_pipeline.py:178:            factual_verification["error"] = str(e)
+> audio_module\audio_pipeline.py:179:            factual_verification["verdict"] = "UNVERIFIED"
+  audio_module\audio_pipeline.py:180:    elif verify_claims and not primary_claim:
+> audio_module\audio_pipeline.py:181:        factual_verification["verdict"] = "INSUFFICIENT_VERIFIABLE_CLAIMS"
+> audio_module\audio_pipeline.py:182:        factual_verification["evidence_sufficiency"] = "INSUFFICIENT"
+> audio_module\audio_pipeline.py:183:        factual_verification["details"] = {
+  audio_module\audio_pipeline.py:184:            "independent_supporting": 0,
+  audio_module\audio_pipeline.py:185:            "independent_contradicting": 0,
+  audio_module\audio_pipeline.py:186:            "contradiction_score": 0.0,
+  audio_module\audio_pipeline.py:187:            "source_agreement": None,
+  audio_module\audio_pipeline.py:188:            "fusion_score": None,
+  audio_module\audio_pipeline.py:189:            "reasoning": "No verifiable factual claims were extracted from audio 
+transcription.",
+  audio_module\audio_pipeline.py:191:
+  audio_module\audio_pipeline.py:192:    # 7. Consistency Synthesis (Combining Provenance + Veracity)
+  audio_module\audio_pipeline.py:193:    consistency = analyze_audio_consistency(
+  audio_module\audio_pipeline.py:194:        synthetic_result=synthetic_detection,
+> audio_module\audio_pipeline.py:195:        factual_result=factual_verification if verify_claims else None,
+  audio_module\audio_pipeline.py:196:        has_claims=bool(primary_claim),
+  audio_module\audio_pipeline.py:197:    )
+  audio_module\audio_pipeline.py:198:
+  audio_module\audio_pipeline.py:199:    return {
+  audio_module\audio_pipeline.py:200:        "status": "success",
+  audio_module\audio_pipeline.py:201:        "audio_metadata": audio_metadata,
+  audio_module\audio_pipeline.py:202:        "synthetic_speech_detection": synthetic_detection,
+  audio_module\audio_pipeline.py:203:        "transcription": transcription,
+  audio_module\audio_pipeline.py:204:        "claim_extraction": claim_extraction,
+> audio_module\audio_pipeline.py:205:        "factual_verification": factual_verification,
+  audio_module\audio_pipeline.py:206:        "consistency_analysis": consistency,
+  audio_module\audio_pipeline.py:207:        "error": None,
+  audio_module\audio_pipeline.py:208:    }
+  audio_module\audio_pipeline.py:209:
+  audio_module\audio_pipeline.py:210:
+  audio_module\audio_pipeline.py:211:def _build_error_response(audio_path: Path, error_msg: str, error_type: str) -> 
+Dict[str, Any]:
+  audio_module\audio_pipeline.py:242:            "selected_claims": [],
+  audio_module\audio_pipeline.py:243:            "all_candidates": [],
+  audio_module\audio_pipeline.py:244:            "rejection_summary": {},
+  audio_module\audio_pipeline.py:245:        },
+> audio_module\audio_pipeline.py:246:        "factual_verification": {
+  audio_module\audio_pipeline.py:247:            "enabled": False,
+  audio_module\audio_pipeline.py:248:            "claim": None,
+  audio_module\audio_pipeline.py:249:            "verdict": None,
+  audio_module\audio_pipeline.py:250:            "confidence": None,
+  audio_module\audio_pipeline.py:251:            "details": None,
+  audio_module\audio_pipeline.py:252:            "error": None,
+  frontend\src\components\ClaimBreakdownCard.tsx:32:const ClaimBreakdownCard: React.FC<Props> = ({ claim, index }) => {
+  frontend\src\components\ClaimBreakdownCard.tsx:33:  const [expanded, setExpanded] = useState(false);
+  frontend\src\components\ClaimBreakdownCard.tsx:34:
+  frontend\src\components\ClaimBreakdownCard.tsx:35:  const verdict = claim.claim_verdict || claim.verdict || null;
+> frontend\src\components\ClaimBreakdownCard.tsx:36:  const supporting = claim.supporting_evidence || [];
+> frontend\src\components\ClaimBreakdownCard.tsx:37:  const contradicting = claim.contradicting_evidence || [];
+  frontend\src\components\ClaimBreakdownCard.tsx:38:  const hasEvidence = supporting.length > 0 || 
+contradicting.length > 0;
+  frontend\src\components\ClaimBreakdownCard.tsx:39:
+  frontend\src\components\ClaimBreakdownCard.tsx:40:  const fmtScore = (v?: number | null) => {
+  frontend\src\components\ClaimBreakdownCard.tsx:41:    if (v == null || isNaN(v)) return 'N/A';
+  frontend\src\components\ClaimBreakdownCard.tsx:42:    return v > 1 ? `${v.toFixed(1)}%` : `${(v * 100).toFixed(1)}%`;
+  frontend\src\components\ClaimBreakdownCard.tsx:43:  };
+  frontend\src\components\ClaimBreakdownCard.tsx:77:
+  frontend\src\components\ClaimBreakdownCard.tsx:78:        <div className="flex flex-wrap items-center gap-x-3 
+gap-y-1 mt-2 text-[10px] font-mono text-outline">
+  frontend\src\components\ClaimBreakdownCard.tsx:79:          {claim.priority_score != null && <span>Priority: 
+{claim.priority_score.toFixed(2)}</span>}
+  frontend\src\components\ClaimBreakdownCard.tsx:80:          {claim.confidence != null && <span>Confidence: 
+{fmtScore(claim.confidence)}</span>}
+> frontend\src\components\ClaimBreakdownCard.tsx:81:          {claim.evidence_sufficiency && <span>Sufficiency: 
+{claim.evidence_sufficiency}</span>}
+  frontend\src\components\ClaimBreakdownCard.tsx:82:          {claim.selection_reason && <span 
+className="text-on-surface-variant italic">{claim.selection_reason}</span>}
+  frontend\src\components\ClaimBreakdownCard.tsx:83:        </div>
+  frontend\src\components\ClaimBreakdownCard.tsx:84:
+  frontend\src\components\ClaimBreakdownCard.tsx:85:        {timestampRange() && (
+  frontend\src\components\ClaimBreakdownCard.tsx:86:          <div className="mt-2 text-[10px] font-mono text-outline">
+  frontend\src\components\ClaimBreakdownCard.tsx:87:            Timestamp: {timestampRange()}
+  frontend\src\components\ClaimBreakdownCard.tsx:108:            )}
+  frontend\src\components\ClaimBreakdownCard.tsx:109:
+  frontend\src\components\ClaimBreakdownCard.tsx:110:            {hasEvidence ? (
+  frontend\src\components\ClaimBreakdownCard.tsx:111:              <div className="flex flex-col gap-1.5">
+> frontend\src\components\ClaimBreakdownCard.tsx:112:                {(['supporting_evidence', 
+'contradicting_evidence'] as const).map((key) => {
+  frontend\src\components\ClaimBreakdownCard.tsx:113:                  const items = claim[key] || [];
+  frontend\src\components\ClaimBreakdownCard.tsx:114:                  if (!items.length) return null;
+  frontend\src\components\ClaimBreakdownCard.tsx:115:                  return (
+  frontend\src\components\ClaimBreakdownCard.tsx:116:                    <div key={key}>
+  frontend\src\components\ClaimBreakdownCard.tsx:117:                      <span className="text-[9px] font-mono 
+uppercase text-outline block mb-1">
+> frontend\src\components\ClaimBreakdownCard.tsx:118:                        {key === 'supporting_evidence' ? 
+'Supporting evidence' : 'Contradicting evidence'}
+  frontend\src\components\ClaimBreakdownCard.tsx:119:                      </span>
+  frontend\src\components\ClaimBreakdownCard.tsx:120:                      {items.map((ev: any, j: number) => (
+  frontend\src\components\ClaimBreakdownCard.tsx:121:                        <div
+  frontend\src\components\ClaimBreakdownCard.tsx:122:                          key={j}
+  frontend\src\components\ClaimBreakdownCard.tsx:123:                          className="p-2 rounded 
+bg-surface-container-lowest border border-outline-variant/20 mb-1"
+  frontend\src\components\ClaimBreakdownCard.tsx:124:                        >
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:6:  result: UnifiedVerificationResponse;
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:7:}
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:8:
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:9:export const ClaimConfidenceBreakdown: 
+React.FC<ClaimConfidenceBreakdownProps> = ({ result }) => {
+> frontend\src\components\ClaimConfidenceBreakdown.tsx:10:  const fact = result.factual_verification || {};
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:11:  const synthetic = result.synthetic_media_detection;
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:12:  const raw = result.raw || {};
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:13:  const evidenceAnalysis = raw.evidence_analysis || [];
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:14:
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:15:  // Calculate real average reliability of sources analyzed
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:16:  const avgReliability = React.useMemo(() => {
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:66:      color: 'text-outline bg-surface-container-highest 
+border-outline-variant/40',
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:67:    };
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:68:  };
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:69:
+> frontend\src\components\ClaimConfidenceBreakdown.tsx:70:  const sufficiencyInfo = 
+getSufficiencyBadge(fact.evidence_sufficiency);
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:71:
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:72:  return (
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:73:    <div className="bg-surface-container rounded-xl p-5 
+border border-outline-variant/50 shadow-md flex flex-col gap-4">
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:74:      {/* Header */}
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:75:      <div className="flex flex-wrap items-center 
+justify-between gap-2 border-b border-outline-variant/30 pb-3">
+  frontend\src\components\ClaimConfidenceBreakdown.tsx:76:        <div className="flex items-center gap-2">
+  frontend\src\components\FinalVerdictExplanation.test.tsx:19:  const fact = {
+  frontend\src\components\FinalVerdictExplanation.test.tsx:20:    verdict: 'REAL' as const,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:21:    confidence: 0.659,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:22:    confidence_basis: 'evidence_strength',
+> frontend\src\components\FinalVerdictExplanation.test.tsx:23:    evidence_sufficiency: 'strong_support',
+  frontend\src\components\FinalVerdictExplanation.test.tsx:24:    independent_supporting: 2,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:25:    independent_contradicting: 0,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:26:    contradiction_score: 0.0,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:27:    entailment_score: 0.9133,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:28:    source_agreement: 0.5,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:29:    fusion_score: 0.72,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:43:
+  frontend\src\components\FinalVerdictExplanation.test.tsx:44:  return {
+  frontend\src\components\FinalVerdictExplanation.test.tsx:45:    modality: 'text',
+  frontend\src\components\FinalVerdictExplanation.test.tsx:46:    status: 'success',
+> frontend\src\components\FinalVerdictExplanation.test.tsx:47:    factual_verification: fact as 
+UnifiedVerificationResponse['factual_verification'],
+  frontend\src\components\FinalVerdictExplanation.test.tsx:48:    synthetic_media_detection: null,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:49:    visual_classification: null,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:50:    transcription: null,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:51:    primary_claim: "NASA's Apollo 11 mission landed 
+humans on the Moon.",
+  frontend\src\components\FinalVerdictExplanation.test.tsx:52:    consistency_analysis: null,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:53:    case_summary: null,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:78:    // For an UNVERIFIED result the number is the share 
+of retrieved material
+  frontend\src\components\FinalVerdictExplanation.test.tsx:79:    // that could be read. Labelling it "Evidence 
+Certainty" would read as
+  frontend\src\components\FinalVerdictExplanation.test.tsx:80:    // certainty about the claim.
+  frontend\src\components\FinalVerdictExplanation.test.tsx:81:    const response = makeResponse({
+> frontend\src\components\FinalVerdictExplanation.test.tsx:82:      factual_verification: {
+> frontend\src\components\FinalVerdictExplanation.test.tsx:83:        ...makeResponse().factual_verification,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:84:        verdict: 'UNVERIFIED',
+  frontend\src\components\FinalVerdictExplanation.test.tsx:85:        confidence: 1.0,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:86:        confidence_basis: 'verification_coverage',
+> frontend\src\components\FinalVerdictExplanation.test.tsx:87:        evidence_sufficiency: 'context_only',
+  frontend\src\components\FinalVerdictExplanation.test.tsx:88:        independent_supporting: 0,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:89:        independent_contradicting: 0,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:90:        entailment_score: 0.0,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:91:        source_agreement: 0.0,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:92:        fusion_score: 0.0,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:93:        total_sources: 9,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:94:        permitted_verdicts: ['UNVERIFIED'],
+> frontend\src\components\FinalVerdictExplanation.test.tsx:95:      } as 
+UnifiedVerificationResponse['factual_verification'],
+  frontend\src\components\FinalVerdictExplanation.test.tsx:96:    });
+  frontend\src\components\FinalVerdictExplanation.test.tsx:97:    const { container } = 
+render(<FinalVerdictExplanation result={response} />);
+  frontend\src\components\FinalVerdictExplanation.test.tsx:98:    expect(screen.getByText('Evidence 
+Coverage')).toBeTruthy();
+  frontend\src\components\FinalVerdictExplanation.test.tsx:99:    expect(screen.queryByText('Evidence 
+Certainty')).toBeNull();
+  frontend\src\components\FinalVerdictExplanation.test.tsx:100:    expect(container.textContent).toMatch(/Not a 
+probability that the claim is true/i);
+  frontend\src\components\FinalVerdictExplanation.test.tsx:101:  });
+  frontend\src\components\FinalVerdictExplanation.test.tsx:116:  it('shows entailment and contradiction scores as 
+counts, not percentages', () => {
+  frontend\src\components\FinalVerdictExplanation.test.tsx:117:    // entailment_score and contradiction_score are 
+COUNTS of strong evidence
+  frontend\src\components\FinalVerdictExplanation.test.tsx:118:    // chunks. A count of 6 shown as "600.0%" would be 
+a false statement.
+  frontend\src\components\FinalVerdictExplanation.test.tsx:119:    const response = makeResponse({
+> frontend\src\components\FinalVerdictExplanation.test.tsx:120:      factual_verification: {
+> frontend\src\components\FinalVerdictExplanation.test.tsx:121:        ...makeResponse().factual_verification,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:122:        entailment_score: 6,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:123:        contradiction_score: 2,
+> frontend\src\components\FinalVerdictExplanation.test.tsx:124:      } as 
+UnifiedVerificationResponse['factual_verification'],
+  frontend\src\components\FinalVerdictExplanation.test.tsx:125:    });
+  frontend\src\components\FinalVerdictExplanation.test.tsx:126:    const { container } = 
+render(<FinalVerdictExplanation result={response} />);
+  frontend\src\components\FinalVerdictExplanation.test.tsx:127:    const text = container.textContent || '';
+  frontend\src\components\FinalVerdictExplanation.test.tsx:128:
+  frontend\src\components\FinalVerdictExplanation.test.tsx:129:    expect(text).toContain('6 chunks');
+  frontend\src\components\FinalVerdictExplanation.test.tsx:130:    expect(text).toContain('2 chunks');
+  frontend\src\components\FinalVerdictExplanation.test.tsx:165:  });
+  frontend\src\components\FinalVerdictExplanation.test.tsx:166:
+  frontend\src\components\FinalVerdictExplanation.test.tsx:167:  it('renders without crashing when optional fields are 
+missing', () => {
+  frontend\src\components\FinalVerdictExplanation.test.tsx:168:    const response = makeResponse({
+> frontend\src\components\FinalVerdictExplanation.test.tsx:169:      factual_verification: {
+  frontend\src\components\FinalVerdictExplanation.test.tsx:170:        verdict: 'UNVERIFIED',
+  frontend\src\components\FinalVerdictExplanation.test.tsx:171:        confidence: null,
+> frontend\src\components\FinalVerdictExplanation.test.tsx:172:        evidence_sufficiency: null,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:173:        independent_supporting: 0,
+  frontend\src\components\FinalVerdictExplanation.test.tsx:174:        independent_contradicting: 0,
+> frontend\src\components\FinalVerdictExplanation.test.tsx:175:      } as 
+UnifiedVerificationResponse['factual_verification'],
+  frontend\src\components\FinalVerdictExplanation.test.tsx:176:    });
+  frontend\src\components\FinalVerdictExplanation.test.tsx:177:    const { container } = 
+render(<FinalVerdictExplanation result={response} />);
+  frontend\src\components\FinalVerdictExplanation.test.tsx:178:    
+expect(container.textContent).toContain('UNVERIFIED');
+  frontend\src\components\FinalVerdictExplanation.test.tsx:179:    expect(container.textContent).toContain('N/A');
+  frontend\src\components\FinalVerdictExplanation.test.tsx:180:  });
+  frontend\src\components\FinalVerdictExplanation.test.tsx:181:});
+  frontend\src\components\FinalVerdictExplanation.tsx:8:
+  frontend\src\components\FinalVerdictExplanation.tsx:9:export const FinalVerdictExplanation: 
+React.FC<FinalVerdictExplanationProps> = ({ result }) => {
+  frontend\src\components\FinalVerdictExplanation.tsx:10:  const [showAgentConsensus, setShowAgentConsensus] = 
+useState<boolean>(true);
+  frontend\src\components\FinalVerdictExplanation.tsx:11:
+> frontend\src\components\FinalVerdictExplanation.tsx:12:  const fact = result.factual_verification || {};
+  frontend\src\components\FinalVerdictExplanation.tsx:13:  const raw = result.raw || {};
+  frontend\src\components\FinalVerdictExplanation.tsx:14:  const finalV = raw.final_verdict || {};
+  frontend\src\components\FinalVerdictExplanation.tsx:15:
+  frontend\src\components\FinalVerdictExplanation.tsx:16:  const verdict = fact.verdict || 'UNVERIFIED';
+  frontend\src\components\FinalVerdictExplanation.tsx:17:
+  frontend\src\components\FinalVerdictExplanation.tsx:18:  const getVerdictTheme = (v: string) => {
+  frontend\src\components\FinalVerdictExplanation.tsx:195:            Total Pool: <strong 
+className="text-on-surface">{fact.total_sources || finalV.total_sources || 0} examined</strong>
+  frontend\src\components\FinalVerdictExplanation.tsx:196:          </span>
+  frontend\src\components\FinalVerdictExplanation.tsx:197:          <span>•</span>
+  frontend\src\components\FinalVerdictExplanation.tsx:198:          <span>
+> frontend\src\components\FinalVerdictExplanation.tsx:199:            Evidence Sufficiency: <strong 
+className="text-on-surface">{fact.evidence_sufficiency || 'N/A'}</strong>
+  frontend\src\components\FinalVerdictExplanation.tsx:200:          </span>
+  frontend\src\components\FinalVerdictExplanation.tsx:201:        </div>
+  frontend\src\components\FinalVerdictExplanation.tsx:202:
+  frontend\src\components\FinalVerdictExplanation.tsx:203:        {/* Evidence scores behind the verdict */}
+  frontend\src\components\FinalVerdictExplanation.tsx:204:        <div className="grid grid-cols-2 sm:grid-cols-4 
+gap-2 text-[10px] font-mono">
+  frontend\src\components\FinalVerdictExplanation.tsx:205:          {[
+  frontend\src\components\InvestigationTimeline.tsx:12:}) => {
+  frontend\src\components\InvestigationTimeline.tsx:13:  const [expandedStage, setExpandedStage] = useState<string | 
+null>(null);
+  frontend\src\components\InvestigationTimeline.tsx:14:
+  frontend\src\components\InvestigationTimeline.tsx:15:  const raw = result.raw || {};
+> frontend\src\components\InvestigationTimeline.tsx:16:  const fact = result.factual_verification || {};
+  frontend\src\components\InvestigationTimeline.tsx:17:
+  frontend\src\components\InvestigationTimeline.tsx:18:  // Use backend-provided pipeline_stages for all modalities.
+  frontend\src\components\InvestigationTimeline.tsx:19:  //
+  frontend\src\components\InvestigationTimeline.tsx:20:  // There is deliberately NO client-side reconstruction of 
+pipeline stages:
+  frontend\src\components\InvestigationTimeline.tsx:21:  // a fabricated stage list would claim work, tools and model 
+names that the
+  frontend\src\components\InvestigationTimeline.tsx:22:  // backend never performed. When the backend does not report 
+stages, the
+  frontend\src\components\RawPayloadInspector.tsx:12:
+  frontend\src\components\RawPayloadInspector.tsx:13:  const jsonString = React.useMemo(() => {
+  frontend\src\components\RawPayloadInspector.tsx:14:    let targetData: any = result;
+  frontend\src\components\RawPayloadInspector.tsx:15:    if (activeTab === 'raw_state') targetData = result.raw || {};
+> frontend\src\components\RawPayloadInspector.tsx:16:    else if (activeTab === 'verdict') targetData = 
+result.raw?.final_verdict || result.factual_verification;
+  frontend\src\components\RawPayloadInspector.tsx:17:    else if (activeTab === 'fusion') targetData = 
+result.raw?.source_agreement || {};
+  frontend\src\components\RawPayloadInspector.tsx:18:    return JSON.stringify(targetData, null, 2);
+  frontend\src\components\RawPayloadInspector.tsx:19:  }, [result, activeTab]);
+  frontend\src\components\RawPayloadInspector.tsx:20:
+  frontend\src\components\RawPayloadInspector.tsx:21:  const handleCopy = () => {
+  frontend\src\components\RawPayloadInspector.tsx:22:    navigator.clipboard.writeText(jsonString);
+  frontend\src\components\ResearchReportPanel.tsx:448:                  claim={{
+  frontend\src\components\ResearchReportPanel.tsx:449:                    claim_text: claim.claim_text,
+  frontend\src\components\ResearchReportPanel.tsx:450:                    claim_verdict: claim.verdict,
+  frontend\src\components\ResearchReportPanel.tsx:451:                    confidence: claim.confidence,
+> frontend\src\components\ResearchReportPanel.tsx:452:                    evidence_sufficiency: 
+claim.evidence_sufficiency,
+  frontend\src\components\ResearchReportPanel.tsx:453:                    reasoning: claim.reasoning,
+  frontend\src\components\ResearchReportPanel.tsx:454:                    selection_reason: claim.selection_reason,
+  frontend\src\components\ResearchReportPanel.tsx:455:                    source_modality: claim.source_modality,
+  frontend\src\components\ResearchReportPanel.tsx:456:                    priority_score: claim.priority_score,
+  frontend\src\components\ResearchReportPanel.tsx:457:                    timestamps: claim.timestamps as any,
+  frontend\src\components\ResearchReportPanel.tsx:458:                    frame_references: claim.frame_references,
+> frontend\src\components\ResearchReportPanel.tsx:459:                    supporting_evidence: 
+claim.supporting_evidence,
+> frontend\src\components\ResearchReportPanel.tsx:460:                    contradicting_evidence: 
+claim.contradicting_evidence,
+  frontend\src\components\ResearchReportPanel.tsx:461:                    limitations: claim.limitations,
+  frontend\src\components\ResearchReportPanel.tsx:462:                  }}
+  frontend\src\components\ResearchReportPanel.tsx:463:                />
+  frontend\src\components\ResearchReportPanel.tsx:464:              ))}
+  frontend\src\components\ResearchReportPanel.tsx:465:            </section>
+  frontend\src\components\ResearchReportPanel.tsx:466:          )}
+  frontend\src\components\ResearchSummary.tsx:20:};
+  frontend\src\components\ResearchSummary.tsx:21:
+  frontend\src\components\ResearchSummary.tsx:22:const ResearchSummary: React.FC<Props> = ({ result }) => {
+  frontend\src\components\ResearchSummary.tsx:23:  const [expanded, setExpanded] = useState(true);
+> frontend\src\components\ResearchSummary.tsx:24:  const fact = result.factual_verification || {};
+  frontend\src\components\ResearchSummary.tsx:25:  const raw = result.raw || {};
+  frontend\src\components\ResearchSummary.tsx:26:  const finalV = raw.final_verdict || {};
+  frontend\src\components\ResearchSummary.tsx:27:  const evidence = raw.evidence_analysis || [];
+  frontend\src\components\ResearchSummary.tsx:28:  const sources = raw.source_data || [];
+  frontend\src\components\ResearchSummary.tsx:29:
+  frontend\src\components\ResearchSummary.tsx:30:  const supporting = evidence.filter((e: any) => e.evidence_class === 
+'SUPPORT');
+  frontend\src\components\ResearchSummary.tsx:37:    fact.reasoning ||
+  frontend\src\components\ResearchSummary.tsx:38:    finalV.permitted_reason ||
+  frontend\src\components\ResearchSummary.tsx:39:    'The evidence layer completed analysis. No narrative rationale 
+was supplied.';
+  frontend\src\components\ResearchSummary.tsx:40:
+> frontend\src\components\ResearchSummary.tsx:41:  const sufficiency = (fact.evidence_sufficiency || '').toLowerCase();
+  frontend\src\components\ResearchSummary.tsx:42:  const hasSupport = supporting.length > 0;
+  frontend\src\components\ResearchSummary.tsx:43:  const hasContra = contradicting.length > 0;
+  frontend\src\components\ResearchSummary.tsx:44:
+  frontend\src\components\ResearchSummary.tsx:45:  // Deterministic summary lines grounded in the actual response.
+  frontend\src\components\ResearchSummary.tsx:46:  const lines: string[] = [];
+  frontend\src\components\ResearchSummary.tsx:47:  if (hasSupport && hasContra) {
+  frontend\src\components\UnifiedReport.test.tsx:7:  const base = {
+  frontend\src\components\UnifiedReport.test.tsx:8:    verdict: 'REAL' as const,
+  frontend\src\components\UnifiedReport.test.tsx:9:    confidence: 0.83,
+  frontend\src\components\UnifiedReport.test.tsx:10:    confidence_basis: 'evidence_strength',
+> frontend\src\components\UnifiedReport.test.tsx:11:    evidence_sufficiency: 'strong_support',
+  frontend\src\components\UnifiedReport.test.tsx:12:    reasoning: 'Two independent publishers directly support the 
+claim.',
+> frontend\src\components\UnifiedReport.test.tsx:13:    supporting_evidence: [
+  frontend\src\components\UnifiedReport.test.tsx:14:      {
+  frontend\src\components\UnifiedReport.test.tsx:15:        chunk: 'Apollo 11 landed on July 20, 1969.',
+  frontend\src\components\UnifiedReport.test.tsx:16:        domain: 'nasa.gov',
+  frontend\src\components\UnifiedReport.test.tsx:17:        url: 'https://www.nasa.gov/apollo-11',
+  frontend\src\components\UnifiedReport.test.tsx:18:      },
+  frontend\src\components\UnifiedReport.test.tsx:19:    ],
+> frontend\src\components\UnifiedReport.test.tsx:20:    contradicting_evidence: [],
+  frontend\src\components\UnifiedReport.test.tsx:21:  };
+  frontend\src\components\UnifiedReport.test.tsx:22:  return { ...base, ...overrides };
+  frontend\src\components\UnifiedReport.test.tsx:23:}
+  frontend\src\components\UnifiedReport.test.tsx:24:
+  frontend\src\components\UnifiedReport.test.tsx:25:function makeResponse(fact: any): UnifiedVerificationResponse {
+  frontend\src\components\UnifiedReport.test.tsx:26:  return {
+  frontend\src\components\UnifiedReport.test.tsx:27:    modality: 'text',
+  frontend\src\components\UnifiedReport.test.tsx:28:    status: 'success',
+> frontend\src\components\UnifiedReport.test.tsx:29:    factual_verification: fact,
+  frontend\src\components\UnifiedReport.test.tsx:30:    synthetic_media_detection: null,
+  frontend\src\components\UnifiedReport.test.tsx:31:    visual_classification: null,
+  frontend\src\components\UnifiedReport.test.tsx:32:    transcription: null,
+  frontend\src\components\UnifiedReport.test.tsx:33:    primary_claim: "NASA's Apollo 11 mission landed the first 
+humans on the Moon on July 20, 1969.",
+  frontend\src\components\UnifiedReport.test.tsx:34:    consistency_analysis: null,
+  frontend\src\components\UnifiedReport.test.tsx:35:    case_summary: null,
+  frontend\src\components\UnifiedReport.test.tsx:84:
+  frontend\src\components\UnifiedReport.test.tsx:85:  it('renders UNVERIFIED with no evidence', () => {
+  frontend\src\components\UnifiedReport.test.tsx:86:    render(
+  frontend\src\components\UnifiedReport.test.tsx:87:      <UnifiedReport
+> frontend\src\components\UnifiedReport.test.tsx:88:        result={makeResponse(makeFact({ verdict: 'UNVERIFIED', 
+confidence_basis: 'verification_coverage', supporting_evidence: [], contradicting_evidence: [], evidence_sufficiency: 
+'none' }))}
+  frontend\src\components\UnifiedReport.test.tsx:89:        modality="text"
+  frontend\src\components\UnifiedReport.test.tsx:90:        claimText="This news is misleading."
+  frontend\src\components\UnifiedReport.test.tsx:91:        selectedFile={null}
+  frontend\src\components\UnifiedReport.test.tsx:92:      />
+  frontend\src\components\UnifiedReport.test.tsx:93:    );
+  frontend\src\components\UnifiedReport.test.tsx:94:    expect(screen.getByText(/UNVERIFIED/)).toBeInTheDocument();
+  frontend\src\components\UnifiedReport.test.tsx:103:      <UnifiedReport
+  frontend\src\components\UnifiedReport.test.tsx:104:        result={{
+  frontend\src\components\UnifiedReport.test.tsx:105:          modality: 'text',
+  frontend\src\components\UnifiedReport.test.tsx:106:          status: 'error',
+> frontend\src\components\UnifiedReport.test.tsx:107:          factual_verification: makeFact({ verdict: 'UNVERIFIED' 
+}),
+  frontend\src\components\UnifiedReport.test.tsx:108:          synthetic_media_detection: null,
+  frontend\src\components\UnifiedReport.test.tsx:109:          visual_classification: null,
+  frontend\src\components\UnifiedReport.test.tsx:110:          transcription: null,
+  frontend\src\components\UnifiedReport.test.tsx:111:          primary_claim: null,
+  frontend\src\components\UnifiedReport.test.tsx:112:          consistency_analysis: null,
+  frontend\src\components\UnifiedReport.test.tsx:113:          case_summary: null,
+  frontend\src\components\UnifiedReport.test.tsx:132:      <UnifiedReport
+  frontend\src\components\UnifiedReport.test.tsx:133:        result={makeResponse(
+  frontend\src\components\UnifiedReport.test.tsx:134:          makeFact({
+  frontend\src\components\UnifiedReport.test.tsx:135:            verdict: 'REAL',
+> frontend\src\components\UnifiedReport.test.tsx:136:            supporting_evidence: [
+  frontend\src\components\UnifiedReport.test.tsx:137:              { chunk: 'Passage one.', domain: 'a.com', url: 
+'https://a.com/1' },
+  frontend\src\components\UnifiedReport.test.tsx:138:              { chunk: 'Passage two.', domain: 'b.com', url: 
+'https://b.com/2' },
+  frontend\src\components\UnifiedReport.test.tsx:139:              { chunk: 'Passage three.', domain: 'c.com', url: 
+'https://c.com/3' },
+  frontend\src\components\UnifiedReport.test.tsx:140:            ],
+  frontend\src\components\UnifiedReport.test.tsx:141:          })
+  frontend\src\components\UnifiedReport.test.tsx:142:        )}
+  frontend\src\components\UnifiedReport.tsx:43:  modality,
+  frontend\src\components\UnifiedReport.tsx:44:  claimText,
+  frontend\src\components\UnifiedReport.tsx:45:  selectedFile,
+  frontend\src\components\UnifiedReport.tsx:46:}) => {
+> frontend\src\components\UnifiedReport.tsx:47:  const fact = result.factual_verification || {};
+  frontend\src\components\UnifiedReport.tsx:48:  const verdict = (fact.verdict || 'UNVERIFIED').toUpperCase();
+  frontend\src\components\UnifiedReport.tsx:49:  const confidence = fact.confidence;
+  frontend\src\components\UnifiedReport.tsx:50:  const confidenceBasis = fact.confidence_basis;
+> frontend\src\components\UnifiedReport.tsx:51:  const evidenceSufficiency = (fact.evidence_sufficiency || 
+'none').toLowerCase();
+  frontend\src\components\UnifiedReport.tsx:52:  const reasoning = fact.reasoning || fact.deterministic_gate_reason || 
+'';
+> frontend\src\components\UnifiedReport.tsx:53:  const supportingEvidence = Array.isArray(fact.supporting_evidence) ? 
+fact.supporting_evidence : [];
+> frontend\src\components\UnifiedReport.tsx:54:  const contradictingEvidence = 
+Array.isArray(fact.contradicting_evidence) ? fact.contradicting_evidence : [];
+  frontend\src\components\UnifiedReport.tsx:55:
+  frontend\src\components\UnifiedReport.tsx:56:  const v = VERDICT_STYLE[verdict] ?? VERDICT_STYLE.UNVERIFIED;
+  frontend\src\components\UnifiedReport.tsx:57:
+  frontend\src\components\UnifiedReport.tsx:58:  // Short plain-English explanation, capped at 3 sentences.
+  frontend\src\components\UnifiedReport.tsx:59:  const shortExplanation = reasoning
+  frontend\src\components\UnifiedReport.tsx:60:    .split(/(?<=[.!?])\s+/)
+  frontend\src\lib\scores.ts:17: */
+  frontend\src\lib\scores.ts:18:
+  frontend\src\lib\scores.ts:19:export type ScoreKind = 'ratio' | 'count';
+  frontend\src\lib\scores.ts:20:
+> frontend\src\lib\scores.ts:21:/** How each score in `factual_verification` must be read. */
+  frontend\src\lib\scores.ts:22:export const SCORE_KINDS: Record<string, ScoreKind> = {
+  frontend\src\lib\scores.ts:23:  source_agreement: 'ratio',
+  frontend\src\lib\scores.ts:24:  fusion_score: 'ratio',
+  frontend\src\lib\scores.ts:25:  entailment_score: 'count',
+  frontend\src\lib\scores.ts:26:  contradiction_score: 'count',
+  frontend\src\lib\scores.ts:27:};
+  frontend\src\types\index.ts:143:export interface ResearchClaimResult {
+  frontend\src\types\index.ts:144:  claim_text?: string | null;
+  frontend\src\types\index.ts:145:  verdict?: string | null;
+  frontend\src\types\index.ts:146:  confidence?: number | null;
+> frontend\src\types\index.ts:147:  evidence_sufficiency?: string | null;
+  frontend\src\types\index.ts:148:  reasoning?: string | null;
+> frontend\src\types\index.ts:149:  supporting_evidence: any[];
+> frontend\src\types\index.ts:150:  contradicting_evidence: any[];
+  frontend\src\types\index.ts:151:  source_name?: string | null;
+  frontend\src\types\index.ts:152:  source_url?: string | null;
+  frontend\src\types\index.ts:153:  timestamps?: any;
+  frontend\src\types\index.ts:154:  frame_references?: number[] | null;
+  frontend\src\types\index.ts:155:  source_modality?: string | null;
+  frontend\src\types\index.ts:156:  selection_reason?: string | null;
+  frontend\src\types\index.ts:176:  original_text?: string | null;
+  frontend\src\types\index.ts:177:  claim_verdict?: string | null;
+  frontend\src\types\index.ts:178:  verdict?: string | null;
+  frontend\src\types\index.ts:179:  confidence?: number | null;
+> frontend\src\types\index.ts:180:  evidence_sufficiency?: string | null;
+  frontend\src\types\index.ts:181:  selection_reason?: string | null;
+  frontend\src\types\index.ts:182:  selection_status?: string | null;
+  frontend\src\types\index.ts:183:  source_modality?: string | null;
+  frontend\src\types\index.ts:184:  source_provenance?: string | null;
+  frontend\src\types\index.ts:185:  priority_score?: number | null;
+  frontend\src\types\index.ts:186:  timestamps?: [number, number] | number[] | null;
+  frontend\src\types\index.ts:189:  is_verifiable?: boolean;
+  frontend\src\types\index.ts:190:  reasoning?: string | null;
+  frontend\src\types\index.ts:191:  source_name?: string | null;
+  frontend\src\types\index.ts:192:  source_url?: string | null;
+> frontend\src\types\index.ts:193:  supporting_evidence?: any[];
+> frontend\src\types\index.ts:194:  contradicting_evidence?: any[];
+  frontend\src\types\index.ts:195:  evidence_analysis?: any[];
+  frontend\src\types\index.ts:196:  source_data?: any[];
+  frontend\src\types\index.ts:197:  limitations?: string[];
+  frontend\src\types\index.ts:198:}
+  frontend\src\types\index.ts:199:
+  frontend\src\types\index.ts:200:export interface ResearchReport {
+  frontend\src\types\index.ts:222:   *                            UNVERIFIED. It is NOT a probability that the
+  frontend\src\types\index.ts:223:   *                            claim is true or false.
+  frontend\src\types\index.ts:224:   */
+  frontend\src\types\index.ts:225:  confidence_basis?: 'evidence_strength' | 'verification_coverage' | string | null;
+> frontend\src\types\index.ts:226:  evidence_sufficiency: 'SUFFICIENT' | 'INSUFFICIENT' | string | null;
+  frontend\src\types\index.ts:227:  independent_supporting: number;
+  frontend\src\types\index.ts:228:  independent_contradicting: number;
+  frontend\src\types\index.ts:229:  contradiction_score: number | null;
+  frontend\src\types\index.ts:230:  /** Strength of the entailment evidence behind the verdict. */
+  frontend\src\types\index.ts:231:  entailment_score?: number | null;
+  frontend\src\types\index.ts:232:  source_agreement: number | null;
+  frontend\src\types\index.ts:238:  supporting_sources?: number;
+  frontend\src\types\index.ts:239:  contradicting_sources?: number;
+  frontend\src\types\index.ts:240:  context_chunks?: number;
+  frontend\src\types\index.ts:241:  /** Primary evidence passages supporting the verdict (from final_verdict.py). */
+> frontend\src\types\index.ts:242:  supporting_evidence?: any[];
+  frontend\src\types\index.ts:243:  /** Primary evidence passages contradicting the verdict (from final_verdict.py). */
+> frontend\src\types\index.ts:244:  contradicting_evidence?: any[];
+  frontend\src\types\index.ts:245:  agent_verdict?: string | null;
+  frontend\src\types\index.ts:246:  critic_verdict?: string | null;
+  frontend\src\types\index.ts:247:  agents_agree?: boolean | null;
+  frontend\src\types\index.ts:248:  verdict_overridden_by_evidence?: boolean | null;
+  frontend\src\types\index.ts:249:  agent_confidence?: number | null;
+  frontend\src\types\index.ts:250:  critic_confidence?: number | null;
+  frontend\src\types\index.ts:429:
+  frontend\src\types\index.ts:430:export interface UnifiedVerificationResponse {
+  frontend\src\types\index.ts:431:  modality: ModalityType;
+  frontend\src\types\index.ts:432:  status: 'success' | 'error' | string;
+> frontend\src\types\index.ts:433:  factual_verification: FactualVerificationDetails;
+  frontend\src\types\index.ts:434:  synthetic_media_detection?: SyntheticMediaDetails | null;
+  frontend\src\types\index.ts:435:  visual_classification?: VisualClassificationDetails | null;
+  frontend\src\types\index.ts:436:  transcription?: string | null;
+  frontend\src\types\index.ts:437:  transcription_segments?: TranscriptionSegment[] | null;
+  frontend\src\types\index.ts:438:  primary_claim?: string | null;
+  frontend\src\types\index.ts:439:  consistency_analysis?: {
+  scratch\acceptance.py:12:print("=== FINAL VERDICT ===")
+  scratch\acceptance.py:13:print("claim:", claim)
+  scratch\acceptance.py:14:print("verdict:", fv.get("verdict"))
+  scratch\acceptance.py:15:print("confidence:", fv.get("confidence"), "% basis:", fv.get("confidence_basis"))
+> scratch\acceptance.py:16:print("evidence_sufficiency:", fv.get("evidence_sufficiency"))
+  scratch\acceptance.py:17:print("independent_supporting:", fv.get("independent_supporting"))
+  scratch\acceptance.py:18:print("independent_contradicting:", fv.get("independent_contradicting"))
+  scratch\acceptance.py:19:print("primary_supporting_groups:", fv.get("primary_supporting_groups"))
+  scratch\acceptance.py:20:print("article_supporting_groups:", fv.get("article_supporting_groups"))
+  scratch\acceptance.py:21:print("total_sources:", fv.get("total_sources"))
+  scratch\acceptance.py:22:print("fusion_score:", fv.get("fusion_score"))
+  scratch\acceptance.py:37:print("=== SCRAPE FAILURES ===")
+  scratch\acceptance.py:38:for f in state.get("scrape_failures", []):
+  scratch\acceptance.py:39:    print(" -", f.get("url"), "|", f.get("reason"), "| fallback:", f.get("fallback_used"))
+  scratch\acceptance.py:40:print("=== SUPPORTING EVIDENCE ===")
+> scratch\acceptance.py:41:for e in fv.get("supporting_evidence", []):
+  scratch\acceptance.py:42:    print(" -", e.get("url"), "|", e.get("domain"), "| score", e.get("evidence_score"), 
+"|", e.get("chunk", "")[:120])
+  scratch\acceptance.py:43:print("=== CONTRADICTING EVIDENCE ===")
+> scratch\acceptance.py:44:for e in fv.get("contradicting_evidence", []):
+  scratch\acceptance.py:45:    print(" -", e.get("url"), "|", e.get("domain"), "| score", e.get("evidence_score"), 
+"|", e.get("chunk", "")[:120])
+  scratch\acceptance_matrix.py:86:    )
+  scratch\acceptance_matrix.py:87:
+  scratch\acceptance_matrix.py:88:    print(f"  Actual verdict:      {verdict.get('verdict')}")
+  scratch\acceptance_matrix.py:89:    print(f"  Confidence:          {verdict.get('confidence')}%  (basis: 
+{verdict.get('confidence_basis')})")
+> scratch\acceptance_matrix.py:90:    print(f"  Evidence sufficiency: {verdict.get('evidence_sufficiency')}")
+  scratch\acceptance_matrix.py:91:    print(f"  Independent supporting: {verdict.get('independent_supporting')}")
+  scratch\acceptance_matrix.py:92:    print(f"  Independent contradicting: {verdict.get('independent_contradicting')}")
+  scratch\acceptance_matrix.py:93:    print(f"  Permitted verdicts:   {verdict.get('permitted_verdicts')}")
+  scratch\acceptance_matrix.py:94:    print(f"  Reasoning:            {str(verdict.get('reasoning'))[:200]}")
+  scratch\acceptance_matrix.py:95:    print(f"  Verdict overridden:   {verdict.get('verdict_overridden_by_evidence')}")
+  scratch\acceptance_matrix.py:96:    print(f"  Agents agree:         {verdict.get('agents_agree')}")
+  scratch\apollo11_api_response.py:37:    )
+  scratch\apollo11_api_response.py:38:    d = json.loads(urllib.request.urlopen(req, timeout=1800).read())
+  scratch\apollo11_api_response.py:39:    OUT.write_text(json.dumps(d, ensure_ascii=False, indent=1, default=str), 
+encoding="utf-8")
+  scratch\apollo11_api_response.py:40:
+> scratch\apollo11_api_response.py:41:    fact = d["factual_verification"]
+  scratch\apollo11_api_response.py:42:    print("=" * 88)
+> scratch\apollo11_api_response.py:43:    print("API RESPONSE - factual_verification (what the UI renders)")
+  scratch\apollo11_api_response.py:44:    print("=" * 88)
+  scratch\apollo11_api_response.py:45:    for k in sorted(fact.keys()):
+  scratch\apollo11_api_response.py:46:        v = fact[k]
+  scratch\apollo11_api_response.py:47:        if isinstance(v, str) and len(v) > 120:
+  scratch\apollo11_api_response.py:48:            v = v[:120] + "..."
+  scratch\apollo11_api_response.py:49:        print(f"  {k:<34} {v}")
+  scratch\build_fixture_from_live.py:14:fixture = {
+  scratch\build_fixture_from_live.py:15:    "text": {
+  scratch\build_fixture_from_live.py:16:        "modality": d.get("modality"),
+  scratch\build_fixture_from_live.py:17:        "status": d.get("status"),
+> scratch\build_fixture_from_live.py:18:        "factual_verification": {
+> scratch\build_fixture_from_live.py:19:            "verdict": d["factual_verification"].get("verdict"),
+> scratch\build_fixture_from_live.py:20:            "confidence": d["factual_verification"].get("confidence"),
+> scratch\build_fixture_from_live.py:21:            "confidence_basis": 
+d["factual_verification"].get("confidence_basis"),
+> scratch\build_fixture_from_live.py:22:            "evidence_sufficiency": 
+d["factual_verification"].get("evidence_sufficiency"),
+> scratch\build_fixture_from_live.py:23:            "independent_supporting": 
+d["factual_verification"].get("independent_supporting", 0),
+> scratch\build_fixture_from_live.py:24:            "independent_contradicting": 
+d["factual_verification"].get("independent_contradicting", 0),
+  scratch\build_fixture_from_live.py:25:            "contradiction_score": None,
+  scratch\build_fixture_from_live.py:26:            "source_agreement": None,
+  scratch\build_fixture_from_live.py:27:            "fusion_score": None,
+  scratch\build_fixture_from_live.py:28:        },
+  scratch\build_fixture_from_live.py:29:        "synthetic_media_detection": None,
+  scratch\build_fixture_from_live.py:30:        "visual_classification": None,
+  scratch\build_fixture_from_live.py:53:existing["text"] = fixture["text"]
+  scratch\build_fixture_from_live.py:54:
+  scratch\build_fixture_from_live.py:55:OUT.write_text(json.dumps(existing, ensure_ascii=False, indent=2), 
+encoding="utf-8")
+  scratch\build_fixture_from_live.py:56:print(f"wrote {OUT}  (modalities: {', '.join(sorted(existing))})")
+> scratch\build_fixture_from_live.py:57:print("verdict            :", 
+fixture["text"]["factual_verification"]["verdict"])
+> scratch\build_fixture_from_live.py:58:print("confidence         :", 
+fixture["text"]["factual_verification"]["confidence"],
+> scratch\build_fixture_from_live.py:59:      fixture["text"]["factual_verification"]["confidence_basis"])
+  scratch\build_fixture_from_live.py:60:print("supporting findings:", len((report.get("findings") or 
+{}).get("supporting") or []))
+  scratch\build_fixture_from_live.py:61:print("policy diagnostics :", (summary.get("policy_diagnostics") or 
+{}).get("policy_data_valid"))
+  scratch\build_frontend_fixture.py:23:    summary = report.get("executive_summary") or {}
+  scratch\build_frontend_fixture.py:24:    fixture[modality] = {
+  scratch\build_frontend_fixture.py:25:        "modality": payload.get("modality"),
+  scratch\build_frontend_fixture.py:26:        "status": payload.get("status"),
+> scratch\build_frontend_fixture.py:27:        "factual_verification": {
+  scratch\build_frontend_fixture.py:28:            "verdict": payload.get("verdict"),
+  scratch\build_frontend_fixture.py:29:            "confidence": summary.get("confidence"),
+  scratch\build_frontend_fixture.py:30:            "confidence_basis": summary.get("confidence_basis"),
+> scratch\build_frontend_fixture.py:31:            "evidence_sufficiency": summary.get("evidence_sufficiency"),
+  scratch\build_frontend_fixture.py:32:            "independent_supporting": 0,
+  scratch\build_frontend_fixture.py:33:            "independent_contradicting": 0,
+  scratch\build_frontend_fixture.py:34:            "contradiction_score": None,
+  scratch\build_frontend_fixture.py:35:            "source_agreement": None,
+  scratch\build_frontend_fixture.py:36:            "fusion_score": None,
+  scratch\build_frontend_fixture.py:37:        },
+  scratch\build_matrix.py:38:        print("  NOT MEASURED")
+  scratch\build_matrix.py:39:        continue
+  scratch\build_matrix.py:40:    print(f"  actual verdict      : {m['verdict']}   confidence {m['confidence']} "
+  scratch\build_matrix.py:41:          f"({m['confidence_basis']})")
+> scratch\build_matrix.py:42:    print(f"  sufficiency        : {m['evidence_sufficiency']}   permitted 
+{m['permitted_verdicts']}")
+  scratch\build_matrix.py:43:    print(f"  publishers         : {m['independence_groups']} groups / 
+{m['total_sources']} sources")
+  scratch\build_matrix.py:44:    print(f"  independent sup/con: {m['independent_supporting']} / 
+{m['independent_contradicting']}")
+  scratch\build_matrix.py:45:    print(f"  primary sup/con    : {m['primary_supporting_groups']} / 
+{m['primary_contradicting_groups']}")
+  scratch\build_matrix.py:46:    print(f"  article sources    : {m['article_sources']}  snippet-only 
+{m['snippet_only_sources']}")
+  scratch\build_matrix.py:47:    print(f"  evidence classes   : {m['class_counts']}")
+  scratch\build_matrix.py:48:    print(f"  passage kinds      : {m['passage_kinds']}")
+  scratch\consistency_check.py:58:        print("=" * 96)
+  scratch\consistency_check.py:59:
+  scratch\consistency_check.py:60:        # ---- terminal side -------------------------------------------
+  scratch\consistency_check.py:61:        print(f"  TERMINAL verdict={m['verdict']} conf={m['confidence']} "
+> scratch\consistency_check.py:62:              f"({m['confidence_basis']}) sufficiency={m['evidence_sufficiency']}")
+  scratch\consistency_check.py:63:        print(f"           permitted={m['permitted_verdicts']} "
+  scratch\consistency_check.py:64:              f"indep_sup={m['independent_supporting']} "
+  scratch\consistency_check.py:65:              f"indep_contra={m['independent_contradicting']} "
+  scratch\consistency_check.py:66:              f"primary_sup={m['primary_supporting_groups']} "
+  scratch\consistency_check.py:67:              f"article_src={m['article_sources']} 
+snippet_only={m['snippet_only_sources']}")
+  scratch\consistency_check.py:68:
+  scratch\consistency_check.py:73:            print(f"  API call FAILED: {str(exc)[:160]}")
+  scratch\consistency_check.py:74:            rows.append((key, m, None, ["api call failed"]))
+  scratch\consistency_check.py:75:            continue
+  scratch\consistency_check.py:76:
+> scratch\consistency_check.py:77:        f = d["factual_verification"]
+  scratch\consistency_check.py:78:        print(f"  API      verdict={f.get('verdict')} conf={f.get('confidence')} "
+> scratch\consistency_check.py:79:              f"({f.get('confidence_basis')}) 
+sufficiency={f.get('evidence_sufficiency')}")
+  scratch\consistency_check.py:80:        print(f"           permitted={f.get('permitted_verdicts')} "
+  scratch\consistency_check.py:81:              f"indep_sup={f.get('independent_supporting')} "
+  scratch\consistency_check.py:82:              f"indep_contra={f.get('independent_contradicting')} "
+  scratch\consistency_check.py:83:              f"primary_sup={f.get('primary_supporting_groups')} "
+  scratch\consistency_check.py:84:              f"article_src={f.get('article_supporting_groups')} "
+  scratch\consistency_check.py:85:              f"snippet_only={f.get('snippet_only_sources')}")
+  scratch\consistency_check.py:135:        # ---- terminal vs API ------------------------------------------
+  scratch\consistency_check.py:136:        api_m = {
+  scratch\consistency_check.py:137:            "verdict": f.get("verdict"),
+  scratch\consistency_check.py:138:            "confidence_basis": f.get("confidence_basis"),
+> scratch\consistency_check.py:139:            "evidence_sufficiency": f.get("evidence_sufficiency"),
+  scratch\consistency_check.py:140:            "permitted_verdicts": f.get("permitted_verdicts"),
+  scratch\consistency_check.py:141:            "independent_supporting": f.get("independent_supporting"),
+  scratch\consistency_check.py:142:            "independent_contradicting": f.get("independent_contradicting"),
+  scratch\consistency_check.py:143:            "primary_supporting_groups": f.get("primary_supporting_groups"),
+  scratch\consistency_check.py:144:        }
+  scratch\consistency_check.py:145:        term_m = {
+  scratch\consistency_check.py:146:            "verdict": m["verdict"],
+  scratch\consistency_check.py:147:            "confidence_basis": m["confidence_basis"],
+> scratch\consistency_check.py:148:            "evidence_sufficiency": m["evidence_sufficiency"],
+  scratch\consistency_check.py:149:            "permitted_verdicts": m["permitted_verdicts"],
+  scratch\consistency_check.py:150:            "independent_supporting": m["independent_supporting"],
+  scratch\consistency_check.py:151:            "independent_contradicting": m["independent_contradicting"],
+  scratch\consistency_check.py:152:            "primary_supporting_groups": m["primary_supporting_groups"],
+  scratch\consistency_check.py:153:        }
+  scratch\consistency_check.py:154:        divergent = {k: (term_m[k], api_m[k]) for k in term_m if term_m[k] != 
+api_m[k]}
+  scratch\e2e_all_modalities.py:55:    print("=" * 78)
+  scratch\e2e_all_modalities.py:56:    print(f"{label}   ({elapsed:.1f}s)")
+  scratch\e2e_all_modalities.py:57:    print("=" * 78)
+  scratch\e2e_all_modalities.py:58:
+> scratch\e2e_all_modalities.py:59:    fact = data.get("factual_verification") or {}
+  scratch\e2e_all_modalities.py:60:    print(f"status              : {data.get('status')}")
+  scratch\e2e_all_modalities.py:61:    print(f"verdict             : {fact.get('verdict')}")
+  scratch\e2e_all_modalities.py:62:    print(f"confidence          : {fact.get('confidence')}")
+> scratch\e2e_all_modalities.py:63:    print(f"evidence_sufficiency: {fact.get('evidence_sufficiency')}")
+  scratch\e2e_all_modalities.py:64:    print(f"indep support/contra: {fact.get('independent_supporting')} / "
+  scratch\e2e_all_modalities.py:65:          f"{fact.get('independent_contradicting')}")
+  scratch\e2e_all_modalities.py:66:
+  scratch\e2e_all_modalities.py:67:    synth = data.get("synthetic_media_detection")
+  scratch\e2e_all_modalities.py:68:    if synth:
+  scratch\e2e_all_modalities.py:69:        print(f"ai-generation       : signal={synth.get('signal')} "
+  scratch\e2e_all_modalities.py:166:    serialisable = {
+  scratch\e2e_all_modalities.py:167:        k: {
+  scratch\e2e_all_modalities.py:168:            "modality": v.get("modality"),
+  scratch\e2e_all_modalities.py:169:            "status": v.get("status"),
+> scratch\e2e_all_modalities.py:170:            "verdict": (v.get("factual_verification") or {}).get("verdict"),
+  scratch\e2e_all_modalities.py:171:            "report": v.get("research_report"),
+  scratch\e2e_all_modalities.py:172:        }
+  scratch\e2e_all_modalities.py:173:        for k, v in results.items()
+  scratch\e2e_all_modalities.py:174:    }
+  scratch\e2e_all_modalities.py:175:    out.write_text(json.dumps(serialisable, ensure_ascii=False, indent=1), 
+encoding="utf-8")
+  scratch\e2e_all_modalities.py:176:    print(f"\nSaved condensed results -> {out}")
+  scratch\e2e_sse.py:102:            try:
+  scratch\e2e_sse.py:103:                parsed = json.loads(payload)
+  scratch\e2e_sse.py:104:            except Exception:
+  scratch\e2e_sse.py:105:                continue
+> scratch\e2e_sse.py:106:            if isinstance(parsed, dict) and "factual_verification" in parsed:
+  scratch\e2e_sse.py:107:                result_payload = parsed
+  scratch\e2e_sse.py:108:                break
+  scratch\e2e_sse.py:109:
+  scratch\e2e_sse.py:110:    if result_payload is None:
+  scratch\e2e_sse.py:111:        print("RESULT           : *** no result payload received ***")
+  scratch\e2e_sse.py:112:        for ev in events[-4:]:
+  scratch\e2e_sse.py:113:            print("  ", ev[:300].replace("\n", " | "))
+  scratch\e2e_sse.py:114:        return False
+  scratch\e2e_sse.py:115:
+> scratch\e2e_sse.py:116:    fact = result_payload.get("factual_verification") or {}
+  scratch\e2e_sse.py:117:    report = result_payload.get("research_report") or {}
+  scratch\e2e_sse.py:118:    summary = report.get("executive_summary") or {}
+  scratch\e2e_sse.py:119:    method = report.get("methodology") or {}
+  scratch\e2e_sse.py:120:
+  scratch\e2e_sse.py:121:    print(f"modality         : {result_payload.get('modality')}")
+  scratch\e2e_sse.py:122:    print(f"status           : {result_payload.get('status')}")
+  scratch\final_api_check.py:16:except Exception as e:
+  scratch\final_api_check.py:17:    print(f"REQUEST FAILED: {e}")
+  scratch\final_api_check.py:18:    raise
+  scratch\final_api_check.py:19:
+> scratch\final_api_check.py:20:fact = d.get("factual_verification") or {}
+  scratch\final_api_check.py:21:report = d.get("research_report") or {}
+  scratch\final_api_check.py:22:summary = report.get("executive_summary") or {}
+  scratch\final_api_check.py:23:methodology = report.get("methodology") or {}
+  scratch\final_api_check.py:24:findings = report.get("findings") or {}
+  scratch\final_api_check.py:25:
+  scratch\final_api_check.py:26:print("=" * 70)
+  scratch\final_api_check.py:29:print(f"  modality         : {d.get('modality')}")
+  scratch\final_api_check.py:30:print(f"  status           : {d.get('status')}")
+  scratch\final_api_check.py:31:print(f"  verdict          : {fact.get('verdict')}")
+  scratch\final_api_check.py:32:print(f"  confidence       : {fact.get('confidence')} 
+({fact.get('confidence_basis')})")
+> scratch\final_api_check.py:33:print(f"  evidence_sufficiency: {fact.get('evidence_sufficiency')}")
+  scratch\final_api_check.py:34:print(f"  independent_supporting : {fact.get('independent_supporting')}")
+  scratch\final_api_check.py:35:print(f"  independent_contradicting : {fact.get('independent_contradicting')}")
+  scratch\final_api_check.py:36:print(f"  primary_supporting_groups : {fact.get('primary_supporting_groups')}")
+  scratch\final_api_check.py:37:print(f"  primary_contradicting_groups : {fact.get('primary_contradicting_groups')}")
+  scratch\final_api_check.py:38:print(f"  article_sources : {fact.get('article_supporting_groups')}")
+  scratch\final_api_check.py:39:print(f"  total_sources : {fact.get('total_sources')}")
+  scratch\final_api_verify.py:33:        results.append((key, {"error": str(e)}))
+  scratch\final_api_verify.py:34:        print()
+  scratch\final_api_verify.py:35:        continue
+  scratch\final_api_verify.py:36:
+> scratch\final_api_verify.py:37:    fact = result.get("factual_verification") or {}
+  scratch\final_api_verify.py:38:    report = result.get("research_report") or {}
+  scratch\final_api_verify.py:39:    summary = report.get("executive_summary") or {}
+  scratch\final_api_verify.py:40:    methodology = report.get("methodology") or {}
+  scratch\final_api_verify.py:41:    findings = report.get("findings") or {}
+  scratch\final_api_verify.py:42:
+  scratch\final_api_verify.py:43:    print(f"  status : {result.get('status')}")
+  scratch\final_api_verify.py:44:    print(f"  verdict: {fact.get('verdict')}")
+  scratch\final_api_verify.py:45:    print(f"  confidence: {fact.get('confidence')} ({fact.get('confidence_basis')})")
+> scratch\final_api_verify.py:46:    print(f"  evidence_sufficiency: {fact.get('evidence_sufficiency')}")
+  scratch\final_api_verify.py:47:    print(f"  independent_supporting: {fact.get('independent_supporting')}")
+  scratch\final_api_verify.py:48:    print(f"  independent_contradicting: {fact.get('independent_contradicting')}")
+  scratch\final_api_verify.py:49:    print(f"  article_supporting_groups: {fact.get('primary_supporting_groups')}")
+  scratch\final_api_verify.py:50:    print(f"  primary_contradicting_groups: 
+{fact.get('primary_contradicting_groups')}")
+  scratch\final_api_verify.py:51:    print(f"  article_sources: {fact.get('article_supporting_groups')}")
+  scratch\final_api_verify.py:52:    print(f"  total_sources: {fact.get('total_sources')}")
+  scratch\final_api_verify2.py:26:    except Exception as e:
+  scratch\final_api_verify2.py:27:        print(f"  REQUEST FAILED: {e}")
+  scratch\final_api_verify2.py:28:        results[key] = {"error": str(e)}
+  scratch\final_api_verify2.py:29:        continue
+> scratch\final_api_verify2.py:30:    fact = result.get("factual_verification") or {}
+  scratch\final_api_verify2.py:31:    print(f"  verdict: {fact.get('verdict')}")
+  scratch\final_api_verify2.py:32:    print(f"  confidence: {fact.get('confidence')} ({fact.get('confidence_basis')})")
+> scratch\final_api_verify2.py:33:    print(f"  evidence_sufficiency: {fact.get('evidence_sufficiency')}")
+  scratch\final_api_verify2.py:34:    print(f"  independent_supporting: {fact.get('independent_supporting')}")
+  scratch\final_api_verify2.py:35:    print(f"  independent_contradicting: {fact.get('independent_contradicting')}")
+  scratch\final_api_verify2.py:36:    print(f"  gate_reason: {fact.get('deterministic_gate_reason')}")
+  scratch\final_api_verify2.py:37:    results[key] = result
+  scratch\final_api_verify2.py:38:
+  scratch\final_api_verify2.py:39:print("\n" + "=" * 60)
+  scratch\final_api_verify2.py:42:for key, result in results.items():
+  scratch\final_api_verify2.py:43:    if "error" in result:
+  scratch\final_api_verify2.py:44:        print(f"{key}: FAILED - {result['error']}")
+  scratch\final_api_verify2.py:45:    else:
+> scratch\final_api_verify2.py:46:        fv = result.get("factual_verification", {})
+> scratch\final_api_verify2.py:47:        print(f"{key}: verdict={fv.get('verdict')}, 
+confidence={fv.get('confidence')} ({fv.get('confidence_basis')}), sufficiency={fv.get('evidence_sufficiency')}, 
+supporting={fv.get('independent_supporting')}, contradicting={fv.get('independent_contradicting')}")
+  scratch\final_policy_diag_check.py:13:    headers={"Content-Type": "application/json"},
+  scratch\final_policy_diag_check.py:14:)
+  scratch\final_policy_diag_check.py:15:d = json.loads(urllib.request.urlopen(req, timeout=900).read())
+  scratch\final_policy_diag_check.py:16:
+> scratch\final_policy_diag_check.py:17:print("=== factual_verification (top level) ===")
+> scratch\final_policy_diag_check.py:18:fact = d["factual_verification"]
+  scratch\final_policy_diag_check.py:19:for key in ("verdict", "confidence", "confidence_basis", "policy_data_valid",
+  scratch\final_policy_diag_check.py:20:            "policy_data_errors", "permitted_verdicts"):
+  scratch\final_policy_diag_check.py:21:    print(f"  {key:26s} {fact.get(key)}")
+  scratch\final_policy_diag_check.py:22:
+  scratch\final_policy_diag_check.py:23:print()
+  scratch\final_policy_diag_check.py:24:print("=== research_report.executive_summary.policy_diagnostics ===")
+  scratch\final_policy_diag_check.py:32:print("  policy_data_valid           ", raw_fv.get("policy_data_valid"))
+  scratch\final_policy_diag_check.py:33:print("  policy_data_errors          ", raw_fv.get("policy_data_errors"))
+  scratch\final_policy_diag_check.py:34:print()
+  scratch\final_policy_diag_check.py:35:print("NOTE: the response schema is additive - all pre-existing "
+> scratch\final_policy_diag_check.py:36:      "factual_verification keys are still present:")
+  scratch\final_policy_diag_check.py:37:print("  ", sorted(fact.keys()))
+  scratch\final_verify_live.py:42:        print(f"  REQUEST FAILED: {e}")
+  scratch\final_verify_live.py:43:        results.append((key, {"error": str(e)}))
+  scratch\final_verify_live.py:44:        continue
+  scratch\final_verify_live.py:45:
+> scratch\final_verify_live.py:46:    fact = result.get("factual_verification") or {}
+  scratch\final_verify_live.py:47:    report = d.get("research_report") or {} if isinstance(d, dict) else {}
+  scratch\final_verify_live.py:48:    
+  scratch\final_verify_live.py:49:    print(f"  status: {data.get('status')}")
+  scratch\final_verify_live.py:50:    print(f"  verdict : {fact.get('verdict')}")
+  scratch\final_verify_live.py:51:    print(f"  confidence: {fact.get('confidence')} ({fact.get('confidence_basis')})")
+> scratch\final_verify_live.py:52:    print(f"  sufficiency: {fact.get('evidence_sufficiency')}")
+  scratch\final_verify_live.py:53:    print(f"  independent_supporting: {fact.get('independent_supporting')}")
+  scratch\final_verify_live.py:54:    print(f"  independent_contradicting: {fact.get('independent_contradicting')}")
+  scratch\final_verify_live.py:55:    print(f"  article_sources: {fact.get('article_supporting_groups')}")
+  scratch\final_verify_live.py:56:    print(f"  total_sources: {fact.get('total_sources')}")
+  scratch\final_verify_live.py:57:    print(f"  search_queries: {[q.get('query') for q in 
+(methodology.get('search_queries') or [])]}")
+  scratch\final_verify_live.py:58:    print(f"  search_errors: {methodology.get('search_errors')}")
+  scratch\inspect_audio.py:22:print("synthetic_media_detection:", json.dumps(d.get("synthetic_media_detection"), 
+ensure_ascii=False)[:500])
+  scratch\inspect_audio.py:23:print()
+  scratch\inspect_audio.py:24:print("claim_extraction:", json.dumps(raw.get("claim_extraction"), 
+ensure_ascii=False)[:800])
+  scratch\inspect_audio.py:25:print()
+> scratch\inspect_audio.py:26:print("factual_verification:", json.dumps(raw.get("factual_verification"), 
+ensure_ascii=False)[:600])
+  scratch\inspect_audio.py:27:print()
+  scratch\inspect_audio.py:28:print("transcription:", str(raw.get("transcription"))[:300])
+  scratch\inspect_audio.py:29:print()
+  scratch\inspect_audio.py:30:print("consistency_analysis:", json.dumps(raw.get("consistency_analysis"), 
+ensure_ascii=False)[:500])
+  scratch\inspect_audio.py:31:print()
+  scratch\inspect_audio.py:32:print("modality_specific:", json.dumps(d.get("modality_specific"), 
+ensure_ascii=False)[:800])
+  scratch\measure_text_run.py:131:        "nli_sec": round(stats["nli_sec"], 2),
+  scratch\measure_text_run.py:132:        "verdict": verdict["verdict"],
+  scratch\measure_text_run.py:133:        "confidence": verdict["confidence"],
+  scratch\measure_text_run.py:134:        "confidence_basis": verdict.get("confidence_basis"),
+> scratch\measure_text_run.py:135:        "evidence_sufficiency": verdict.get("evidence_sufficiency"),
+  scratch\measure_text_run.py:136:        "permitted_verdicts": verdict.get("permitted_verdicts"),
+  scratch\measure_text_run.py:137:        "gate_reason": verdict.get("deterministic_gate_reason"),
+  scratch\measure_text_run.py:138:        "independent_supporting": verdict.get("independent_supporting"),
+  scratch\measure_text_run.py:139:        "independent_contradicting": verdict.get("independent_contradicting"),
+  scratch\measure_text_run.py:140:        "primary_supporting_groups": verdict.get("primary_supporting_groups"),
+  scratch\measure_text_run.py:141:        "primary_contradicting_groups": verdict.get("primary_contradicting_groups"),
+  scratch\measure_text_run.py:169:                "domain": e.get("domain"),
+  scratch\measure_text_run.py:170:                "score": e.get("evidence_score"),
+  scratch\measure_text_run.py:171:                "nli": e.get("chunk", "")[:260],
+  scratch\measure_text_run.py:172:            }
+> scratch\measure_text_run.py:173:            for e in verdict.get("supporting_evidence") or []
+  scratch\measure_text_run.py:174:        ],
+  scratch\measure_text_run.py:175:        "contradicting_passages": [
+  scratch\measure_text_run.py:176:            {
+  scratch\measure_text_run.py:177:                "url": e.get("url"),
+  scratch\measure_text_run.py:178:                "domain": e.get("domain"),
+  scratch\measure_text_run.py:179:                "score": e.get("evidence_score"),
+  scratch\measure_text_run.py:180:                "nli": e.get("chunk", "")[:260],
+  scratch\measure_text_run.py:181:            }
+> scratch\measure_text_run.py:182:            for e in verdict.get("contradicting_evidence") or []
+  scratch\measure_text_run.py:183:        ],
+  scratch\measure_text_run.py:184:        "class_counts": {
+  scratch\measure_text_run.py:185:            cls: sum(1 for r in results if r.get("evidence_class") == cls)
+  scratch\measure_text_run.py:186:            for cls in ("SUPPORT", "CONTRADICTION", "RELATED_CONTEXT", 
+"NON_EVIDENCE")
+  scratch\measure_text_run.py:187:        },
+  scratch\measure_text_run.py:188:        "passage_kinds": {
+  scratch\measure_text_run.py:199:    print(f"[{label}] {claim}")
+  scratch\measure_text_run.py:200:    print("=" * 96)
+  scratch\measure_text_run.py:201:    print(f"  VERDICT          : {summary['verdict']}  "
+  scratch\measure_text_run.py:202:          f"confidence={summary['confidence']} ({summary['confidence_basis']})")
+> scratch\measure_text_run.py:203:    print(f"  sufficiency      : {summary['evidence_sufficiency']}  "
+  scratch\measure_text_run.py:204:          f"permitted={summary['permitted_verdicts']}")
+  scratch\measure_text_run.py:205:    print(f"  publishers       : {summary['independence_groups']} groups / "
+  scratch\measure_text_run.py:206:          f"{summary['total_sources']} sources  "
+  scratch\measure_text_run.py:207:          f"(primary supporting {summary['primary_supporting_groups']}, "
+  scratch\measure_text_run.py:208:          f"primary contradicting {summary['primary_contradicting_groups']})")
+  scratch\measure_text_run.py:209:    print(f"  article sources  : {summary['article_sources']}  "
+  scratch\print_apollo11_api.py:2:import json
+  scratch\print_apollo11_api.py:3:from pathlib import Path
+  scratch\print_apollo11_api.py:4:
+  scratch\print_apollo11_api.py:5:d = 
+json.loads(Path("scratch/apollo11_api_response.json").read_text(encoding="utf-8"))
+> scratch\print_apollo11_api.py:6:fact = d["factual_verification"]
+  scratch\print_apollo11_api.py:7:
+  scratch\print_apollo11_api.py:8:print("=" * 92)
+> scratch\print_apollo11_api.py:9:print("LIVE API - factual_verification (AFTER the fix)")
+  scratch\print_apollo11_api.py:10:print("=" * 92)
+  scratch\print_apollo11_api.py:11:for k in sorted(fact.keys()):
+  scratch\print_apollo11_api.py:12:    v = fact[k]
+  scratch\print_apollo11_api.py:13:    if isinstance(v, str) and len(v) > 130:
+  scratch\print_apollo11_api.py:14:        v = v[:130] + "..."
+  scratch\print_apollo11_api.py:15:    print(f"  {k:<34} {v}")
+  scratch\print_apollo11_table.py:72:          "primary_contradicting_groups", "article_supporting_groups",
+  scratch\print_apollo11_table.py:73:          "article_contradicting_groups", "correction_groups",
+  scratch\print_apollo11_table.py:74:          "primary_correction_groups", "snippet_only_sources", "article_sources",
+  scratch\print_apollo11_table.py:75:          "unresolved_identity_sources", "verification_coverage",
+> scratch\print_apollo11_table.py:76:          "agreement_score", "evidence_sufficiency", "supporting_sources",
+  scratch\print_apollo11_table.py:77:          "contradicting_sources", "related_context_sources", 
+"non_evidence_sources"):
+  scratch\print_apollo11_table.py:78:    print(f"   {k:<32} {d['agreement'].get(k)}")
+  scratch\print_apollo11_table.py:79:
+  scratch\print_apollo11_table.py:80:print()
+  scratch\print_apollo11_table.py:81:print("H. DETERMINISTIC EVIDENCE FLOOR")
+  scratch\print_apollo11_table.py:82:print(f"   fusion_score        : {d['fusion_score']}")
+  scratch\print_apollo11_table.py:85:print(f"   policy_data_valid   : {d['gate'].get('policy_data_valid')}")
+  scratch\print_apollo11_table.py:86:
+  scratch\print_apollo11_table.py:87:print()
+  scratch\print_apollo11_table.py:88:print("I. FINAL VERDICT")
+> scratch\print_apollo11_table.py:89:for k in ("verdict", "confidence", "confidence_basis", "evidence_sufficiency",
+  scratch\print_apollo11_table.py:90:          "source_agreement", "fusion_score", "independent_supporting",
+  scratch\print_apollo11_table.py:91:          "independent_contradicting", "primary_supporting_groups",
+  scratch\print_apollo11_table.py:92:          "total_sources", "independence_groups", "supporting_sources",
+  scratch\print_apollo11_table.py:93:          "contradicting_sources", "context_chunks", "entailment_score",
+  scratch\print_apollo11_table.py:94:          "contradiction_score", "verification_coverage"):
+  scratch\print_apollo11_table.py:95:    print(f"   {k:<32} {d['verdict'].get(k)}")
+  scratch\print_run.py:10:print("=" * 96)
+  scratch\print_run.py:11:print(f"[{key}] {d['claim']}")
+  scratch\print_run.py:12:print("=" * 96)
+  scratch\print_run.py:13:print(f"  VERDICT     : {d['verdict']}  confidence {d['confidence']} 
+({d['confidence_basis']})")
+> scratch\print_run.py:14:print(f"  sufficiency : {d['evidence_sufficiency']}  permitted {d['permitted_verdicts']}")
+  scratch\print_run.py:15:print(f"  publishers  : {d['independence_groups']} groups / {d['total_sources']} sources "
+  scratch\print_run.py:16:      f"(primary sup {d['primary_supporting_groups']}, primary contra 
+{d['primary_contradicting_groups']})")
+  scratch\print_run.py:17:print(f"  article src : {d['article_sources']}  snippet-only {d['snippet_only_sources']}")
+  scratch\print_run.py:18:print(f"  classes     : {d['class_counts']}  kinds {d['passage_kinds']}")
+  scratch\print_run.py:19:print(f"  TIME        : total {d['total_sec']}s | retrieval 
+{d['retrieval_calls']}c/{d['retrieval_sec']}s "
+  scratch\print_run.py:20:      f"| scrape {d['scrape_calls']}c/{d['scrape_sec']}s (fail {d['scrape_failures']}) "
+  scratch\print_trace.py:23:    "unresolved_identity_sources", "independence_groups",
+  scratch\print_trace.py:24:    "independent_supporting", "independent_contradicting",
+  scratch\print_trace.py:25:    "primary_supporting_groups", "primary_contradicting_groups",
+  scratch\print_trace.py:26:    "article_supporting_groups", "article_contradicting_groups",
+> scratch\print_trace.py:27:    "correction_groups", "verification_coverage", "evidence_sufficiency",
+  scratch\print_trace.py:28:    "agreement_score",
+  scratch\print_trace.py:29:]:
+  scratch\print_trace.py:30:    print(f"  {k:32s} {a.get(k)}")
+  scratch\print_trace.py:31:
+  scratch\print_trace.py:32:print()
+  scratch\print_trace.py:33:print("=== GATE ===")
+  scratch\print_trace.py:37:print()
+  scratch\print_trace.py:38:print("=== VERDICT ===")
+  scratch\print_trace.py:39:for k in [
+  scratch\print_trace.py:40:    "verdict", "confidence", "confidence_basis", "verification_verdict",
+> scratch\print_trace.py:41:    "critic_verdict", "verdict_overridden_by_evidence", "evidence_sufficiency",
+  scratch\print_trace.py:42:]:
+  scratch\print_trace.py:43:    print(f"  {k:32s} {v.get(k)}")
+  scratch\print_trace.py:44:print("  reasoning:", v.get("reasoning"))
+  scratch\repro_evidence_defects.py:180:print("  >>> MISLEADING permitted without a correction:",
+  scratch\repro_evidence_defects.py:181:      "REPRODUCED" if "MISLEADING" in gate["permitted_verdicts"] else "not 
+reproduced")
+  scratch\repro_evidence_defects.py:182:
+  scratch\repro_evidence_defects.py:183:# ---------------------------------------------------------------------------
+> scratch\repro_evidence_defects.py:184:hdr("DEFECT 7: UNVERIFIED mislabels supporting_evidence as contradiction")
+  scratch\repro_evidence_defects.py:185:# ---------------------------------------------------------------------------
+  scratch\repro_evidence_defects.py:186:mixed = [
+  scratch\repro_evidence_defects.py:187:    chunk(1, "https://www.reuters.com/a", "SUPPORT", 0.9),
+  scratch\repro_evidence_defects.py:188:    chunk(2, "https://www.bbc.com/b", "CONTRADICTION", 0.9),
+  scratch\repro_evidence_defects.py:189:]
+  scratch\repro_evidence_defects.py:190:verdict = decide(mixed)
+  scratch\repro_evidence_defects.py:191:print("  FINAL VERDICT              :", verdict["verdict"])
+> scratch\repro_evidence_defects.py:192:print("  supporting_evidence classes:",
+> scratch\repro_evidence_defects.py:193:      [e.get("url") for e in verdict["supporting_evidence"]])
+> scratch\repro_evidence_defects.py:194:print("  contradicting_evidence     :",
+> scratch\repro_evidence_defects.py:195:      [e.get("url") for e in verdict["contradicting_evidence"]])
+  scratch\repro_evidence_defects.py:196:print("  >>> supporting list holds contradiction chunks:",
+  scratch\repro_evidence_defects.py:197:      "REPRODUCED"
+> scratch\repro_evidence_defects.py:198:      if verdict["supporting_evidence"]
+> scratch\repro_evidence_defects.py:199:      and verdict["supporting_evidence"][0]["url"].endswith("/b")
+  scratch\repro_evidence_defects.py:200:      else "not reproduced")
+  scratch\repro_evidence_defects.py:201:
+  scratch\repro_evidence_defects.py:202:# ---------------------------------------------------------------------------
+  scratch\repro_evidence_defects.py:203:hdr("DEFECT 8: agent verdict extraction picks an incidental label")
+  scratch\repro_evidence_defects.py:204:# ---------------------------------------------------------------------------
+  scratch\repro_evidence_defects.py:205:incidental = (
+  scratch\repro_water_boil.py:12:print("FINAL VERDICT")
+  scratch\repro_water_boil.py:13:print("=" * 60)
+  scratch\repro_water_boil.py:14:print(f"Verdict: {fv.get('verdict')}")
+  scratch\repro_water_boil.py:15:print(f"Confidence: {fv.get('confidence')}% (basis: {fv.get('confidence_basis')})")
+> scratch\repro_water_boil.py:16:print(f"Evidence Sufficiency: {fv.get('evidence_sufficiency')}")
+  scratch\repro_water_boil.py:17:print(f"Independent Supporting: {fv.get('independent_supporting')}")
+  scratch\repro_water_boil.py:18:print(f"Independent Contradicting: {fv.get('independent_contradicting')}")
+  scratch\repro_water_boil.py:19:print(f"Primary Supporting Groups: {fv.get('primary_supporting_groups')}")
+  scratch\repro_water_boil.py:20:print(f"Total Sources: {fv.get('total_sources')}")
+  scratch\repro_water_boil.py:21:print(f"Permitted Verdicts: {fv.get('permitted_verdicts')}")
+  scratch\repro_water_boil.py:22:print(f"Reason: {fv.get('reasoning')}")
+  scratch\repro_water_boil.py:43:print(f"  Independence Groups: {agreement.get('independence_groups')}")
+  scratch\repro_water_boil.py:44:print(f"  Independent Supporting: {agreement.get('independent_supporting')}")
+  scratch\repro_water_boil.py:45:print(f"  Independent Contradicting: {agreement.get('independent_contradicting')}")
+  scratch\repro_water_boil.py:46:print(f"  Agreement Score: {agreement.get('agreement_score')}")
+> scratch\repro_water_boil.py:47:print(f"  Evidence Sufficiency: {agreement.get('evidence_sufficiency')}")
+  scratch\repro_water_boil.py:48:print(f"  Verification Coverage: {agreement.get('verification_coverage')}")
+  scratch\repro_water_boil.py:49:print(f"  Source Decisions: {agreement.get('source_decisions', [])}")
+  scratch\repro_water_boil.py:50:
+  scratch\repro_water_boil.py:51:print("\n" + "=" * 60)
+  scratch\repro_water_boil.py:52:print("AGENT ERRORS")
+  scratch\repro_water_boil.py:53:print("=" * 60)
+  scratch\run_acceptance_A.py:12:agreement = state.get("source_agreement", {})
+  scratch\run_acceptance_A.py:13:print("=== FINAL VERDICT ===")
+  scratch\run_acceptance_A.py:14:print("verdict:", fv.get("verdict"))
+  scratch\run_acceptance_A.py:15:print("confidence:", fv.get("confidence"), "% basis:", fv.get("confidence_basis"))
+> scratch\run_acceptance_A.py:16:print("evidence_sufficiency:", fv.get("evidence_sufficiency"))
+  scratch\run_acceptance_A.py:17:print("independent_supporting:", fv.get("independent_supporting"))
+  scratch\run_acceptance_A.py:18:print("independent_contradicting:", fv.get("independent_contradicting"))
+  scratch\run_acceptance_A.py:19:print("primary_supporting_groups:", fv.get("primary_supporting_groups"))
+  scratch\run_acceptance_A.py:20:print("article_supporting_groups:", fv.get("article_supporting_groups"))
+  scratch\run_acceptance_A.py:21:print("total_sources:", fv.get("total_sources"))
+  scratch\run_acceptance_A.py:22:print("fusion_score:", fv.get("fusion_score"))
+  scratch\run_acceptance_A.py:37:print("=== SCRAPE FAILURES ===")
+  scratch\run_acceptance_A.py:38:for f in state.get("scrape_failures", []):
+  scratch\run_acceptance_A.py:39:    print(" -", f.get("url"), "|", f.get("reason"), "| fallback:", 
+f.get("fallback_used"))
+  scratch\run_acceptance_A.py:40:print("=== SUPPORTING EVIDENCE ===")
+> scratch\run_acceptance_A.py:41:for e in fv.get("supporting_evidence", []):
+  scratch\run_acceptance_A.py:42:    print(" -", e.get("url"), "|", e.get("domain"), "| score", 
+e.get("evidence_score"), "|", e.get("chunk", "")[:120])
+  scratch\run_acceptance_A.py:43:print("=== CONTRADICTING EVIDENCE ===")
+> scratch\run_acceptance_A.py:44:for e in fv.get("contradicting_evidence", []):
+  scratch\run_acceptance_A.py:45:    print(" -", e.get("url"), "|", e.get("domain"), "| score", 
+e.get("evidence_score"), "|", e.get("chunk", "")[:120])
+  scratch\run_acceptance_tests.py:16:    t0 = time.time()
+  scratch\run_acceptance_tests.py:17:    res = verify_text(claim_text)
+  scratch\run_acceptance_tests.py:18:    elapsed = time.time() - t0
+  scratch\run_acceptance_tests.py:19:
+> scratch\run_acceptance_tests.py:20:    fact = res.get("factual_verification", {}) or {}
+  scratch\run_acceptance_tests.py:21:    report = res.get("research_report", {}) or {}
+  scratch\run_acceptance_tests.py:22:    summary = report.get("executive_summary", {}) or {}
+  scratch\run_acceptance_tests.py:23:    method = report.get("methodology", {}) or {}
+  scratch\run_acceptance_tests.py:24:    findings = report.get("findings", []) or []
+  scratch\run_acceptance_tests.py:25:
+  scratch\run_acceptance_tests.py:26:    print(f"Time: {elapsed:.2f}s")
+  scratch\run_acceptance_tests.py:27:    print(f"Status: {res.get('status')}")
+  scratch\run_acceptance_tests.py:28:    print(f"Verdict: {fact.get('verdict')}")
+  scratch\run_acceptance_tests.py:29:    print(f"Confidence: {fact.get('confidence')} (Basis: 
+{fact.get('confidence_basis')})")
+> scratch\run_acceptance_tests.py:30:    print(f"Sufficiency: {fact.get('evidence_sufficiency')}")
+  scratch\run_acceptance_tests.py:31:    print(f"Independent Supporting Publishers: 
+{fact.get('independent_supporting')}")
+  scratch\run_acceptance_tests.py:32:    print(f"Independent Contradicting Publishers: 
+{fact.get('independent_contradicting')}")
+  scratch\run_acceptance_tests.py:33:    print(f"Primary Supporting Groups: {fact.get('primary_supporting_groups')}")
+  scratch\run_acceptance_tests.py:34:    print(f"Deterministic Gate Reason: {fact.get('deterministic_gate_reason')}")
+  scratch\run_acceptance_tests.py:35:    print(f"Sources Discovered/Retrieved: {method.get('sources_discovered', 0)} / 
+{method.get('sources_retrieved', 0)}")
+  scratch\run_acceptance_tests.py:36:    print(f"Articles Scraped: {method.get('articles_scraped', 0)}")
+  scratch\smoke_final.py:33:d = post_multipart("/verify/video", VIDEO.name, VIDEO.read_bytes(), "video/mp4")
+  scratch\smoke_final.py:34:rr = d.get("research_report") or {}
+  scratch\smoke_final.py:35:print("\nVIDEO final code:")
+  scratch\smoke_final.py:36:print("  status           :", d["status"])
+> scratch\smoke_final.py:37:print("  verdict          :", d["factual_verification"]["verdict"])
+  scratch\smoke_final.py:38:print("  report present   :", bool(rr))
+  scratch\smoke_final.py:39:print("  report verdict   :", (rr.get("executive_summary") or {}).get("verdict"))
+  scratch\smoke_final.py:40:print("  research_skipped :", (rr.get("methodology") or {}).get("research_skipped"))
+  scratch\smoke_final.py:41:print("  skip reason      :", (rr.get("methodology") or {}).get("research_skipped_reason"))
+  scratch\smoke_final.py:42:print("  visual_classifier:", (d.get("visual_classification") or 
+{}).get("predicted_label"),
+  scratch\smoke_final.py:43:      (d.get("visual_classification") or {}).get("confidence"))
+  scratch\smoke_final_text.py:53:            print(f"  REQUEST FAILED: {exc}", flush=True)
+  scratch\smoke_final_text.py:54:            results.append({"key": key, "claim": claim, "error": str(exc)})
+  scratch\smoke_final_text.py:55:            continue
+  scratch\smoke_final_text.py:56:
+> scratch\smoke_final_text.py:57:        fact = payload.get("factual_verification") or {}
+  scratch\smoke_final_text.py:58:        report = payload.get("research_report") or {}
+  scratch\smoke_final_text.py:59:        summary = report.get("executive_summary") or {}
+  scratch\smoke_final_text.py:60:        methodology = report.get("methodology") or {}
+  scratch\smoke_final_text.py:61:        findings = report.get("findings") or {}
+  scratch\smoke_final_text.py:62:
+  scratch\smoke_final_text.py:63:        def sources(bucket):
+  scratch\smoke_final_text.py:78:            "status": payload.get("status"),
+  scratch\smoke_final_text.py:79:            "verdict": fact.get("verdict"),
+  scratch\smoke_final_text.py:80:            "confidence": fact.get("confidence"),
+  scratch\smoke_final_text.py:81:            "confidence_basis": fact.get("confidence_basis"),
+> scratch\smoke_final_text.py:82:            "evidence_sufficiency": fact.get("evidence_sufficiency"),
+  scratch\smoke_final_text.py:83:            "permitted_verdicts": fact.get("permitted_verdicts"),
+  scratch\smoke_final_text.py:84:            "independent_supporting": fact.get("independent_supporting"),
+  scratch\smoke_final_text.py:85:            "independent_contradicting": fact.get("independent_contradicting"),
+  scratch\smoke_final_text.py:86:            "primary_supporting_groups": fact.get("primary_supporting_groups"),
+  scratch\smoke_final_text.py:87:            "primary_contradicting_groups": fact.get("primary_contradicting_groups"),
+  scratch\smoke_final_text.py:88:            "article_sources": fact.get("article_supporting_groups"),
+  scratch\smoke_final_text.py:105:        print(f"  latency            : {row['latency_sec']}s", flush=True)
+  scratch\smoke_final_text.py:106:        print(f"  status             : {row['status']}", flush=True)
+  scratch\smoke_final_text.py:107:        print(f"  verdict            : {row['verdict']}  "
+  scratch\smoke_final_text.py:108:              f"confidence {row['confidence']} ({row['confidence_basis']})", 
+flush=True)
+> scratch\smoke_final_text.py:109:        print(f"  sufficiency        : {row['evidence_sufficiency']}  "
+  scratch\smoke_final_text.py:110:              f"permitted {row['permitted_verdicts']}", flush=True)
+  scratch\smoke_final_text.py:111:        print(f"  independent sup/con: {row['independent_supporting']} / "
+  scratch\smoke_final_text.py:112:              f"{row['independent_contradicting']}  "
+  scratch\smoke_final_text.py:113:              f"(primary {row['primary_supporting_groups']} / "
+  scratch\smoke_final_text.py:114:              f"{row['primary_contradicting_groups']})", flush=True)
+  scratch\smoke_final_text.py:115:        print(f"  scores             : entailment={row['entailment_score']} "
+  scratch\smoke_summary.py:10:    print("=" * 80)
+  scratch\smoke_summary.py:11:    print(f"MODALITY: {d.get('modality')}")
+  scratch\smoke_summary.py:12:    print(f"Claim: {d.get('primary_claim', 'N/A')}")
+  scratch\smoke_summary.py:13:    print("-" * 80)
+> scratch\smoke_summary.py:14:    fact = d.get("factual_verification") or {}
+  scratch\smoke_summary.py:15:    print(f"  Verdict: {fact.get('verdict')}")
+  scratch\smoke_summary.py:16:    print(f"  Confidence: {fact.get('confidence')} ({fact.get('confidence_basis')})")
+> scratch\smoke_summary.py:17:    print(f"  Evidence sufficiency: {fact.get('evidence_sufficiency')}")
+  scratch\smoke_summary.py:18:    print(f"  Independent supporting: {fact.get('independent_supporting')}")
+  scratch\smoke_summary.py:19:    print(f"  Independent contradicting: {fact.get('independent_contradicting')}")
+  scratch\smoke_summary.py:20:    print(f"  Primary supporting groups: {fact.get('primary_supporting_groups')}")
+  scratch\smoke_summary.py:21:    print(f"  Primary contradicting groups: {fact.get('primary_contradicting_groups')}")
+  scratch\smoke_summary.py:22:    print(f"  Search queries: {fact.get('search_queries')}")
+  scratch\smoke_summary.py:23:    print(f"  Search errors: {fact.get('search_errors')}")
+  scratch\trace_apollo11.py:154:        "article_supporting_groups", "article_contradicting_groups",
+  scratch\trace_apollo11.py:155:        "correction_groups", "primary_correction_groups",
+  scratch\trace_apollo11.py:156:        "snippet_only_sources", "article_sources",
+  scratch\trace_apollo11.py:157:        "unresolved_identity_sources", "verification_coverage",
+> scratch\trace_apollo11.py:158:        "agreement_score", "evidence_sufficiency",
+  scratch\trace_apollo11.py:159:        "supporting_sources", "contradicting_sources",
+  scratch\trace_apollo11.py:160:        "related_context_sources", "non_evidence_sources", "neutral_sources",
+  scratch\trace_apollo11.py:161:    ):
+  scratch\trace_apollo11.py:162:        print(f"  {key:<32} {agreement.get(key)}")
+  scratch\trace_apollo11.py:163:
+  scratch\trace_apollo11.py:164:    print()
+  scratch\trace_apollo11.py:183:    print()
+  scratch\trace_apollo11.py:184:    print("=" * 100)
+  scratch\trace_apollo11.py:185:    print("J. FINAL VERDICT")
+  scratch\trace_apollo11.py:186:    print("=" * 100)
+> scratch\trace_apollo11.py:187:    for key in ("verdict", "confidence", "confidence_basis", "evidence_sufficiency",
+  scratch\trace_apollo11.py:188:                "source_agreement", "fusion_score", "independent_supporting",
+  scratch\trace_apollo11.py:189:                "independent_contradicting", "primary_supporting_groups",
+  scratch\trace_apollo11.py:190:                "total_sources", "independence_groups", "supporting_sources",
+  scratch\trace_apollo11.py:191:                "contradicting_sources", "context_chunks", "entailment_score",
+  scratch\trace_apollo11.py:192:                "contradiction_score", "verification_coverage",
+  scratch\trace_apollo11.py:193:                "verdict_overridden_by_evidence", "agents_agree"):
+  scratch\trace_apollo1970_live.py:154:        "article_supporting_groups", "article_contradicting_groups",
+  scratch\trace_apollo1970_live.py:155:        "correction_groups", "primary_correction_groups",
+  scratch\trace_apollo1970_live.py:156:        "snippet_only_sources", "article_sources",
+  scratch\trace_apollo1970_live.py:157:        "unresolved_identity_sources", "verification_coverage",
+> scratch\trace_apollo1970_live.py:158:        "agreement_score", "evidence_sufficiency",
+  scratch\trace_apollo1970_live.py:159:        "supporting_sources", "contradicting_sources",
+  scratch\trace_apollo1970_live.py:160:        "related_context_sources", "non_evidence_sources", "neutral_sources",
+  scratch\trace_apollo1970_live.py:161:    ):
+  scratch\trace_apollo1970_live.py:162:        print(f"  {key:<32} {agreement.get(key)}")
+  scratch\trace_apollo1970_live.py:163:
+  scratch\trace_apollo1970_live.py:164:    print()
+  scratch\trace_apollo1970_live.py:183:    print()
+  scratch\trace_apollo1970_live.py:184:    print("=" * 100)
+  scratch\trace_apollo1970_live.py:185:    print("J. FINAL VERDICT")
+  scratch\trace_apollo1970_live.py:186:    print("=" * 100)
+> scratch\trace_apollo1970_live.py:187:    for key in ("verdict", "confidence", "confidence_basis", 
+"evidence_sufficiency",
+  scratch\trace_apollo1970_live.py:188:                "source_agreement", "fusion_score", "independent_supporting",
+  scratch\trace_apollo1970_live.py:189:                "independent_contradicting", "primary_supporting_groups",
+  scratch\trace_apollo1970_live.py:190:                "total_sources", "independence_groups", "supporting_sources",
+  scratch\trace_apollo1970_live.py:191:                "contradicting_sources", "context_chunks", "entailment_score",
+  scratch\trace_apollo1970_live.py:192:                "contradiction_score", "verification_coverage",
+  scratch\trace_apollo1970_live.py:193:                "verdict_overridden_by_evidence", "agents_agree"):
+  scratch\trace_real_evidence.py:123:    print(f"  snippet_only_sources        : {agreement['snippet_only_sources']}")
+  scratch\trace_real_evidence.py:124:    print(f"  article_sources             : {agreement['article_sources']}")
+  scratch\trace_real_evidence.py:125:    print(f"  unresolved_identity_sources : 
+{agreement['unresolved_identity_sources']}")
+  scratch\trace_real_evidence.py:126:    print(f"  verification_coverage       : {agreement['verification_coverage']}")
+> scratch\trace_real_evidence.py:127:    print(f"  evidence_sufficiency        : {agreement['evidence_sufficiency']}")
+  scratch\trace_real_evidence.py:128:
+  scratch\trace_real_evidence.py:129:    print()
+  scratch\trace_real_evidence.py:130:    print("=" * 78)
+  scratch\trace_real_evidence.py:131:    print("6. DETERMINISTIC GATE")
+  scratch\trace_real_evidence.py:132:    print("=" * 78)
+  scratch\trace_real_evidence.py:133:    print(f"  permitted : {sorted(gate['permitted_verdicts'])}")
+  scratch\verify_api_final_fields.py:11:    headers={"Content-Type": "application/json"},
+  scratch\verify_api_final_fields.py:12:)
+  scratch\verify_api_final_fields.py:13:d = json.loads(urllib.request.urlopen(req, timeout=1800).read())
+  scratch\verify_api_final_fields.py:14:
+> scratch\verify_api_final_fields.py:15:fact = d["factual_verification"]
+> scratch\verify_api_final_fields.py:16:print("=== factual_verification (live API) ===")
+  scratch\verify_api_final_fields.py:17:for k in sorted(fact.keys()):
+  scratch\verify_api_final_fields.py:18:    v = fact[k]
+  scratch\verify_api_final_fields.py:19:    if isinstance(v, str) and len(v) > 100:
+  scratch\verify_api_final_fields.py:20:        v = v[:100] + "..."
+  scratch\verify_api_final_fields.py:21:    print(f"  {k:<34} {v}")
+  scratch\verify_api_final_fields.py:22:
+  scratch\verify_api_final_fields.py:23:print()
+  scratch\verify_api_final_fields.py:24:print("=== final-assessment fields required by the UI ===")
+  scratch\verify_api_final_fields.py:25:required = [
+> scratch\verify_api_final_fields.py:26:    "verdict", "confidence", "confidence_basis", "evidence_sufficiency",
+  scratch\verify_api_final_fields.py:27:    "independent_supporting", "independent_contradicting",
+  scratch\verify_api_final_fields.py:28:    "contradiction_score", "entailment_score", "source_agreement",
+  scratch\verify_api_final_fields.py:29:    "fusion_score", "total_sources", "permitted_verdicts",
+  scratch\verify_api_final_fields.py:30:    "deterministic_gate_reason", "reasoning",
+  scratch\verify_api_final_fields.py:31:]
+  scratch\verify_api_final_fields.py:32:missing = [k for k in required if k not in fact]
+  scratch\verify_smithsonian.py:126:print(f"  independence_groups        : {agreement['independence_groups']}")
+  scratch\verify_smithsonian.py:127:print(f"  independent_supporting      : {agreement['independent_supporting']}")
+  scratch\verify_smithsonian.py:128:print(f"  primary_supporting_groups   : {agreement['primary_supporting_groups']}")
+  scratch\verify_smithsonian.py:129:print(f"  article_supporting_groups   : {agreement['article_supporting_groups']}")
+> scratch\verify_smithsonian.py:130:print(f"  evidence_sufficiency        : {agreement['evidence_sufficiency']}")
+  scratch\verify_smithsonian.py:131:print(f"  permitted verdicts          : {sorted(gate['permitted_verdicts'])}")
+  scratch\verify_smithsonian.py:132:print(f"  gate reason                 : {gate['permitted_reason']}")
+  scratch\verify_smithsonian.py:133:print(f"  FINAL VERDICT               : {verdict['verdict']}")
+  scratch\verify_smithsonian.py:134:print(f"  confidence                  : {verdict['confidence']} 
+({verdict['confidence_basis']})")
+> scratch\verify_smithsonian.py:135:print(f"  supporting sources          : {[e['domain'] for e in 
+verdict['supporting_evidence']]}")
+  scratch\verify_window_fix.py:55:    print(f"  has_contradiction : {d['has_contradiction']}")
+  scratch\verify_window_fix.py:56:    print(f"  source_score      : {d['source_score']}")
+  scratch\verify_window_fix.py:57:print(f"  independent_supporting    : {agreement['independent_supporting']}")
+  scratch\verify_window_fix.py:58:print(f"  independent_contradicting : {agreement['independent_contradicting']}")
+> scratch\verify_window_fix.py:59:print(f"  evidence_sufficiency      : {agreement['evidence_sufficiency']}")
+  scratch\write_timeline.py:16:}) => {
+  scratch\write_timeline.py:17:  const [expandedStage, setExpandedStage] = useState<string | null>(null);
+  scratch\write_timeline.py:18:
+  scratch\write_timeline.py:19:  const raw = result.raw || {};
+> scratch\write_timeline.py:20:  const fact = result.factual_verification || {};
+  scratch\write_timeline.py:21:
+  scratch\write_timeline.py:22:  // Use backend-provided pipeline_stages for all modalities
+  scratch\write_timeline.py:23:  const backendStages: PipelineStageDetails[] =
+  scratch\write_timeline.py:24:    Array.isArray(result.pipeline_stages) && result.pipeline_stages.length > 0
+  scratch\write_timeline.py:25:      ? result.pipeline_stages
+  scratch\write_timeline.py:26:      : [];
+  scratch\write_timeline.py:76:        operation: 'Synthesized independence group votes and calculated agreement 
+score.',
+  scratch\write_timeline.py:77:        why: 'Protects against confirmation bias by evaluating ratio of corroborating 
+versus debunking sources.',
+  scratch\write_timeline.py:78:        tool_or_model: 'Deterministic Evidence Fusion Engine',
+  scratch\write_timeline.py:79:        input_summary: `${fact.independent_supporting || 0} support vs 
+${fact.independent_contradicting || 0} contra.`,
+> scratch\write_timeline.py:80:        output_summary: `Evidence Sufficiency: ${fact.evidence_sufficiency || 
+'UNKNOWN'}; Agreement: ${((fact.source_agreement || 0)).toFixed(2)}`,
+  scratch\write_timeline.py:81:        metric: { label: 'Agreement Score', value: `${((fact.source_agreement || 
+agreement.agreement_score || 0) * 100).toFixed(1)}%`, meaning: 'Harmonic agreement among independent publishers.', 
+scale: '0-100%' },
+  scratch\write_timeline.py:82:      });
+  scratch\write_timeline.py:83:    }
+  scratch\write_timeline.py:84:
+  scratch\write_timeline.py:85:    if (finalV.verification_verdict || fact.agent_verdict) {
+  scratch\write_timeline.py:86:      stages.push({
+  scratch\write_timeline.py:110:      id: 'adjudication', number: stages.length + 1, name: 'Deterministic Gate and 
+Final Adjudication', status: 'completed',
+  scratch\write_timeline.py:111:      operation: 'Applied strict evidence rules with deterministic gate veto over LLM 
+recommendations.',
+  scratch\write_timeline.py:112:      why: 'Ensures verdicts are grounded in evidence, not LLM hallucination.',
+  scratch\write_timeline.py:113:      tool_or_model: 'Deterministic Gate (final_verdict.py)',
+> scratch\write_timeline.py:114:      input_summary: `Evidence sufficiency: ${fact.evidence_sufficiency || 'UNKNOWN'}`,
+  scratch\write_timeline.py:115:      output_summary: `Final Verdict: ${fact.verdict || 'UNVERIFIED'}; Overrode Agent: 
+${finalV.verdict_overridden_by_evidence ? 'YES' : 'NO'}`,
+  scratch\write_timeline.py:116:      metric: { label: 'Final Certainty', value: fact.confidence != null ? 
+`${(fact.confidence > 1 ? fact.confidence : fact.confidence * 100).toFixed(1)}%` : 'Calculated', meaning: 'Evidence 
+certainty score.', scale: '0-100%' },
+  scratch\write_timeline.py:117:      details: fact.deterministic_gate_reason || fact.reasoning || undefined,
+  scratch\write_timeline.py:118:    });
+  scratch\write_timeline.py:119:
+  scratch\write_timeline.py:120:    return stages;
+  tests\test_apollo11_claim_evidence.py:175:# 
+===========================================================================
+  tests\test_apollo11_claim_evidence.py:176:# 2. Relevant NASA article text can be classified as supporting evidence
+  tests\test_apollo11_claim_evidence.py:177:# 
+===========================================================================
+  tests\test_apollo11_claim_evidence.py:178:
+> tests\test_apollo11_claim_evidence.py:179:def test_relevant_nasa_article_text_is_supporting_evidence():
+  tests\test_apollo11_claim_evidence.py:180:    date_check, level, signals, klass = _classify(NASA_TEXT)
+  tests\test_apollo11_claim_evidence.py:181:
+  tests\test_apollo11_claim_evidence.py:182:    assert date_check["status"] == "match", date_check["reason"]
+  tests\test_apollo11_claim_evidence.py:183:    assert level == "strong"
+  tests\test_apollo11_claim_evidence.py:184:    assert signals["claim_has_location"] is False
+  tests\test_apollo11_claim_evidence.py:185:    assert signals["location_ok"] is True
+  tests\test_apollo11_claim_evidence.py:575:    assert verdict["permitted_verdicts"] == ["REAL", "UNVERIFIED"]
+  tests\test_apollo11_claim_evidence.py:576:    # The supporting passages are reported as SUPPORT, not as 
+contradictions.
+  tests\test_apollo11_claim_evidence.py:577:    assert all(
+  tests\test_apollo11_claim_evidence.py:578:        e["url"].endswith(("nasa.gov/apollo-11", 
+"si.edu/spotlight/apollo-11"))
+> tests\test_apollo11_claim_evidence.py:579:        for e in verdict["supporting_evidence"]
+  tests\test_apollo11_claim_evidence.py:580:    )
+> tests\test_apollo11_claim_evidence.py:581:    assert verdict["contradicting_evidence"] == []
+  tests\test_evidence_pipeline_audit.py:124:        chunk(2, "https://www.ndtv.com/b", "RELATED_CONTEXT", 0.2),
+  tests\test_evidence_pipeline_audit.py:125:    ]
+  tests\test_evidence_pipeline_audit.py:126:    verdict = decide(results, FAKE_AGENT, FAKE_AGENT)
+  tests\test_evidence_pipeline_audit.py:127:    assert verdict["verdict"] == "UNVERIFIED"
+> tests\test_evidence_pipeline_audit.py:128:    assert verdict["supporting_evidence"] == []
+> tests\test_evidence_pipeline_audit.py:129:    assert verdict["contradicting_evidence"] == []
+  tests\test_evidence_pipeline_audit.py:130:
+  tests\test_evidence_pipeline_audit.py:131:
+  tests\test_evidence_pipeline_audit.py:132:# 
+===========================================================================
+  tests\test_evidence_pipeline_audit.py:133:# 3. Two snippet-only publishers -> cannot establish REAL or FAKE
+  tests\test_evidence_pipeline_audit.py:134:# 
+===========================================================================
+  tests\test_evidence_pipeline_audit.py:135:
+  tests\test_evidence_pipeline_audit.py:702:    ]
+  tests\test_evidence_pipeline_audit.py:703:    verdict = decide(results)
+  tests\test_evidence_pipeline_audit.py:704:
+  tests\test_evidence_pipeline_audit.py:705:    for field in (
+> tests\test_evidence_pipeline_audit.py:706:        "verdict", "confidence", "evidence_sufficiency", 
+"source_agreement",
+  tests\test_evidence_pipeline_audit.py:707:        "fusion_score", "independent_supporting", 
+"independent_contradicting",
+  tests\test_evidence_pipeline_audit.py:708:        "primary_supporting_groups", "total_sources", 
+"independence_groups",
+  tests\test_evidence_pipeline_audit.py:709:        "supporting_sources", "contradicting_sources", "entailment_score",
+  tests\test_evidence_pipeline_audit.py:710:        "contradiction_score", "context_chunks", "permitted_verdicts",
+  tests\test_evidence_pipeline_audit.py:711:        "permitted_reason", "deterministic_gate_reason", 
+"verification_verdict",
+  tests\test_evidence_pipeline_audit.py:712:        "critic_verdict", "agents_agree", "verdict_overridden_by_evidence",
+> tests\test_evidence_pipeline_audit.py:713:        "agent_confidence", "critic_confidence", "supporting_evidence",
+> tests\test_evidence_pipeline_audit.py:714:        "contradicting_evidence", "reasoning", "verification_result",
+  tests\test_evidence_pipeline_audit.py:715:        "critic_result",
+  tests\test_evidence_pipeline_audit.py:716:    ):
+  tests\test_evidence_pipeline_audit.py:717:        assert field in verdict, f"the verdict dict must keep '{field}'"
+  tests\test_evidence_pipeline_audit.py:718:
+  tests\test_evidence_pipeline_audit.py:719:
+  tests\test_evidence_pipeline_audit.py:720:def test_case_18b_agreement_dict_keeps_its_existing_fields():
+  tests\test_evidence_pipeline_audit.py:726:        "supporting_sources", "contradicting_sources", "neutral_sources",
+  tests\test_evidence_pipeline_audit.py:727:        "related_context_sources", "non_evidence_sources",
+  tests\test_evidence_pipeline_audit.py:728:        "independent_supporting", "independent_contradicting",
+  tests\test_evidence_pipeline_audit.py:729:        "independence_groups", "primary_supporting_groups", 
+"agreement_score",
+> tests\test_evidence_pipeline_audit.py:730:        "evidence_sufficiency", "source_decisions", "group_decisions",
+  tests\test_evidence_pipeline_audit.py:731:    ):
+  tests\test_evidence_pipeline_audit.py:732:        assert field in agreement, f"the agreement dict must keep 
+'{field}'"
+  tests\test_evidence_pipeline_audit.py:733:
+  tests\test_evidence_pipeline_audit.py:734:
+  tests\test_evidence_pipeline_audit.py:735:# 
+===========================================================================
+  tests\test_evidence_pipeline_audit.py:736:# Additional invariants of the repair
+  tests\test_evidence_pipeline_audit.py:772:        chunk(1, "https://www.reuters.com/a", "SUPPORT", 0.9),
+  tests\test_evidence_pipeline_audit.py:773:        chunk(2, "https://www.bbc.com/b", "CONTRADICTION", 0.9),
+  tests\test_evidence_pipeline_audit.py:774:    ]
+  tests\test_evidence_pipeline_audit.py:775:    verdict = decide(results)
+> tests\test_evidence_pipeline_audit.py:776:    assert [e["url"] for e in verdict["supporting_evidence"]] == [
+  tests\test_evidence_pipeline_audit.py:777:        "https://www.reuters.com/a"
+  tests\test_evidence_pipeline_audit.py:778:    ]
+> tests\test_evidence_pipeline_audit.py:779:    assert [e["url"] for e in verdict["contradicting_evidence"]] == [
+  tests\test_evidence_pipeline_audit.py:780:        "https://www.bbc.com/b"
+  tests\test_evidence_pipeline_audit.py:781:    ]
+  tests\test_evidence_pipeline_audit.py:782:
+  tests\test_evidence_pipeline_audit.py:783:
+  tests\test_evidence_pipeline_audit.py:784:def test_canonical_url_ignores_campaign_parameters_but_keeps_article_ids():
+  tests\test_evidence_pipeline_audit.py:785:    from evidence_fusion import _canonical_url
+  tests\test_evidence_retrieval_reliability.py:237:    profile = get_source_profile("https://www.nasa.gov/x", 
+"search_snippet")
+  tests\test_evidence_retrieval_reliability.py:238:    assert classify_evidence(signals, "search_snippet", profile) != 
+"SUPPORT"
+  tests\test_evidence_retrieval_reliability.py:239:
+  tests\test_evidence_retrieval_reliability.py:240:
+> tests\test_evidence_retrieval_reliability.py:241:def test_3b_a_snippet_source_produces_no_supporting_evidence():
+  tests\test_evidence_retrieval_reliability.py:242:    """
+  tests\test_evidence_retrieval_reliability.py:243:    Even with the window fix, a search snippet can never be support.
+  tests\test_evidence_retrieval_reliability.py:244:    """
+  tests\test_evidence_retrieval_reliability.py:245:    snippet = (
+  tests\test_evidence_retrieval_reliability.py:246:        "Apollo 11 landed the first humans on the Moon in July 
+1969, NASA said. "
+  tests\test_evidence_retrieval_reliability.py:247:        "Neil Armstrong and Buzz Aldrin walked on the lunar 
+surface."
+  tests\test_evidence_retrieval_reliability.py:329:
+  tests\test_evidence_retrieval_reliability.py:330:    agreement = calculate_source_agreement(results)
+  tests\test_evidence_retrieval_reliability.py:331:    assert agreement["independent_supporting"] == 0
+  tests\test_evidence_retrieval_reliability.py:332:    assert agreement["independent_contradicting"] == 0
+> tests\test_evidence_retrieval_reliability.py:333:    assert agreement["evidence_sufficiency"] == "none"
+  tests\test_evidence_retrieval_reliability.py:334:
+  tests\test_evidence_retrieval_reliability.py:335:
+  tests\test_evidence_retrieval_reliability.py:336:def test_5b_the_gate_abstains_when_there_is_no_evidence():
+  tests\test_evidence_retrieval_reliability.py:337:    from final_verdict import deterministic_gate
+  tests\test_evidence_retrieval_reliability.py:338:
+  tests\test_evidence_retrieval_reliability.py:339:    results = analyze_evidence(CLAIM, [_source(content="")], 
+verbose=False)
+  tests\test_evidence_retrieval_reliability.py:410:    )
+  tests\test_evidence_retrieval_reliability.py:411:    assert verdict["verdict"] == "REAL"
+  tests\test_evidence_retrieval_reliability.py:412:    assert verdict["confidence_basis"] == "evidence_strength"
+  tests\test_evidence_retrieval_reliability.py:413:    assert verdict["independent_supporting"] == 2
+> tests\test_evidence_retrieval_reliability.py:414:    assert verdict["supporting_evidence"]
+> tests\test_evidence_retrieval_reliability.py:415:    assert verdict["contradicting_evidence"] == []
+  tests\test_evidence_retrieval_reliability.py:416:
+  tests\test_evidence_retrieval_reliability.py:417:
+  tests\test_evidence_retrieval_reliability.py:418:def test_6c_a_window_may_support_but_may_not_refute():
+  tests\test_evidence_retrieval_reliability.py:419:    """
+  tests\test_evidence_retrieval_reliability.py:420:    The safety asymmetry: a multi-paragraph window cannot produce a
+  tests\test_evidence_retrieval_reliability.py:421:    CONTRADICTION, because the NLI model reads a diluted premise 
+unreliably.
+  tests\test_frontend_type_contract.py:68:
+  tests\test_frontend_type_contract.py:69:def test_unified_response_declares_research_report(interfaces):
+  tests\test_frontend_type_contract.py:70:    fields = interfaces["UnifiedVerificationResponse"]
+  tests\test_frontend_type_contract.py:71:    for required in (
+> tests\test_frontend_type_contract.py:72:        "modality", "status", "factual_verification", 
+"synthetic_media_detection",
+  tests\test_frontend_type_contract.py:73:        "visual_classification", "transcription", "primary_claim",
+  tests\test_frontend_type_contract.py:74:        "consistency_analysis", "case_summary", "pipeline_stages",
+  tests\test_frontend_type_contract.py:75:        "modality_specific", "research_report", "raw", "error", "warnings",
+  tests\test_frontend_type_contract.py:76:    ):
+  tests\test_frontend_type_contract.py:77:        assert required in fields, f"UnifiedVerificationResponse must 
+declare '{required}'"
+  tests\test_frontend_type_contract.py:78:
+  tests\test_frontend_type_contract.py:121:
+  tests\test_frontend_type_contract.py:122:def test_claim_result_declares_every_field(interfaces):
+  tests\test_frontend_type_contract.py:123:    fields = interfaces["ResearchClaimResult"]
+  tests\test_frontend_type_contract.py:124:    for required in (
+> tests\test_frontend_type_contract.py:125:        "claim_text", "verdict", "confidence", "evidence_sufficiency", 
+"reasoning",
+> tests\test_frontend_type_contract.py:126:        "supporting_evidence", "contradicting_evidence", "source_name",
+  tests\test_frontend_type_contract.py:127:        "source_url", "timestamps", "frame_references", "source_modality",
+  tests\test_frontend_type_contract.py:128:        "selection_reason", "priority_score", "limitations",
+  tests\test_frontend_type_contract.py:129:    ):
+  tests\test_frontend_type_contract.py:130:        assert required in fields, f"ResearchClaimResult must declare 
+'{required}'"
+  tests\test_frontend_type_contract.py:131:
+  tests\test_frontend_type_contract.py:132:
+  tests\test_integration.py:92:        "claim": "Water boils at 100C",
+  tests\test_integration.py:93:        "final_verdict": {
+  tests\test_integration.py:94:            "verdict": "REAL",
+  tests\test_integration.py:95:            "confidence": 0.98,
+> tests\test_integration.py:96:            "evidence_sufficiency": "SUFFICIENT",
+  tests\test_integration.py:97:            "independent_supporting": 5,
+  tests\test_integration.py:98:            "independent_contradicting": 0,
+  tests\test_integration.py:99:            "contradiction_score": 0.0,
+  tests\test_integration.py:100:            "source_agreement": 1.0,
+  tests\test_integration.py:101:            "fusion_score": 0.95,
+  tests\test_integration.py:102:        },
+  tests\test_integration.py:104:
+  tests\test_integration.py:105:    res = verify_text("Water boils at 100C")
+  tests\test_integration.py:106:    assert res["status"] == "success"
+  tests\test_integration.py:107:    assert res["modality"] == "text"
+> tests\test_integration.py:108:    assert res["factual_verification"]["verdict"] == "REAL"
+> tests\test_integration.py:109:    assert res["factual_verification"]["confidence"] == 0.98
+> tests\test_integration.py:110:    assert res["factual_verification"]["independent_supporting"] == 5
+  tests\test_integration.py:111:
+  tests\test_integration.py:112:    # STRICT SIGNAL SEPARATION: Text has no synthetic media or visual classification
+  tests\test_integration.py:113:    assert res["synthetic_media_detection"] is None
+  tests\test_integration.py:114:    assert res["visual_classification"] is None
+  tests\test_integration.py:115:
+  tests\test_integration.py:116:
+  tests\test_integration.py:136:        "verification": {
+  tests\test_integration.py:137:            "final_verdict": {
+  tests\test_integration.py:138:                "verdict": "FAKE",
+  tests\test_integration.py:139:                "confidence": 0.88,
+> tests\test_integration.py:140:                "evidence_sufficiency": "SUFFICIENT",
+  tests\test_integration.py:141:                "independent_supporting": 0,
+  tests\test_integration.py:142:                "independent_contradicting": 4,
+  tests\test_integration.py:143:            }
+  tests\test_integration.py:144:        },
+  tests\test_integration.py:145:        "ai_generation": {
+  tests\test_integration.py:146:            "available": True,
+  tests\test_integration.py:159:    assert res["modality"] == "image"
+  tests\test_integration.py:160:    assert res["primary_claim"] == "Extracted image claim about lunar eclipse"
+  tests\test_integration.py:161:
+  tests\test_integration.py:162:    # Factual verification
+> tests\test_integration.py:163:    assert res["factual_verification"]["verdict"] == "FAKE"
+> tests\test_integration.py:164:    assert res["factual_verification"]["independent_contradicting"] == 4
+  tests\test_integration.py:165:
+  tests\test_integration.py:166:    # Synthetic Media Detection (Separate signal)
+  tests\test_integration.py:167:    assert res["synthetic_media_detection"] is not None
+  tests\test_integration.py:168:    assert res["synthetic_media_detection"]["signal"] == "AI_GENERATED"
+  tests\test_integration.py:169:    assert res["synthetic_media_detection"]["available"] is True
+  tests\test_integration.py:170:    assert res["synthetic_media_detection"]["probabilities"]["ai_probability"] == 94.2
+  tests\test_integration.py:198:                "verification_result": {
+  tests\test_integration.py:199:                    "final_verdict": {
+  tests\test_integration.py:200:                        "verdict": "CONTRADICTED",
+  tests\test_integration.py:201:                        "confidence": 0.91,
+> tests\test_integration.py:202:                        "evidence_sufficiency": "SUFFICIENT",
+  tests\test_integration.py:203:                        "independent_supporting": 0,
+  tests\test_integration.py:204:                        "independent_contradicting": 3,
+  tests\test_integration.py:205:                    }
+  tests\test_integration.py:206:                },
+  tests\test_integration.py:207:            }
+  tests\test_integration.py:208:        ],
+  tests\test_integration.py:225:    assert res["modality"] == "video"
+  tests\test_integration.py:226:    assert res["primary_claim"] == "Government announces new currency notes"
+  tests\test_integration.py:227:
+  tests\test_integration.py:228:    # Factual verification
+> tests\test_integration.py:229:    assert res["factual_verification"]["verdict"] == "CONTRADICTED"
+> tests\test_integration.py:230:    assert res["factual_verification"]["confidence"] == 0.91
+  tests\test_integration.py:231:
+  tests\test_integration.py:232:    # Visual classification is separate heuristic
+  tests\test_integration.py:233:    assert res["visual_classification"] is not None
+  tests\test_integration.py:234:    assert res["visual_classification"]["predicted_label"] == "fake"
+  tests\test_integration.py:235:    assert res["visual_classification"]["confidence"] == 0.72
+  tests\test_integration.py:236:    assert "experimental" in 
+res["visual_classification"]["experimental_warning"].lower()
+  tests\test_integration.py:263:            "error": None,
+  tests\test_integration.py:264:        },
+  tests\test_integration.py:265:        "transcription": {"text": "Mars rover discovered liquid water yesterday."},
+  tests\test_integration.py:266:        "claim_extraction": {"primary_claim": "Mars rover discovered liquid water."},
+> tests\test_integration.py:267:        "factual_verification": {
+  tests\test_integration.py:268:            "verdict": "CONTRADICTED",
+  tests\test_integration.py:269:            "confidence": 0.89,
+> tests\test_integration.py:270:            "evidence_sufficiency": "SUFFICIENT",
+  tests\test_integration.py:271:            "details": {
+  tests\test_integration.py:272:                "independent_supporting": 0,
+  tests\test_integration.py:273:                "independent_contradicting": 3,
+  tests\test_integration.py:274:            },
+  tests\test_integration.py:275:        },
+  tests\test_integration.py:276:        "consistency_analysis": {
+  tests\test_integration.py:287:
+  tests\test_integration.py:288:    # Synthetic speech provenance is separate from factual veracity
+  tests\test_integration.py:289:    assert res["synthetic_media_detection"]["signal"] == "AI_GENERATED"
+  tests\test_integration.py:290:    assert res["synthetic_media_detection"]["confidence"] == 0.96
+> tests\test_integration.py:291:    assert res["factual_verification"]["verdict"] == "CONTRADICTED"
+  tests\test_integration.py:292:
+  tests\test_integration.py:293:
+  tests\test_integration.py:294:# ============================================================================
+  tests\test_integration.py:295:# 7. FastAPI Endpoint Tests
+  tests\test_integration.py:296:# ============================================================================
+  tests\test_integration.py:297:
+  tests\test_integration.py:313:        "claim": "Vaccines cause autism",
+  tests\test_integration.py:314:        "final_verdict": {
+  tests\test_integration.py:315:            "verdict": "FAKE",
+  tests\test_integration.py:316:            "confidence": 0.99,
+> tests\test_integration.py:317:            "evidence_sufficiency": "SUFFICIENT",
+  tests\test_integration.py:318:            "independent_supporting": 0,
+  tests\test_integration.py:319:            "independent_contradicting": 8,
+  tests\test_integration.py:320:        },
+  tests\test_integration.py:321:    }
+  tests\test_integration.py:322:
+  tests\test_integration.py:323:    response = client.post("/verify/text", json={"claim": "Vaccines cause autism"})
+  tests\test_integration.py:324:    assert response.status_code == 200
+  tests\test_integration.py:325:    data = response.json()
+  tests\test_integration.py:326:    assert data["modality"] == "text"
+> tests\test_integration.py:327:    assert data["factual_verification"]["verdict"] == "FAKE"
+> tests\test_integration.py:328:    assert data["factual_verification"]["independent_contradicting"] == 8
+  tests\test_integration.py:329:
+  tests\test_integration.py:330:
+  tests\test_integration.py:331:def test_api_verify_text_invalid():
+  tests\test_integration.py:332:    # Min length is 3
+  tests\test_integration.py:333:    response = client.post("/verify/text", json={"claim": "hi"})
+  tests\test_integration.py:334:    assert response.status_code == 422
+  tests\test_integration.py:353:
+  tests\test_integration.py:354:    assert response.status_code == 200
+  tests\test_integration.py:355:    data = response.json()
+  tests\test_integration.py:356:    assert data["modality"] == "image"
+> tests\test_integration.py:357:    assert data["factual_verification"]["verdict"] == "FAKE"
+  tests\test_integration.py:358:    assert data["synthetic_media_detection"]["signal"] == "AI_GENERATED"
+  tests\test_integration.py:359:
+  tests\test_integration.py:360:
+  tests\test_integration.py:361:def test_api_verify_image_invalid_extension(tmp_path):
+  tests\test_integration.py:362:    bad_file = tmp_path / "document.pdf"
+  tests\test_integration.py:363:    bad_file.write_bytes(b"dummy_pdf")
+  tests\test_integration.py:400:        "audio_metadata": {},
+  tests\test_integration.py:401:        "synthetic_speech_detection": {"label": "REAL", "confidence": 0.88, 
+"available": True},
+  tests\test_integration.py:402:        "transcription": {"text": "Audio bulletin"},
+  tests\test_integration.py:403:        "claim_extraction": {"primary_claim": "Audio claim"},
+> tests\test_integration.py:404:        "factual_verification": {"verdict": "REAL", "confidence": 0.85},
+  tests\test_integration.py:405:        "consistency_analysis": {},
+  tests\test_integration.py:406:    }
+  tests\test_integration.py:407:
+  tests\test_integration.py:408:    aud_file = tmp_path / "test.wav"
+  tests\test_integration.py:409:    aud_file.write_bytes(b"sample_wav_data")
+  tests\test_integration.py:410:
+  tests\test_integration.py:427:    response = client.post("/verify", data={"claim": "Sky is blue"})
+  tests\test_integration.py:428:    assert response.status_code == 200
+  tests\test_integration.py:429:    data = response.json()
+  tests\test_integration.py:430:    assert data["modality"] == "text"
+> tests\test_integration.py:431:    assert data["factual_verification"]["verdict"] == "REAL"
+  tests\test_integration.py:432:
+  tests\test_integration.py:433:
+  tests\test_integration.py:434:def test_api_unified_endpoint_no_input():
+  tests\test_integration.py:435:    response = client.post("/verify")
+  tests\test_integration.py:436:    assert response.status_code == 400
+  tests\test_integration.py:437:    assert "either a media file" in response.json()["detail"].lower()
+  tests\test_policy_diagnostics_propagation.py:97:            "article_sources": 1,
+  tests\test_policy_diagnostics_propagation.py:98:            "unresolved_identity_sources": 0,
+  tests\test_policy_diagnostics_propagation.py:99:            "verification_coverage": 1.0,
+  tests\test_policy_diagnostics_propagation.py:100:            "agreement_score": 0.4,
+> tests\test_policy_diagnostics_propagation.py:101:            "evidence_sufficiency": "single_source",
+  tests\test_policy_diagnostics_propagation.py:102:        },
+  tests\test_policy_diagnostics_propagation.py:103:        "verification": REAL_AGENT,
+  tests\test_policy_diagnostics_propagation.py:104:        "feedback": REAL_AGENT,
+  tests\test_policy_diagnostics_propagation.py:105:        "final_verdict": final_verdict,
+  tests\test_policy_diagnostics_propagation.py:106:    }
+  tests\test_policy_diagnostics_propagation.py:107:
+  tests\test_policy_diagnostics_propagation.py:177:    all. The report must say so rather than claiming the policy was 
+checked.
+  tests\test_policy_diagnostics_propagation.py:178:    """
+  tests\test_policy_diagnostics_propagation.py:179:    state = _research_state({
+  tests\test_policy_diagnostics_propagation.py:180:        "verdict": "INSUFFICIENT_VERIFIABLE_CLAIMS",
+> tests\test_policy_diagnostics_propagation.py:181:        "evidence_sufficiency": "INSUFFICIENT",
+  tests\test_policy_diagnostics_propagation.py:182:    })
+  tests\test_policy_diagnostics_propagation.py:183:
+  tests\test_policy_diagnostics_propagation.py:184:    report = build_research_report(state, "text", state["claim"])
+  tests\test_policy_diagnostics_propagation.py:185:    diagnostics = report["executive_summary"]["policy_diagnostics"]
+  tests\test_policy_diagnostics_propagation.py:186:
+  tests\test_policy_diagnostics_propagation.py:187:    assert diagnostics["gate_ran"] is False
+  tests\test_policy_diagnostics_propagation.py:263:
+  tests\test_policy_diagnostics_propagation.py:264:    fact = FactualVerificationDetails(
+  tests\test_policy_diagnostics_propagation.py:265:        verdict="REAL",
+  tests\test_policy_diagnostics_propagation.py:266:        confidence=0.7,
+> tests\test_policy_diagnostics_propagation.py:267:        evidence_sufficiency="strong_support",
+  tests\test_policy_diagnostics_propagation.py:268:        independent_supporting=2,
+  tests\test_policy_diagnostics_propagation.py:269:        independent_contradicting=0,
+  tests\test_policy_diagnostics_propagation.py:270:        contradiction_score=0.0,
+  tests\test_policy_diagnostics_propagation.py:271:        source_agreement=0.5,
+  tests\test_policy_diagnostics_propagation.py:272:        fusion_score=0.6,
+  tests\test_policy_diagnostics_propagation.py:273:        reasoning="because",
+  tests\test_report_api_contract.py:81:        "feedback": "Final Recommendation: Accept.",
+  tests\test_report_api_contract.py:82:        "final_verdict": {
+  tests\test_report_api_contract.py:83:            "verdict": "REAL",
+  tests\test_report_api_contract.py:84:            "confidence": 90.0,
+> tests\test_report_api_contract.py:85:            "evidence_sufficiency": "strong_support",
+  tests\test_report_api_contract.py:86:            "independent_supporting": 1,
+  tests\test_report_api_contract.py:87:            "independent_contradicting": 0,
+  tests\test_report_api_contract.py:88:            "total_sources": 1,
+  tests\test_report_api_contract.py:89:            "permitted_verdicts": ["REAL", "UNVERIFIED"],
+  tests\test_report_api_contract.py:90:            "permitted_reason": "One publisher corroborates the claim.",
+  tests\test_report_api_contract.py:91:            "reasoning": "One publisher corroborates the claim.",
+> tests\test_report_api_contract.py:92:            "supporting_evidence": [
+  tests\test_report_api_contract.py:93:                {"url": "https://news.example/sky", "domain": "news.example",
+  tests\test_report_api_contract.py:94:                 "chunk": "The sky appears blue because of Rayleigh 
+scattering."}
+  tests\test_report_api_contract.py:95:            ],
+> tests\test_report_api_contract.py:96:            "contradicting_evidence": [],
+  tests\test_report_api_contract.py:97:        },
+  tests\test_report_api_contract.py:98:    }
+  tests\test_report_api_contract.py:99:
+  tests\test_report_api_contract.py:100:    response = client.post("/verify/text", json={"claim": "Sky is blue"})
+  tests\test_report_api_contract.py:101:    assert response.status_code == 200
+  tests\test_report_api_contract.py:102:    data = response.json()
+  tests\test_report_api_contract.py:126:    assert method["evidence_passages"] == 1
+  tests\test_report_api_contract.py:127:    assert method["nli_evaluated"] == 1
+  tests\test_report_api_contract.py:128:
+  tests\test_report_api_contract.py:129:    assert report["claims"][0]["verdict"] == "REAL"
+> tests\test_report_api_contract.py:130:    assert report["claims"][0]["supporting_evidence"]
+  tests\test_report_api_contract.py:131:
+  tests\test_report_api_contract.py:132:
+  tests\test_report_api_contract.py:133:@patch("image_pipeline.run_image_pipeline")
+  tests\test_report_api_contract.py:134:def test_image_response_contains_research_report(mock_img):
+  tests\test_report_api_contract.py:135:    mock_img.return_value = {
+  tests\test_report_api_contract.py:136:        "image_path": "temp.png",
+  tests\test_report_api_contract.py:179:            "model_license": "Apache-2.0",
+  tests\test_report_api_contract.py:180:        },
+  tests\test_report_api_contract.py:181:        "transcription": {"text": "The council approved the plan on 4 March 
+2020."},
+  tests\test_report_api_contract.py:182:        "claim_extraction": {"primary_claim": "The council approved the plan 
+on 4 March 2020."},
+> tests\test_report_api_contract.py:183:        "factual_verification": {"verdict": "UNVERIFIED", "confidence": 0.4},
+  tests\test_report_api_contract.py:184:        "consistency_analysis": {},
+  tests\test_report_api_contract.py:185:    }
+  tests\test_report_api_contract.py:186:
+  tests\test_report_api_contract.py:187:    import inspect
+  tests\test_report_api_contract.py:188:    from api import server as server_mod
+  tests\test_report_api_contract.py:189:
+  tests\test_report_api_contract.py:218:        },
+  tests\test_report_api_contract.py:219:        "transcription": {"text": "", "status": "failed",
+  tests\test_report_api_contract.py:220:                          "error": "openai-whisper is not installed."},
+  tests\test_report_api_contract.py:221:        "claim_extraction": {"primary_claim": None, "selected_claims": []},
+> tests\test_report_api_contract.py:222:        "factual_verification": {"enabled": True, "verdict": 
+"INSUFFICIENT_VERIFIABLE_CLAIMS"},
+  tests\test_report_api_contract.py:223:        "consistency_analysis": {},
+  tests\test_report_api_contract.py:224:    }
+  tests\test_report_api_contract.py:225:
+  tests\test_report_api_contract.py:226:    aud = io.BytesIO(b"sample_wav_data")
+  tests\test_report_api_contract.py:227:    response = client.post("/verify/audio", files={"file": ("test.wav", aud, 
+"audio/wav")})
+  tests\test_report_api_contract.py:228:    data = response.json()
+  tests\test_report_api_contract.py:278:    assert report["evidence_gaps"]
+  tests\test_report_api_contract.py:279:
+  tests\test_report_api_contract.py:280:    # The experimental visual classifier must stay a separate signal.
+  tests\test_report_api_contract.py:281:    assert data["visual_classification"]["predicted_label"] == "fake"
+> tests\test_report_api_contract.py:282:    assert data["factual_verification"]["verdict"] == 
+"INSUFFICIENT_VERIFIABLE_CLAIMS"
+  tests\test_report_api_contract.py:283:
+  tests\test_report_api_contract.py:284:
+  tests\test_report_api_contract.py:285:# ---------------------------------------------------------------------------
+  tests\test_report_api_contract.py:286:# 4. The pipeline stages must not name a model that is not running
+  tests\test_report_api_contract.py:287:# ---------------------------------------------------------------------------
+  tests\test_report_api_contract.py:288:
+  tests\test_research_report.py:111:        "feedback": feedback,
+  tests\test_research_report.py:112:        "final_verdict": final_verdict if final_verdict is not None else {
+  tests\test_research_report.py:113:            "verdict": "UNVERIFIED",
+  tests\test_research_report.py:114:            "confidence": 55,
+> tests\test_research_report.py:115:            "evidence_sufficiency": "context_only",
+  tests\test_research_report.py:116:            "independent_supporting": 0,
+  tests\test_research_report.py:117:            "independent_contradicting": 0,
+  tests\test_research_report.py:118:            "total_sources": 1,
+  tests\test_research_report.py:119:            "permitted_verdicts": ["UNVERIFIED"],
+  tests\test_research_report.py:120:            "permitted_reason": "No independent corroboration was found.",
+  tests\test_research_report.py:121:            "reasoning": "No independent corroboration was found.",
+  tests\test_research_report.py:122:            "deterministic_gate_reason": "No independent corroboration was found.",
+> tests\test_research_report.py:123:            "supporting_evidence": [],
+> tests\test_research_report.py:124:            "contradicting_evidence": [],
+  tests\test_research_report.py:125:        },
+  tests\test_research_report.py:126:    }
+  tests\test_research_report.py:127:
+  tests\test_research_report.py:128:
+  tests\test_research_report.py:129:# ---------------------------------------------------------------------------
+  tests\test_research_report.py:130:# 1. Text with supporting evidence
+  tests\test_research_report.py:131:# ---------------------------------------------------------------------------
+  tests\test_research_report.py:132:
+> tests\test_research_report.py:133:def test_supporting_evidence_produces_supporting_findings():
+  tests\test_research_report.py:134:    state = _state(
+  tests\test_research_report.py:135:        claim="City council approved the new transit plan on 4 March 2020.",
+  tests\test_research_report.py:136:        evidence=[_evidence("SUPPORT", score=0.88)],
+  tests\test_research_report.py:137:        final_verdict={
+  tests\test_research_report.py:138:            "verdict": "REAL",
+  tests\test_research_report.py:139:            "confidence": 82.0,
+> tests\test_research_report.py:140:            "evidence_sufficiency": "strong_support",
+  tests\test_research_report.py:141:            "independent_supporting": 2,
+  tests\test_research_report.py:142:            "independent_contradicting": 0,
+  tests\test_research_report.py:143:            "total_sources": 2,
+  tests\test_research_report.py:144:            "permitted_verdicts": ["MISLEADING", "REAL", "UNVERIFIED"],
+  tests\test_research_report.py:145:            "permitted_reason": "Two independent publishers corroborate the 
+claim.",
+  tests\test_research_report.py:146:            "reasoning": "Two independent publishers corroborate the claim.",
+> tests\test_research_report.py:147:            "supporting_evidence": [{
+  tests\test_research_report.py:148:                "url": "https://example.org/article",
+  tests\test_research_report.py:149:                "domain": "example.org",
+  tests\test_research_report.py:150:                "evidence_type": "scraped_article",
+  tests\test_research_report.py:151:                "source_tier": "major_outlet",
+  tests\test_research_report.py:152:                "date_status": "match",
+  tests\test_research_report.py:153:                "event_match": "strong",
+  tests\test_research_report.py:154:                "evidence_score": 0.88,
+  tests\test_research_report.py:155:                "chunk": "The passage that was retrieved.",
+  tests\test_research_report.py:156:            }],
+> tests\test_research_report.py:157:            "contradicting_evidence": [],
+  tests\test_research_report.py:158:        },
+  tests\test_research_report.py:159:    )
+  tests\test_research_report.py:160:
+  tests\test_research_report.py:161:    report = build_research_report(state, "text", state["claim"])
+  tests\test_research_report.py:162:
+  tests\test_research_report.py:163:    assert report["findings"]["supporting"], "a SUPPORT passage must yield a 
+finding"
+  tests\test_research_report.py:176:# ---------------------------------------------------------------------------
+  tests\test_research_report.py:177:# 2. Text with contradicting evidence
+  tests\test_research_report.py:178:# ---------------------------------------------------------------------------
+  tests\test_research_report.py:179:
+> tests\test_research_report.py:180:def test_contradicting_evidence_produces_contradicting_findings():
+  tests\test_research_report.py:181:    state = _state(
+  tests\test_research_report.py:182:        evidence=[
+  tests\test_research_report.py:183:            _evidence("CONTRADICTION", nli_label="contradiction", nli_score=0.88, 
+score=0.74),
+  tests\test_research_report.py:184:        ],
+  tests\test_research_report.py:185:        final_verdict={
+  tests\test_research_report.py:186:            "verdict": "FAKE",
+  tests\test_research_report.py:187:            "confidence": 71.5,
+> tests\test_research_report.py:188:            "evidence_sufficiency": "strong_contradiction",
+  tests\test_research_report.py:189:            "independent_supporting": 0,
+  tests\test_research_report.py:190:            "independent_contradicting": 2,
+  tests\test_research_report.py:191:            "total_sources": 2,
+  tests\test_research_report.py:192:            "permitted_verdicts": ["FAKE", "UNVERIFIED"],
+  tests\test_research_report.py:193:            "permitted_reason": "Two independent publishers contradict the claim.",
+  tests\test_research_report.py:194:            "reasoning": "Two independent publishers contradict the claim.",
+> tests\test_research_report.py:195:            "supporting_evidence": [],
+> tests\test_research_report.py:196:            "contradicting_evidence": [{
+  tests\test_research_report.py:197:                "url": "https://example.org/factcheck",
+  tests\test_research_report.py:198:                "domain": "example.org",
+  tests\test_research_report.py:199:                "evidence_type": "scraped_article",
+  tests\test_research_report.py:200:                "source_tier": "major_outlet",
+  tests\test_research_report.py:201:                "date_status": "match",
+  tests\test_research_report.py:202:                "event_match": "strong",
+  tests\test_research_report.py:266:        evidence=[_evidence("SUPPORT", score=None, reliability=None, 
+nli_score=None)],
+  tests\test_research_report.py:267:        final_verdict={
+  tests\test_research_report.py:268:            "verdict": "UNVERIFIED",
+  tests\test_research_report.py:269:            "confidence": None,
+> tests\test_research_report.py:270:            "evidence_sufficiency": None,
+  tests\test_research_report.py:271:            "independent_supporting": 0,
+  tests\test_research_report.py:272:            "independent_contradicting": 0,
+  tests\test_research_report.py:273:            "total_sources": 0,
+  tests\test_research_report.py:274:            "permitted_verdicts": ["UNVERIFIED"],
+  tests\test_research_report.py:275:            "permitted_reason": "No evidence.",
+  tests\test_research_report.py:276:            "reasoning": "No evidence.",
+> tests\test_research_report.py:277:            "supporting_evidence": [],
+> tests\test_research_report.py:278:            "contradicting_evidence": [],
+  tests\test_research_report.py:279:        },
+  tests\test_research_report.py:280:    )
+  tests\test_research_report.py:281:
+  tests\test_research_report.py:282:    report = build_research_report(state, "text", state["claim"])
+  tests\test_research_report.py:283:    finding = report["findings"]["supporting"][0]
+  tests\test_research_report.py:284:
+  video_module\tests\test_claim_extraction_research.py:138:
+  video_module\tests\test_claim_extraction_research.py:139:        # Mock research returning verified
+  video_module\tests\test_claim_extraction_research.py:140:        fake_research_result = {
+  video_module\tests\test_claim_extraction_research.py:141:            "final_verdict": {"verdict": "SUPPORTED", 
+"confidence": 0.92},
+> video_module\tests\test_claim_extraction_research.py:142:            "fusion_report": {"evidence_sufficiency": 
+"SUFFICIENT"},
+  video_module\tests\test_claim_extraction_research.py:143:            "supporting_chunks": [{"chunk": "Magnitude 6.8 
+quake struck near Tokyo on Tuesday."}],
+  video_module\tests\test_claim_extraction_research.py:144:            "contradiction_chunks": [],
+  video_module\tests\test_claim_extraction_research.py:145:        }
+  video_module\tests\test_claim_extraction_research.py:146:
+  video_module\tests\test_claim_extraction_research.py:147:        mock_pipeline_summary = {
+  video_module\tests\test_claim_extraction_research.py:148:            "claims_summary": claims_res,
+  video_module\tests\test_claim_extraction_research.py:195:
+  video_module\tests\test_claim_extraction_research.py:196:        # Run verifier on silent video
+  video_module\tests\test_claim_extraction_research.py:197:        fake_research_result = {
+  video_module\tests\test_claim_extraction_research.py:198:            "final_verdict": {"verdict": "SUPPORTED", 
+"confidence": 0.88},
+> video_module\tests\test_claim_extraction_research.py:199:            "fusion_report": {"evidence_sufficiency": 
+"SUFFICIENT"},
+  video_module\tests\test_claim_extraction_research.py:200:            "supporting_chunks": [],
+  video_module\tests\test_claim_extraction_research.py:201:            "contradiction_chunks": [],
+  video_module\tests\test_claim_extraction_research.py:202:        }
+  video_module\tests\test_claim_extraction_research.py:203:
+  video_module\tests\test_claim_extraction_research.py:204:        mock_pipeline_summary = {
+  video_module\tests\test_claim_extraction_research.py:205:            "claims_summary": claims_res,
+  video_module\tests\test_claim_extraction_research.py:340:        claims_res = prepare_candidate_claims(fused_data)
+  video_module\tests\test_claim_extraction_research.py:341:        # Empty/unverified research result
+  video_module\tests\test_claim_extraction_research.py:342:        fake_research_result = {
+  video_module\tests\test_claim_extraction_research.py:343:            "final_verdict": {"verdict": "INCONCLUSIVE", 
+"confidence": 0.20},
+> video_module\tests\test_claim_extraction_research.py:344:            "fusion_report": {"evidence_sufficiency": 
+"INSUFFICIENT"},
+  video_module\tests\test_claim_extraction_research.py:345:            "supporting_chunks": [],
+  video_module\tests\test_claim_extraction_research.py:346:            "contradiction_chunks": [],
+  video_module\tests\test_claim_extraction_research.py:347:        }
+  video_module\tests\test_claim_extraction_research.py:348:
+  video_module\tests\test_claim_extraction_research.py:349:        mock_pipeline_summary = {
+  video_module\tests\test_claim_extraction_research.py:350:            "claims_summary": claims_res,
+  video_module\video_verifier.py:317:                        "source_modality": s_mod,
+  video_module\video_verifier.py:318:                        "selection_reason": claim_obj.get("selection_reason", ""),
+  video_module\video_verifier.py:319:                        "claim_verdict": claim_v,
+  video_module\video_verifier.py:320:                        "confidence": confidence,
+> video_module\video_verifier.py:321:                        "evidence_sufficiency": res.get("fusion_report", 
+{}).get("evidence_sufficiency", "UNKNOWN"),
+  video_module\video_verifier.py:322:                        "verification": res,
+  video_module\video_verifier.py:323:                    })
+  video_module\video_verifier.py:324:                    # Extract verdict with strict priority:
+  video_module\video_verifier.py:325:                    # CONTRADICTED (highest severity) > SUPPORTED > INCONCLUSIVE
+  video_module\video_verifier.py:326:                    norm_v = (claim_v or "INCONCLUSIVE").upper()
+  video_module\video_verifier.py:327:                    if norm_v in ("CONTRADICTED", "FAKE", "FALSE"):
+  evidence_brief.py:73:    agreement = source_agreement or {}
+  evidence_brief.py:74:
+  evidence_brief.py:75:    independent_supporting = agreement.get("independent_supporting", 0)
+  evidence_brief.py:76:    independent_contradicting = agreement.get("independent_contradicting", 0)
+> evidence_brief.py:77:    sufficiency = agreement.get("evidence_sufficiency", "none")
+  evidence_brief.py:78:    total_sources = agreement.get("total_sources", 0)
+  evidence_brief.py:79:    total_groups = agreement.get("independence_groups", 0)
+  evidence_brief.py:80:    primary_supporting = agreement.get("primary_supporting_groups", 0)
+  evidence_brief.py:81:    primary_contradicting = agreement.get("primary_contradicting_groups", 0)
+  evidence_brief.py:82:    article_supporting = agreement.get("article_supporting_groups", 0)
+  evidence_brief.py:83:    article_contradicting = agreement.get("article_contradicting_groups", 0)
+  evidence_fusion.py:337:            "correction_groups": 0,
+  evidence_fusion.py:338:            "primary_correction_groups": 0,
+  evidence_fusion.py:339:            "verification_coverage": 0.0,
+  evidence_fusion.py:340:            "agreement_score": 0.0,
+> evidence_fusion.py:341:            "evidence_sufficiency": "none",
+  evidence_fusion.py:342:            "source_decisions": [],
+  evidence_fusion.py:343:            "group_decisions": [],
+  evidence_fusion.py:344:        }
+  evidence_fusion.py:345:
+  evidence_fusion.py:346:    by_source = defaultdict(list)
+  evidence_fusion.py:347:    resolved_flags = {}
+  evidence_fusion.py:566:        "correction_groups": correction_groups,
+  evidence_fusion.py:567:        "primary_correction_groups": primary_correction_groups,
+  evidence_fusion.py:568:        "verification_coverage": verification_coverage,
+  evidence_fusion.py:569:        "agreement_score": round(min(agreement_score, 1.0), 4),
+> evidence_fusion.py:570:        "evidence_sufficiency": sufficiency,
+  evidence_fusion.py:571:        "source_decisions": source_decisions,
+  evidence_fusion.py:572:        "group_decisions": group_decisions,
+  evidence_fusion.py:573:        "unresolved_source_decisions": unresolved_sources,
+  evidence_fusion.py:574:    }
+  evidence_fusion.py:575:
+  evidence_fusion.py:576:
+  final_verdict.py:478:    fusion = _clamp(fusion_score)
+  final_verdict.py:479:
+  final_verdict.py:480:    if verdict == "UNVERIFIED":
+  final_verdict.py:481:        coverage = _clamp(source_agreement.get("verification_coverage", 0))
+> final_verdict.py:482:        sufficiency = source_agreement.get("evidence_sufficiency", "none")
+  final_verdict.py:483:        supporting = source_agreement.get("independent_supporting", 0) or 0
+  final_verdict.py:484:        contradicting = source_agreement.get("independent_contradicting", 0) or 0
+  final_verdict.py:485:
+  final_verdict.py:486:        # No usable evidence at all: confidence must not be presented as a
+  final_verdict.py:487:        # truth probability. Zero coverage means nothing was readable; any
+  final_verdict.py:488:        # coverage with sufficiency "none" means the material was inspected
+  final_verdict.py:650:    return {
+  final_verdict.py:651:        "verdict": verdict,
+  final_verdict.py:652:        "confidence": confidence,
+  final_verdict.py:653:        "confidence_basis": confidence_basis,
+> final_verdict.py:654:        "evidence_sufficiency": agreement.get("evidence_sufficiency", "none"),
+  final_verdict.py:655:        "source_agreement": agreement.get("agreement_score", 0),
+  final_verdict.py:656:        "fusion_score": _clamp(fusion_score),
+  final_verdict.py:657:        "independent_supporting": gate["independent_supporting"],
+  final_verdict.py:658:        "independent_contradicting": gate["independent_contradicting"],
+  final_verdict.py:659:        "primary_supporting_groups": gate["primary_supporting_groups"],
+  final_verdict.py:660:        "primary_contradicting_groups": gate["primary_contradicting_groups"],
+  final_verdict.py:683:        "agents_agree": agents_agree,
+  final_verdict.py:684:        "verdict_overridden_by_evidence": consistency["verdict_overridden_by_evidence"],
+  final_verdict.py:685:        "agent_confidence": verification_confidence,
+  final_verdict.py:686:        "critic_confidence": critic_confidence,
+> final_verdict.py:687:        "supporting_evidence": _primary_evidence("SUPPORT", results),
+> final_verdict.py:688:        "contradicting_evidence": _primary_evidence("CONTRADICTION", results),
+  final_verdict.py:689:        "reasoning": reason,
+  final_verdict.py:690:        "verification_result": verification_output,
+  final_verdict.py:691:        "critic_result": critic_output,
+  final_verdict.py:692:    }
+  image_pipeline.py:88:        verification_result = {
+  image_pipeline.py:89:            "final_verdict": {
+  image_pipeline.py:90:                "verdict": "INSUFFICIENT_VERIFIABLE_CLAIMS",
+  image_pipeline.py:91:                "confidence": None,
+> image_pipeline.py:92:                "evidence_sufficiency": "INSUFFICIENT",
+  image_pipeline.py:93:                "reasoning": (
+  image_pipeline.py:94:                    "No verifiable headline, on-screen text, or factual claim could be 
+extracted "
+  image_pipeline.py:95:                    "from the image. Visual authenticity is evaluated independently via 
+forensic models."
+  image_pipeline.py:96:                ),
+  image_pipeline.py:97:                "total_sources": 0,
+  image_pipeline.py:98:                "supporting_sources": 0,
+  multimodal_router.py:302:            "operation": "Synthesized publisher group votes, calculated harmonic agreement, 
+and applied contradiction thresholds.",
+  multimodal_router.py:303:            "why": "Prevents confirmation bias by evaluating ratio of corroborating versus 
+refuting independent sources.",
+  multimodal_router.py:304:            "tool_or_model": "evidence_fusion.py // Deterministic Fusion Engine",
+  multimodal_router.py:305:            "input_summary": f"{fact_data.get('independent_supporting', 0)} supporting 
+groups vs {fact_data.get('independent_contradicting', 0)} contradicting groups.",
+> multimodal_router.py:306:            "output_summary": f"Evidence Sufficiency: 
+{fact_data.get('evidence_sufficiency', 'UNKNOWN')}; Agreement: {src_agreement_str}.",
+  multimodal_router.py:307:            "metric": {
+  multimodal_router.py:308:                "label": "Source Agreement",
+  multimodal_router.py:309:                "value": src_agreement_pct,
+  multimodal_router.py:310:                "meaning": "Harmonic agreement across distinct publisher groups.",
+  multimodal_router.py:311:                "scale": "0% (Complete conflict) to 100% (Complete corroboration)"
+  multimodal_router.py:312:            },
+  multimodal_router.py:352:            "status": "completed",
+  multimodal_router.py:353:            "operation": "Applied strict evidence rules (evidence holds final veto over LLM 
+agent recommendations).",
+  multimodal_router.py:354:            "why": "Ensures verdicts never hallucinate facts; strictly enforces 2-source 
+corroboration rule.",
+  multimodal_router.py:355:            "tool_or_model": "Deterministic Gate (final_verdict.py)",
+> multimodal_router.py:356:            "input_summary": f"Gate rules evaluated against evidence sufficiency 
+({fact_data.get('evidence_sufficiency')}).",
+  multimodal_router.py:357:            "output_summary": f"Final Verdict: {fact_data.get('verdict') or 'UNVERIFIED'}; 
+Evidence Overrode Agent: {'YES (Vetoed)' if fact_data.get('verdict_overridden_by_evidence') or 
+final_v.get('verdict_overridden_by_evidence') else 'NO (Upheld)'}.",
+  multimodal_router.py:358:            "metric": {
+  multimodal_router.py:359:                "label": "Final Certainty",
+  multimodal_router.py:360:                "value": f"{(fact_data.get('confidence', 0) * 100):.1f}%" if 
+fact_data.get("confidence") is not None else "Calculated",
+  multimodal_router.py:361:                "meaning": "Evidence certainty score factoring NLI score, source tier, and 
+publisher independence.",
+  multimodal_router.py:362:                "scale": "0% - 100%"
+  multimodal_router.py:869:
+  multimodal_router.py:870:def build_unified_response(
+  multimodal_router.py:871:    modality: str,
+  multimodal_router.py:872:    status: str = "success",
+> multimodal_router.py:873:    factual_verification: Optional[Dict[str, Any]] = None,
+  multimodal_router.py:874:    synthetic_media_detection: Optional[Dict[str, Any]] = None,
+  multimodal_router.py:875:    visual_classification: Optional[Dict[str, Any]] = None,
+  multimodal_router.py:876:    transcription: Optional[str] = None,
+  multimodal_router.py:877:    transcription_segments: Optional[List[Dict[str, Any]]] = None,
+  multimodal_router.py:878:    primary_claim: Optional[str] = None,
+  multimodal_router.py:879:    consistency_analysis: Optional[Dict[str, Any]] = None,
+  multimodal_router.py:891:    # Default factual verification structure
+  multimodal_router.py:892:    fact_dict = {
+  multimodal_router.py:893:        "verdict": None,
+  multimodal_router.py:894:        "confidence": None,
+> multimodal_router.py:895:        "evidence_sufficiency": None,
+  multimodal_router.py:896:        "independent_supporting": 0,
+  multimodal_router.py:897:        "independent_contradicting": 0,
+  multimodal_router.py:898:        "contradiction_score": None,
+  multimodal_router.py:899:        "source_agreement": None,
+  multimodal_router.py:900:        "fusion_score": None,
+  multimodal_router.py:901:    }
+> multimodal_router.py:902:    if factual_verification:
+> multimodal_router.py:903:        fact_dict.update(factual_verification)
+  multimodal_router.py:904:
+  multimodal_router.py:905:    return {
+  multimodal_router.py:906:        "modality": modality,
+  multimodal_router.py:907:        "status": status,
+> multimodal_router.py:908:        "factual_verification": fact_dict,
+  multimodal_router.py:909:        "synthetic_media_detection": synthetic_media_detection,
+  multimodal_router.py:910:        "visual_classification": visual_classification,
+  multimodal_router.py:911:        "transcription": transcription,
+  multimodal_router.py:912:        "transcription_segments": transcription_segments,
+  multimodal_router.py:913:        "primary_claim": primary_claim,
+  multimodal_router.py:914:        "consistency_analysis": consistency_analysis,
+  multimodal_router.py:951:
+  multimodal_router.py:952:        fact_data = {
+  multimodal_router.py:953:            "verdict": final_verdict.get("verdict"),
+  multimodal_router.py:954:            "confidence": ((final_verdict.get("confidence") / 100.0) if 
+(isinstance(final_verdict.get("confidence"), (int, float)) and final_verdict.get("confidence") > 1.0) else 
+final_verdict.get("confidence")),
+> multimodal_router.py:955:            "evidence_sufficiency": final_verdict.get("evidence_sufficiency"),
+  multimodal_router.py:956:            "independent_supporting": final_verdict.get("independent_supporting", 0),
+  multimodal_router.py:957:            "independent_contradicting": final_verdict.get("independent_contradicting", 0),
+  multimodal_router.py:958:            "contradiction_score": final_verdict.get("contradiction_score"),
+  multimodal_router.py:959:            "entailment_score": final_verdict.get("entailment_score"),
+  multimodal_router.py:960:            "source_agreement": final_verdict.get("source_agreement"),
+  multimodal_router.py:961:            "fusion_score": final_verdict.get("fusion_score"),
+  multimodal_router.py:1001:
+  multimodal_router.py:1002:        return build_unified_response(
+  multimodal_router.py:1003:            modality="text",
+  multimodal_router.py:1004:            status="partial" if is_partial else "success",
+> multimodal_router.py:1005:            factual_verification=fact_data,
+  multimodal_router.py:1006:            synthetic_media_detection=None,
+  multimodal_router.py:1007:            visual_classification=None,
+  multimodal_router.py:1008:            transcription=None,
+  multimodal_router.py:1009:            primary_claim=clean_claim,
+  multimodal_router.py:1010:            consistency_analysis=None,
+  multimodal_router.py:1011:            case_summary=case_summary,
+  multimodal_router.py:1061:        final_v = verif.get("final_verdict") or {}
+  multimodal_router.py:1062:        fact_data = {
+  multimodal_router.py:1063:            "verdict": final_v.get("verdict"),
+  multimodal_router.py:1064:            "confidence": ((final_v.get("confidence") / 100.0) if 
+(isinstance(final_v.get("confidence"), (int, float)) and final_v.get("confidence") > 1.0) else 
+final_v.get("confidence")),
+> multimodal_router.py:1065:            "evidence_sufficiency": final_v.get("evidence_sufficiency"),
+  multimodal_router.py:1066:            "independent_supporting": final_v.get("independent_supporting", 0),
+  multimodal_router.py:1067:            "independent_contradicting": final_v.get("independent_contradicting", 0),
+  multimodal_router.py:1068:            "contradiction_score": final_v.get("contradiction_score"),
+  multimodal_router.py:1069:            "entailment_score": final_v.get("entailment_score"),
+  multimodal_router.py:1070:            "source_agreement": final_v.get("source_agreement"),
+  multimodal_router.py:1071:            "fusion_score": final_v.get("fusion_score"),
+  multimodal_router.py:1159:
+  multimodal_router.py:1160:        return build_unified_response(
+  multimodal_router.py:1161:            modality="image",
+  multimodal_router.py:1162:            status="success",
+> multimodal_router.py:1163:            factual_verification=fact_data,
+  multimodal_router.py:1164:            synthetic_media_detection=synthetic_data,
+  multimodal_router.py:1165:            visual_classification=None,
+  multimodal_router.py:1166:            transcription=None,
+  multimodal_router.py:1167:            primary_claim=primary_claim,
+  multimodal_router.py:1168:            consistency_analysis=consistency_info,
+  multimodal_router.py:1169:            case_summary=case_summary,
+  multimodal_router.py:1249:
+  multimodal_router.py:1250:        fact_data = {
+  multimodal_router.py:1251:            "verdict": primary_verdict,
+  multimodal_router.py:1252:            "confidence": confidence_val,
+> multimodal_router.py:1253:            "evidence_sufficiency": final_v.get("evidence_sufficiency") or ("INSUFFICIENT" 
+if primary_verdict == "INSUFFICIENT_VERIFIABLE_CLAIMS" else None),
+  multimodal_router.py:1254:            "independent_supporting": final_v.get("independent_supporting", 0),
+  multimodal_router.py:1255:            "independent_contradicting": final_v.get("independent_contradicting", 0),
+  multimodal_router.py:1256:            "contradiction_score": final_v.get("contradiction_score"),
+  multimodal_router.py:1257:            "entailment_score": final_v.get("entailment_score"),
+  multimodal_router.py:1258:            "source_agreement": final_v.get("source_agreement"),
+  multimodal_router.py:1259:            "fusion_score": final_v.get("fusion_score"),
+  multimodal_router.py:1326:
+  multimodal_router.py:1327:        return build_unified_response(
+  multimodal_router.py:1328:            modality="video",
+  multimodal_router.py:1329:            status="success",
+> multimodal_router.py:1330:            factual_verification=fact_data,
+  multimodal_router.py:1331:            synthetic_media_detection=None,  # Video classifier is visual_classification
+  multimodal_router.py:1332:            visual_classification=visual_classification,
+  multimodal_router.py:1333:            transcription=transcription_text,
+  multimodal_router.py:1334:            transcription_segments=_extract_transcription_segments(result),
+  multimodal_router.py:1335:            primary_claim=primary_claim_analyzed,
+  multimodal_router.py:1336:            consistency_analysis=result.get("consistency_analysis"),
+  multimodal_router.py:1393:            max_claims_to_verify=max_claims_to_verify,
+  multimodal_router.py:1394:        )
+  multimodal_router.py:1395:
+  multimodal_router.py:1396:        status = result.get("status", "success")
+> multimodal_router.py:1397:        factual_res = result.get("factual_verification") or {}
+  multimodal_router.py:1398:        details = factual_res.get("details") or {}
+  multimodal_router.py:1399:        verif_sub = factual_res.get("verification") or {}
+  multimodal_router.py:1400:        final_v = verif_sub.get("final_verdict") or {}
+  multimodal_router.py:1401:
+  multimodal_router.py:1402:        verdict_val = factual_res.get("verdict")
+  multimodal_router.py:1403:        confidence_val = factual_res.get("confidence")
+  multimodal_router.py:1406:
+  multimodal_router.py:1407:        fact_data = {
+  multimodal_router.py:1408:            "verdict": verdict_val,
+  multimodal_router.py:1409:            "confidence": confidence_val,
+> multimodal_router.py:1410:            "evidence_sufficiency": factual_res.get("evidence_sufficiency"),
+  multimodal_router.py:1411:            "independent_supporting": details.get("independent_supporting", 0),
+  multimodal_router.py:1412:            "independent_contradicting": details.get("independent_contradicting", 0),
+  multimodal_router.py:1413:            "contradiction_score": details.get("contradiction_score"),
+  multimodal_router.py:1414:            "entailment_score": details.get("entailment_score"),
+  multimodal_router.py:1415:            "source_agreement": details.get("source_agreement"),
+  multimodal_router.py:1416:            "fusion_score": details.get("fusion_score"),
+  multimodal_router.py:1477:
+  multimodal_router.py:1478:        return build_unified_response(
+  multimodal_router.py:1479:            modality="audio",
+  multimodal_router.py:1480:            status=status,
+> multimodal_router.py:1481:            factual_verification=fact_data,
+  multimodal_router.py:1482:            synthetic_media_detection=synth_data,
+  multimodal_router.py:1483:            visual_classification=None,
+  multimodal_router.py:1484:            transcription=transcription_text,
+  multimodal_router.py:1485:            primary_claim=primary_claim,
+  multimodal_router.py:1486:            consistency_analysis=result.get("consistency_analysis"),
+  multimodal_router.py:1487:            case_summary=case_summary,
+  pipeline.py:638:    print(
+  pipeline.py:639:        f"  Independent contra    : {state['source_agreement']['independent_contradicting']}"
+  pipeline.py:640:    )
+  pipeline.py:641:    print(
+> pipeline.py:642:        f"  Evidence sufficiency  : {state['source_agreement']['evidence_sufficiency']}"
+  pipeline.py:643:    )
+  pipeline.py:644:    print(
+  pipeline.py:645:        f"  Agreement score       : {state['source_agreement']['agreement_score']}"
+  pipeline.py:646:    )
+  pipeline.py:647:
+  pipeline.py:648:    print(
+  pipeline.py:848:    )
+  pipeline.py:849:
+  pipeline.py:850:    print(
+  pipeline.py:851:        state["final_verdict"].get(
+> pipeline.py:852:            "evidence_sufficiency",
+  pipeline.py:853:            "none"
+  pipeline.py:854:        )
+  pipeline.py:855:    )
+  pipeline.py:856:
+  pipeline.py:857:
+  pipeline.py:858:    print(
+  research_report.py:174:    Return the research-engine state for the modality, if research ran.
+  research_report.py:175:
+  research_report.py:176:    * text  - the pipeline state is the research state;
+  research_report.py:177:    * image - ``verification`` holds the research state (or a no-claim stub);
+> research_report.py:178:    * audio - ``factual_verification.verification`` holds the research state;
+  research_report.py:179:    * video - the state carries claim-level results instead.
+  research_report.py:180:    """
+  research_report.py:181:    if not isinstance(state, dict):
+  research_report.py:182:        return None
+  research_report.py:183:
+  research_report.py:184:    if modality == "image":
+  research_report.py:187:            return candidate
+  research_report.py:188:        return None
+  research_report.py:189:
+  research_report.py:190:    if modality == "audio":
+> research_report.py:191:        fv = state.get("factual_verification")
+  research_report.py:192:        if isinstance(fv, dict):
+  research_report.py:193:            candidate = fv.get("verification")
+  research_report.py:194:            if isinstance(candidate, dict):
+  research_report.py:195:                return candidate
+  research_report.py:196:        return None
+  research_report.py:197:
+  research_report.py:937:            results.append({
+  research_report.py:938:                "claim_text": entry.get("claim") or None,
+  research_report.py:939:                "verdict": final_v.get("verdict"),
+  research_report.py:940:                "confidence": confidence,
+> research_report.py:941:                "evidence_sufficiency": final_v.get("evidence_sufficiency"),
+  research_report.py:942:                "reasoning": _clean_text(final_v.get("reasoning")) or None,
+> research_report.py:943:                "supporting_evidence": final_v.get("supporting_evidence") or [],
+> research_report.py:944:                "contradicting_evidence": final_v.get("contradicting_evidence") or [],
+  research_report.py:945:                "source_name": None,
+  research_report.py:946:                "source_url": None,
+  research_report.py:947:                "timestamps": entry.get("timestamps"),
+  research_report.py:948:                "frame_references": entry.get("frame_references"),
+  research_report.py:949:                "source_modality": entry.get("source_modality"),
+  research_report.py:950:                "selection_reason": entry.get("selection_reason"),
+  research_report.py:964:    confidence = _as_float(final_v.get("confidence"))
+  research_report.py:965:    if confidence is not None and confidence > 1.0:
+  research_report.py:966:        confidence = confidence / 100.0
+  research_report.py:967:
+> research_report.py:968:    supporting = final_v.get("supporting_evidence") or []
+> research_report.py:969:    contradicting = final_v.get("contradicting_evidence") or []
+  research_report.py:970:
+  research_report.py:971:    def _first_link(items: Any) -> Tuple[Optional[str], Optional[str]]:
+  research_report.py:972:        if not isinstance(items, list) or not items:
+  research_report.py:973:            return None, None
+  research_report.py:974:        first = items[0]
+  research_report.py:975:        if not isinstance(first, dict):
+  research_report.py:983:    return [{
+  research_report.py:984:        "claim_text": primary_claim,
+  research_report.py:985:        "verdict": final_v.get("verdict"),
+  research_report.py:986:        "confidence": confidence,
+> research_report.py:987:        "evidence_sufficiency": final_v.get("evidence_sufficiency"),
+  research_report.py:988:        "reasoning": _clean_text(final_v.get("reasoning")) or None,
+> research_report.py:989:        "supporting_evidence": supporting,
+> research_report.py:990:        "contradicting_evidence": contradicting,
+  research_report.py:991:        "source_name": support_domain or contradict_domain,
+  research_report.py:992:        "source_url": support_url or contradict_url,
+  research_report.py:993:        "timestamps": None,
+  research_report.py:994:        "frame_references": None,
+  research_report.py:995:        "source_modality": modality,
+  research_report.py:996:        "selection_reason": None,
+  research_report.py:1157:def _audio_skip_reason(state: Dict[str, Any]) -> str:
+  research_report.py:1158:    """
+  research_report.py:1159:    Explain, from the audio pipeline's own records, why no claim was researched.
+  research_report.py:1160:    """
+> research_report.py:1161:    factual = state.get("factual_verification")
+  research_report.py:1162:    if isinstance(factual, dict) and factual.get("enabled") is False:
+  research_report.py:1163:        return (
+  research_report.py:1164:            "Factual claim research was not enabled for this request, so no claim was "
+  research_report.py:1165:            "sent to the evidence engine and no web research was performed."
+  research_report.py:1166:        )
+  research_report.py:1167:
+  test_evidence_engine.py:694:                   for i in range(6)]
+  test_evidence_engine.py:695:        agreement = calculate_source_agreement(results)
+  test_evidence_engine.py:696:        self.assertEqual(agreement["total_sources"], 1)
+  test_evidence_engine.py:697:        self.assertEqual(agreement["independent_supporting"], 1)
+> test_evidence_engine.py:698:        self.assertEqual(agreement["evidence_sufficiency"], "single_source")
+  test_evidence_engine.py:699:
+  test_evidence_engine.py:700:    def test_domains_are_not_publishers(self):
+  test_evidence_engine.py:701:        results = [
+  test_evidence_engine.py:702:            chunk(1, "https://www.ndtv.com/a", "SUPPORT", 0.9),
+  test_evidence_engine.py:703:            chunk(2, "https://m.ndtv.com/b", "SUPPORT", 0.9, group="ndtv.com"),
+  test_evidence_engine.py:704:            chunk(3, "https://www.bbc.com/c", "SUPPORT", 0.9),
+  test_evidence_engine.py:734:        self.assertLessEqual(calculate_fusion_score(results, agreement), 0.50)
+  test_evidence_engine.py:735:
+  test_evidence_engine.py:736:    def test_no_evidence(self):
+  test_evidence_engine.py:737:        agreement = calculate_source_agreement([])
+> test_evidence_engine.py:738:        self.assertEqual(agreement["evidence_sufficiency"], "none")
+  test_evidence_engine.py:739:        self.assertEqual(calculate_fusion_score([], agreement), 0.0)
+  test_evidence_engine.py:740:
+  test_evidence_engine.py:741:
+  test_evidence_engine.py:742:# ============================================================
+  test_evidence_engine.py:743:# FINAL VERDICT
+  test_evidence_engine.py:744:# ============================================================
+  test_image_new_fields.py:19:print("\n--- RESULT ---")
+  test_image_new_fields.py:20:print("Status:", result["status"])
+  test_image_new_fields.py:21:print("Modality:", result["modality"])
+  test_image_new_fields.py:22:print("Primary Claim:", result.get("primary_claim", "N/A"))
+> test_image_new_fields.py:23:print("Factual Verdict:", result["factual_verification"]["verdict"])
+  test_image_new_fields.py:24:
+  test_image_new_fields.py:25:synth = result.get("synthetic_media_detection") or {}
+  test_image_new_fields.py:26:print("\n--- SYNTHETIC MEDIA DETECTION ---")
+  test_image_new_fields.py:27:print("Available:", synth.get("available"))
+  test_image_new_fields.py:28:print("Signal:", synth.get("signal"))
+  test_image_new_fields.py:29:print("Confidence:", synth.get("confidence"))
+
+

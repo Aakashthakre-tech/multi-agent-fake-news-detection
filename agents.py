@@ -5,6 +5,8 @@ from langchain_core.output_parsers import StrOutputParser
 from tools import web_search, scrape_url
 from dotenv import load_dotenv
 import os
+import random
+import time
 
 load_dotenv()
 
@@ -13,12 +15,136 @@ load_dotenv()
 # MODEL SETUP
 # ============================================================
 
+# The single source of truth for which LLM the verification and critic agents
+# use. The API reports this value so the UI never claims a model that is not
+# actually running.
+MODEL_NAME = "qwen/qwen3.8-27b"
+MODEL_PROVIDER = "Groq"
+
+# Finite request timeout: Groq calls must not block the pipeline indefinitely.
+AGENT_REQUEST_TIMEOUT_SECONDS = 60
+
 llm = ChatGroq(
-    model="qwen/qwen3.8-27b",
+    model=MODEL_NAME,
     temperature=0,
     max_tokens=900,
-    api_key=os.getenv("GROQ_API_KEY")
+    api_key=os.getenv("GROQ_API_KEY"),
+    timeout=AGENT_REQUEST_TIMEOUT_SECONDS,
+    max_retries=0,  # Retries are handled by invoke_agent; disable ChatGroq's own.
 )
+
+
+# ============================================================
+# BOUNDED PROVIDER RETRY
+# ============================================================
+#
+# The provider enforces a per-minute token limit. A request that trips it
+# succeeds a short time later, so the call is retried here rather than
+# aborting a run whose retrieval, scraping and NLI work is already done.
+# The attempt count is bounded, the wait honours the provider's own retry
+# hint when it supplies one, and a non-retryable error is raised at once.
+
+AGENT_MAX_ATTEMPTS = 4
+AGENT_RETRY_BASE_SECONDS = 5.0
+AGENT_RETRY_MAX_SECONDS = 90.0
+
+_RETRYABLE_STATUS = {408, 409, 425, 429, 500, 502, 503, 504}
+
+
+def _error_status(error):
+    status = getattr(error, "status_code", None)
+    if status is None:
+        response = getattr(error, "response", None)
+        status = getattr(response, "status_code", None)
+    return status
+
+
+def _retry_after_seconds(error):
+    """The provider's own retry hint, when it supplies one."""
+    response = getattr(error, "response", None)
+    headers = getattr(response, "headers", None)
+    if headers:
+        for key in ("retry-after", "Retry-After"):
+            raw = headers.get(key)
+            if raw:
+                try:
+                    return max(0.0, float(str(raw).strip()))
+                except (TypeError, ValueError):
+                    continue
+    return None
+
+
+def _is_retryable(error):
+    if _error_status(error) in _RETRYABLE_STATUS:
+        return True
+    name = type(error).__name__.lower()
+    return any(marker in name for marker in ("ratelimit", "timeout", "internalserver", "overloaded"))
+
+
+def _error_category(error) -> str:
+    """Human-readable error category for logging (never contains secrets)."""
+    status = _error_status(error)
+    if status == 429:
+        return "rate_limit"
+    if status in (401, 403):
+        return "auth"
+    if status in (500, 502, 503, 504):
+        return "server_error"
+    if status == 408:
+        return "timeout"
+    name = type(error).__name__.lower()
+    if "timeout" in name:
+        return "timeout"
+    if "ratelimit" in name:
+        return "rate_limit"
+    if "internalserver" in name or "overloaded" in name:
+        return "server_error"
+    return "client_error"
+
+
+def invoke_agent(chain, payload, stage="agent"):
+    """
+    Run one agent chain, retrying transient provider errors a bounded number
+    of times.
+
+    Returns the agent's text. If every attempt fails the last error is
+    raised, so the caller can record which stage failed and why instead of
+    pretending the whole verification succeeded.
+    """
+    delay = AGENT_RETRY_BASE_SECONDS
+    last_error = None
+    start_time = time.monotonic()
+
+    for attempt in range(1, AGENT_MAX_ATTEMPTS + 1):
+        try:
+            return chain.invoke(payload)
+        except Exception as error:
+            last_error = error
+            category = _error_category(error)
+            elapsed = time.monotonic() - start_time
+
+            if attempt >= AGENT_MAX_ATTEMPTS or not _is_retryable(error):
+                print(
+                    f"  [{stage}] {category} error "
+                    f"({type(error).__name__}) after {elapsed:.1f}s "
+                    f"(attempt {attempt}/{AGENT_MAX_ATTEMPTS}); not retrying."
+                )
+                raise
+
+            wait = _retry_after_seconds(error)
+            if wait is None:
+                wait = delay
+                delay = min(delay * 2, AGENT_RETRY_MAX_SECONDS)
+            wait = min(max(wait, 1.0), AGENT_RETRY_MAX_SECONDS)
+            print(
+                f"  [{stage}] {category} error "
+                f"({type(error).__name__}); retrying in {wait:.0f}s "
+                f"(attempt {attempt}/{AGENT_MAX_ATTEMPTS}, "
+                f"elapsed {elapsed:.1f}s, model={MODEL_NAME})"
+            )
+            time.sleep(wait)
+
+    raise last_error
 
 
 # ============================================================
@@ -112,6 +238,26 @@ SOURCE QUALITY RULE
   context only. They may never establish or refute a claim.
 """
 
+_PROPOSITION_RULE = """
+============================================================
+PROPOSITION RULE (for general factual claims)
+============================================================
+
+Some claims are general propositions, not dated events
+(for example: "Water boils at 100°C at standard atmospheric pressure").
+
+For these claims:
+- The DATE RULE does not apply: no date or location is required.
+- The EVENT IDENTITY RULE does not apply: there is no incident to match.
+- Evidence must directly support or contradict the proposition itself,
+  not merely discuss the same topic.
+- NLI entailment means the passage states the same proposition.
+- NLI contradiction means the passage states a different proposition.
+- High semantic similarity alone is NOT proof.
+- Independent publisher corroboration is still required for a settled
+  verdict: one publisher cannot establish or refute a general fact.
+"""
+
 
 # ============================================================
 # 1. RESEARCH AGENT
@@ -177,13 +323,15 @@ Return only collected evidence.
 
 verification_prompt = ChatPromptTemplate.from_messages([
 
-    (
-        "system",
-        f"""
+        (
+            "system",
+            f"""
 You are a STRICT EVIDENCE-BOUND FACT-CHECKING ENGINE.
 
 Your ONLY job is to decide whether the CLAIM is supported or refuted by the
 EVIDENCE PACKAGE supplied below.
+
+Claim type: {{claim_type}}
 
 {_EVIDENCE_BOUNDARY_RULES}
 
@@ -194,6 +342,8 @@ EVIDENCE PACKAGE supplied below.
 {_EVENT_IDENTITY_RULE}
 
 {_SOURCE_QUALITY_RULE}
+
+{_PROPOSITION_RULE}
 
 ============================================================
 EVIDENCE LAYER (ALREADY COMPUTED - DO NOT RECOMPUTE)
@@ -287,12 +437,12 @@ Final Explanation:
 ...
 
 Do not add any additional sections.
-"""
-    ),
+""",
+        ),
 
-    (
-        "human",
-        """
+        (
+            "human",
+            """
 ============================================================
 CLAIM
 ============================================================
@@ -345,9 +495,8 @@ Reasoning:
 Final Explanation:
 ...
 """
-    )
-])
-
+        )
+    ])
 
 verification_chain = (
     verification_prompt
@@ -369,6 +518,8 @@ You are a STRICT FACT-CHECKING REVIEWER.
 
 You review the Verification Agent's conclusion.
 
+Claim type: {{claim_type}}
+
 You MUST use ONLY:
 
 1. The original claim
@@ -384,6 +535,8 @@ You MUST use ONLY:
 {_EVENT_IDENTITY_RULE}
 
 {_SOURCE_QUALITY_RULE}
+
+{_PROPOSITION_RULE}
 
 ============================================================
 WHAT TO CHECK
